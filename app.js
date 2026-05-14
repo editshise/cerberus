@@ -149,13 +149,14 @@ const storage = {
 let products = storage.get("cerberusProducts", defaultProducts);
 let cart = storage.get("cerberusCart", []);
 let orders = storage.get("cerberusOrders", []);
-let profile = storage.get("cerberusProfile", { nickname: "", city: "", contact: "" });
+let profile = storage.get("cerberusProfile", { nickname: "", avatar: "", bio: "", photoUrl: "", city: "", contact: "", completedDeals: 0 });
 let wallet = storage.get("cerberusWallet", { balance: 500, activity: ["Стартовый баланс: +500 CRB"] });
 let accounts = storage.get("cerberusAccounts", defaultAccounts);
 let session = storage.get("cerberusSession", null);
 let vendors = storage.get("cerberusVendors", defaultVendors);
 let conversations = storage.get("cerberusConversations", []);
 let activeConversationId = storage.get("cerberusActiveConversation", null);
+let globalChat = storage.get("cerberusGlobalChat", []);
 let announcements = storage.get("cerberusAnnouncements", defaultAnnouncements);
 let selectedVendorName = storage.get("cerberusSelectedVendor", vendors[0]?.name || "");
 let activeFilters = storage.get("cerberusFilters", {
@@ -176,6 +177,16 @@ let authMode = "login";
 let captchaAnswer = 0;
 
 products = products.map((product, index) => ({ order: index, ...product }));
+profile = {
+  nickname: "",
+  avatar: "",
+  bio: "",
+  photoUrl: "",
+  city: "",
+  contact: "",
+  completedDeals: 0,
+  ...profile
+};
 accounts = accounts.map((account) => ({
   ...account,
   login: String(account.login || "").trim(),
@@ -267,12 +278,15 @@ const el = {
   chatThread: document.querySelector("#chatThread"),
   chatForm: document.querySelector("#chatForm"),
   newSupportChat: document.querySelector("#newSupportChat"),
+  globalChatList: document.querySelector("#globalChatList"),
+  globalChatForm: document.querySelector("#globalChatForm"),
   newsList: document.querySelector("#newsList"),
   markNewsRead: document.querySelector("#markNewsRead"),
   walletBalance: document.querySelector("#walletBalance"),
   addCredits: document.querySelector("#addCredits"),
   activityList: document.querySelector("#activityList"),
   profileForm: document.querySelector("#profileForm"),
+  profilePreview: document.querySelector("#profilePreview"),
   productForm: document.querySelector("#productForm"),
   vendorForm: document.querySelector("#vendorForm"),
   broadcastForm: document.querySelector("#broadcastForm"),
@@ -307,6 +321,7 @@ function persist() {
     storage.set("cerberusVendors", vendors),
     storage.set("cerberusConversations", conversations),
     storage.set("cerberusActiveConversation", activeConversationId),
+    storage.set("cerberusGlobalChat", globalChat),
     storage.set("cerberusAnnouncements", announcements),
     storage.set("cerberusSelectedVendor", selectedVendorName),
     storage.set("cerberusFilters", activeFilters),
@@ -321,6 +336,46 @@ function money(value) {
 
 function normalizeLogin(value) {
   return String(value || "").trim().toLowerCase();
+}
+
+function currentUserName() {
+  return profile.nickname?.trim() || session?.login || "Пользователь";
+}
+
+function profileAvatar() {
+  return profile.avatar?.trim() || "assets/cerberus-logo-transparent.png";
+}
+
+function profileScore() {
+  return orders.length + Number(profile.completedDeals || 0);
+}
+
+function rankForScore(score) {
+  if (score >= 50) return { name: "Легенда", className: "rank-legend" };
+  if (score >= 25) return { name: "Элита", className: "rank-elite" };
+  if (score >= 12) return { name: "Ветеран", className: "rank-veteran" };
+  if (score >= 7) return { name: "Сержант", className: "rank-sergeant" };
+  if (score >= 3) return { name: "Рядовой", className: "rank-private" };
+  return { name: "Новичок", className: "rank-newbie" };
+}
+
+function currentRank() {
+  return rankForScore(profileScore());
+}
+
+function renderMedia(message) {
+  if (!message.mediaUrl) return "";
+  const url = escapeHtml(message.mediaUrl);
+  if (message.mediaType === "image") {
+    return `<img class="chat-media" src="${url}" alt="">`;
+  }
+  if (message.mediaType === "video") {
+    return `<video class="chat-media" src="${url}" controls></video>`;
+  }
+  if (message.mediaType === "audio") {
+    return `<audio class="chat-media" src="${url}" controls></audio>`;
+  }
+  return `<a class="chat-media-link" href="${url}" target="_blank" rel="noreferrer">Открыть медиа</a>`;
 }
 
 function escapeHtml(value) {
@@ -640,6 +695,44 @@ function renderConversations() {
   });
 }
 
+function renderGlobalChat() {
+  el.globalChatList.innerHTML = "";
+  if (!globalChat.length) {
+    el.globalChatList.innerHTML = '<div class="empty-state">Пока нет сообщений. Будь первым.</div>';
+    return;
+  }
+
+  globalChat.forEach((message) => {
+    const item = document.createElement("article");
+    item.className = "global-chat-message";
+    const canManage = message.authorKey === normalizeLogin(session?.login) || session?.login === "admin";
+    item.innerHTML = `
+      <img src="${escapeHtml(message.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
+      <div>
+        <div class="global-chat-head">
+          <strong>${escapeHtml(message.author || "Пользователь")}</strong>
+          <span class="rank-badge ${escapeHtml(message.rankClass || "rank-newbie")}">${escapeHtml(message.rank || "Новичок")}</span>
+          <small>${escapeHtml(message.time)}</small>
+        </div>
+        <p>${escapeHtml(message.text)}</p>
+        ${renderMedia(message)}
+        <div class="message-tools">
+          <button type="button" data-action="react" data-emoji="👍">👍 ${message.reactions?.["👍"] || ""}</button>
+          <button type="button" data-action="react" data-emoji="🔥">🔥 ${message.reactions?.["🔥"] || ""}</button>
+          <button type="button" data-action="react" data-emoji="✅">✅ ${message.reactions?.["✅"] || ""}</button>
+          ${canManage ? '<button type="button" data-action="edit">Изменить</button><button type="button" data-action="delete">Удалить у всех</button>' : ""}
+        </div>
+      </div>
+    `;
+    item.querySelectorAll("[data-action='react']").forEach((button) => {
+      button.addEventListener("click", () => reactGlobalMessage(message.id, button.dataset.emoji));
+    });
+    item.querySelector("[data-action='edit']")?.addEventListener("click", () => editGlobalMessage(message.id));
+    item.querySelector("[data-action='delete']")?.addEventListener("click", () => deleteGlobalMessage(message.id));
+    el.globalChatList.append(item);
+  });
+}
+
 function renderNews() {
   el.newsList.innerHTML = "";
   if (!announcements.length) {
@@ -683,7 +776,23 @@ function renderWallet() {
 }
 
 function renderProfile() {
+  const rank = currentRank();
+  el.profilePreview.innerHTML = `
+    <div class="profile-preview-head">
+      <img src="${escapeHtml(profileAvatar())}" alt="">
+      <div>
+        <strong>${escapeHtml(currentUserName())}</strong>
+        <span class="rank-badge ${rank.className}">${rank.name}</span>
+        <p>${profileScore()} завершенных действий: покупки и закрытые обмены.</p>
+      </div>
+    </div>
+    ${profile.bio ? `<p>${escapeHtml(profile.bio)}</p>` : ""}
+    ${profile.photoUrl ? `<img class="profile-cover-photo" src="${escapeHtml(profile.photoUrl)}" alt="">` : ""}
+  `;
   el.profileForm.nickname.value = profile.nickname;
+  el.profileForm.avatar.value = profile.avatar;
+  el.profileForm.bio.value = profile.bio;
+  el.profileForm.photoUrl.value = profile.photoUrl;
   el.profileForm.city.value = profile.city;
   el.profileForm.contact.value = profile.contact;
 }
@@ -862,6 +971,7 @@ function renderVendorCabinet() {
       <span>${last ? escapeHtml(last.text) : "Новый диалог"}</span>
       <input name="reply" maxlength="220" placeholder="Ответить клиенту от имени магазина">
       <button class="primary-button" type="submit">Ответить</button>
+      ${vendor.type === "Обменники" ? `<button class="ghost-button" type="button" data-action="complete">${conversation.completed ? "Закрыто" : "Закрыть сделку +1"}</button>` : ""}
     `;
     item.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -870,6 +980,7 @@ function renderVendorCabinet() {
       item.reset();
       render();
     });
+    item.querySelector('[data-action="complete"]')?.addEventListener("click", () => completeExchangeConversation(conversation.id));
     el.vendorMessageList.append(item);
   });
 
@@ -930,6 +1041,65 @@ function replyAsVendor(conversationId, text) {
     time: new Date().toLocaleString("ru-RU")
   });
   wallet.activity.push(`Магазин ответил в диалоге ${conversation.title}`);
+}
+
+function completeExchangeConversation(conversationId) {
+  const conversation = conversations.find((item) => item.id === conversationId);
+  if (!conversation || conversation.completed) return;
+  conversation.completed = true;
+  conversation.completedAt = new Date().toISOString();
+  profile.completedDeals = Number(profile.completedDeals || 0) + 1;
+  conversation.messages.push({
+    from: "them",
+    text: "Сделка закрыта сотрудником обменника. Клиенту начислен +1 к репутации.",
+    time: new Date().toLocaleString("ru-RU")
+  });
+  wallet.activity.push(`Закрыта обменная сделка: +1 к репутации`);
+  render();
+}
+
+function sendGlobalMessage(data) {
+  const text = data.text.trim();
+  const mediaUrl = data.mediaUrl.trim();
+  if (!text && !mediaUrl) return;
+  const rank = currentRank();
+  globalChat.push({
+    id: uid(),
+    authorKey: normalizeLogin(session?.login),
+    author: currentUserName(),
+    avatar: profileAvatar(),
+    rank: rank.name,
+    rankClass: rank.className,
+    text: text || "Медиа",
+    mediaType: data.mediaType,
+    mediaUrl,
+    reactions: {},
+    time: new Date().toLocaleString("ru-RU")
+  });
+  render();
+}
+
+function reactGlobalMessage(id, emoji) {
+  const message = globalChat.find((item) => item.id === id);
+  if (!message) return;
+  message.reactions = message.reactions || {};
+  message.reactions[emoji] = (message.reactions[emoji] || 0) + 1;
+  render();
+}
+
+function editGlobalMessage(id) {
+  const message = globalChat.find((item) => item.id === id);
+  if (!message) return;
+  const next = window.prompt("Изменить сообщение", message.text);
+  if (next === null) return;
+  message.text = next.trim() || message.text;
+  message.editedAt = new Date().toISOString();
+  render();
+}
+
+function deleteGlobalMessage(id) {
+  globalChat = globalChat.filter((item) => item.id !== id);
+  render();
 }
 
 function saveProductEditor(id, container) {
@@ -1255,6 +1425,7 @@ function render() {
   renderCart();
   renderOrders();
   renderConversations();
+  renderGlobalChat();
   renderNews();
   renderWallet();
   renderProfile();
@@ -1396,6 +1567,7 @@ function resetCatalog() {
   conversations = [];
   activeConversationId = null;
   announcements = defaultAnnouncements.map((item) => ({ ...item, id: uid(), createdAt: new Date().toLocaleString("ru-RU") }));
+  globalChat = [];
   wallet = { balance: 500, activity: ["Каталог сброшен: +500 CRB"] };
   activeCategory = "Все";
   render();
@@ -1454,6 +1626,19 @@ el.chatForm.addEventListener("submit", (event) => {
   el.chatForm.reset();
   render();
 });
+el.globalChatForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(el.globalChatForm).entries());
+  sendGlobalMessage(data);
+  el.globalChatForm.reset();
+});
+el.globalChatForm.querySelectorAll("[data-emoji]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const input = el.globalChatForm.elements.text;
+    input.value = `${input.value}${button.dataset.emoji}`;
+    input.focus();
+  });
+});
 el.markNewsRead.addEventListener("click", () => {
   announcements = announcements.map((item) => ({ ...item, read: true }));
   wallet.activity.push("Новости отмечены как прочитанные");
@@ -1483,7 +1668,10 @@ el.addCredits.addEventListener("click", () => {
 });
 el.profileForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  profile = Object.fromEntries(new FormData(el.profileForm).entries());
+  profile = {
+    ...profile,
+    ...Object.fromEntries(new FormData(el.profileForm).entries())
+  };
   wallet.activity.push(`Профиль обновлен: ${profile.nickname || "без ника"}`);
   render();
 });

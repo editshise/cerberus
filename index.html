@@ -88,6 +88,10 @@
           <span class="nav-icon">✉</span>
           <span>Сообщения</span>
         </button>
+        <button class="nav-item" data-view="globalChat">
+          <span class="nav-icon">☰</span>
+          <span>Общий чат</span>
+        </button>
         <button class="nav-item" data-view="news">
           <span class="nav-icon">!</span>
           <span>Новости</span>
@@ -225,6 +229,35 @@
         <div class="news-list" id="newsList"></div>
       </section>
 
+      <section class="view" id="globalChatView">
+        <div class="section-head">
+          <div>
+            <h2>Общий чат</h2>
+            <p>Сообщения пользователей Cerberus с аватарками, именами и рангами.</p>
+          </div>
+        </div>
+        <div class="global-chat-panel">
+          <div class="global-chat-list" id="globalChatList"></div>
+          <form class="global-chat-form" id="globalChatForm">
+            <input name="text" maxlength="320" placeholder="Написать в общий чат">
+            <select name="mediaType" aria-label="Тип медиа">
+              <option value="">Без медиа</option>
+              <option value="image">Фото</option>
+              <option value="video">Видео</option>
+              <option value="audio">Голосовое/аудио</option>
+            </select>
+            <input name="mediaUrl" maxlength="700" placeholder="Ссылка на медиа">
+            <div class="emoji-row">
+              <button type="button" data-emoji="👍">👍</button>
+              <button type="button" data-emoji="🔥">🔥</button>
+              <button type="button" data-emoji="💬">💬</button>
+              <button type="button" data-emoji="✅">✅</button>
+            </div>
+            <button class="primary-button" type="submit">Отправить</button>
+          </form>
+        </div>
+      </section>
+
       <section class="view" id="walletView">
         <div class="section-head">
           <div>
@@ -253,9 +286,22 @@
           </div>
         </div>
         <form class="profile-form" id="profileForm">
+          <div class="profile-preview wide" id="profilePreview"></div>
           <label>
             Никнейм
             <input name="nickname" maxlength="24" placeholder="ghost_user">
+          </label>
+          <label>
+            Аватар
+            <input name="avatar" maxlength="700" placeholder="https://... или assets/cerberus-logo-transparent.png">
+          </label>
+          <label class="wide">
+            Описание
+            <textarea name="bio" maxlength="260" placeholder="Расскажи о себе для профиля"></textarea>
+          </label>
+          <label class="wide">
+            Фото в профиль
+            <input name="photoUrl" maxlength="700" placeholder="Ссылка на фото профиля">
           </label>
           <label>
             Город
