@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cerberus Market</title>
+  <link rel="icon" type="image/png" href="assets/cerberus-logo-transparent.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#080808">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Cerberus">
+  <link rel="apple-touch-icon" href="assets/cerberus-logo-transparent.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-locked">
+  <section class="auth-screen" id="authScreen" aria-labelledby="authTitle">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <img class="brand-logo" src="assets/cerberus-logo-transparent.png" alt="Cerberus logo">
+        <div>
+          <strong>Cerberus</strong>
+          <small>secure local access</small>
+        </div>
+      </div>
+      <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация">
+        <button class="is-active" type="button" data-auth-mode="login">Вход</button>
+        <button type="button" data-auth-mode="register">Регистрация</button>
+      </div>
+      <form class="auth-form" id="authForm">
+        <div>
+          <p class="eyebrow">local account</p>
+          <h1 id="authTitle">Войти в Cerberus</h1>
+          <p class="auth-copy">Аккаунт хранится только в браузере на этом ПК. Это демо-защита для локального прототипа.</p>
+        </div>
+        <label>
+          Логин
+          <input name="login" required minlength="3" maxlength="24" autocomplete="username" placeholder="cerberus_user">
+        </label>
+        <label>
+          Пароль
+          <input name="password" required minlength="4" maxlength="48" type="password" autocomplete="current-password" placeholder="Минимум 4 символа">
+        </label>
+        <label class="auth-register-only">
+          Повтор пароля
+          <input name="passwordRepeat" minlength="4" maxlength="48" type="password" autocomplete="new-password" placeholder="Повтори пароль">
+        </label>
+        <div class="captcha-box">
+          <div>
+            <span>Проверка</span>
+            <strong id="captchaQuestion">0 + 0 = ?</strong>
+          </div>
+          <button class="ghost-button" type="button" id="captchaRefresh">Обновить</button>
+        </div>
+        <label>
+          Ответ
+          <input name="captcha" required inputmode="numeric" placeholder="Введите число">
+        </label>
+        <label class="check-row">
+          <input name="humanCheck" type="checkbox" required>
+          <span>Я не бот и использую локальный демо-сайт легально</span>
+        </label>
+        <p class="auth-error" id="authError" role="alert"></p>
+        <button class="primary-button" type="submit" id="authSubmit">Войти</button>
+      </form>
+    </div>
+  </section>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#home" aria-label="Cerberus Market">
+        <img class="brand-logo" src="assets/cerberus-logo-transparent.png" alt="Cerberus logo">
+        <span>
+          <strong>Cerberus</strong>
+          <small>local market</small>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Основная навигация">
+        <button class="nav-item is-active" data-view="market">
+          <span class="nav-icon">⌂</span>
+          <span>Маркет</span>
+        </button>
+        <button class="nav-item" data-view="orders">
+          <span class="nav-icon">≡</span>
+          <span>Заказы</span>
+        </button>
+        <button class="nav-item" data-view="messages">
+          <span class="nav-icon">✉</span>
+          <span>Сообщения</span>
+        </button>
+        <button class="nav-item" data-view="news">
+          <span class="nav-icon">!</span>
+          <span>Новости</span>
+        </button>
+        <button class="nav-item" data-view="wallet">
+          <span class="nav-icon">◇</span>
+          <span>Баланс</span>
+        </button>
+        <button class="nav-item" data-view="profile">
+          <span class="nav-icon">◉</span>
+          <span>Профиль</span>
+        </button>
+        <button class="nav-item" data-view="vendor">
+          <span class="nav-icon">▣</span>
+          <span>Магазин</span>
+        </button>
+        <button class="nav-item" data-view="admin">
+          <span class="nav-icon">⚙</span>
+          <span>Админ</span>
+        </button>
+      </nav>
+
+      <div class="trust-panel">
+        <div>
+          <span class="trust-label">Статус</span>
+          <strong>Локальный демо-режим</strong>
+        </div>
+        <div class="meter" aria-hidden="true"><span></span></div>
+        <p>Данные сохраняются только в браузере на этом ПК.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="search-wrap">
+          <span aria-hidden="true">⌕</span>
+          <input id="searchInput" type="search" placeholder="Поиск по витрине, продавцу или городу">
+        </div>
+        <div class="top-actions">
+          <button class="ghost-button" id="installOpen" type="button">Добавить на экран</button>
+          <button class="icon-button" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">◐</button>
+          <button class="cart-button" id="cartToggle" aria-label="Открыть корзину">
+            <span>Корзина</span>
+            <strong id="cartCount">0</strong>
+          </button>
+          <button class="ghost-button" id="logoutButton" type="button">Выйти</button>
+        </div>
+      </header>
+
+      <section class="hero" aria-labelledby="heroTitle">
+        <div class="hero-copy">
+          <p class="eyebrow">private local storefront</p>
+          <h1 id="heroTitle">Cerberus Market</h1>
+          <p>Локальная демо-площадка для легальных цифровых товаров, мерча и услуг. Все сценарии работают без сервера и внешней оплаты.</p>
+        </div>
+        <div class="hero-logo-wrap" aria-hidden="true">
+          <img src="assets/cerberus-logo-transparent.png" alt="">
+        </div>
+        <div class="hero-board" aria-label="Обзор площадки">
+          <div>
+            <span>Сделок</span>
+            <strong id="statOrders">0</strong>
+          </div>
+          <div>
+            <span>Товаров</span>
+            <strong id="statProducts">0</strong>
+          </div>
+          <div>
+            <span>Рейтинг</span>
+            <strong>4.9</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="view is-visible" id="marketView">
+        <div class="section-head">
+          <div>
+            <h2 id="marketTitle">Топ-30 магазинов</h2>
+            <p>Рекомендованные магазины, обменники и услуги Cerberus.</p>
+          </div>
+          <div class="sort-row">
+            <button class="ghost-button" id="filterOpen" type="button">Фильтры</button>
+          </div>
+        </div>
+
+        <div class="category-tabs" id="categoryTabs"></div>
+        <div class="product-grid" id="productGrid"></div>
+      </section>
+
+      <section class="view" id="ordersView">
+        <div class="section-head">
+          <div>
+            <h2>Заказы</h2>
+            <p>История покупок в локальном демо-режиме.</p>
+          </div>
+          <button class="ghost-button" id="clearOrders">Очистить</button>
+        </div>
+        <div class="orders-list" id="ordersList"></div>
+      </section>
+
+      <section class="view" id="messagesView">
+        <div class="section-head">
+          <div>
+            <h2>Сообщения</h2>
+            <p>Локальные диалоги с оператором сайта и продавцами.</p>
+          </div>
+          <button class="ghost-button" id="newSupportChat" type="button">Оператор</button>
+        </div>
+        <div class="messages-layout">
+          <div class="conversation-list" id="conversationList"></div>
+          <div class="chat-panel">
+            <div class="chat-head">
+              <div>
+                <span>Диалог</span>
+                <strong id="chatTitle">Выберите чат</strong>
+              </div>
+            </div>
+            <div class="chat-thread" id="chatThread"></div>
+            <form class="chat-compose" id="chatForm">
+              <input name="message" maxlength="240" placeholder="Написать сообщение">
+              <button class="primary-button" type="submit">Отправить</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="newsView">
+        <div class="section-head">
+          <div>
+            <h2>Новости</h2>
+            <p>Рассылки и объявления площадки для пользователей.</p>
+          </div>
+          <button class="ghost-button" id="markNewsRead" type="button">Прочитано</button>
+        </div>
+        <div class="news-list" id="newsList"></div>
+      </section>
+
+      <section class="view" id="walletView">
+        <div class="section-head">
+          <div>
+            <h2>Баланс</h2>
+            <p>Тестовые кредиты без реальных платежей.</p>
+          </div>
+        </div>
+        <div class="wallet-layout">
+          <div class="balance-tile">
+            <span>Демо-баланс</span>
+            <strong id="walletBalance">0 CRB</strong>
+            <button class="primary-button" id="addCredits">Пополнить демо</button>
+          </div>
+          <div class="activity-tile">
+            <h3>Активность</h3>
+            <div id="activityList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="profileView">
+        <div class="section-head">
+          <div>
+            <h2>Профиль</h2>
+            <p>Настройки покупателя для локального прототипа.</p>
+          </div>
+        </div>
+        <form class="profile-form" id="profileForm">
+          <label>
+            Никнейм
+            <input name="nickname" maxlength="24" placeholder="ghost_user">
+          </label>
+          <label>
+            Город
+            <input name="city" maxlength="32" placeholder="Tiraspol">
+          </label>
+          <label>
+            Контакт для демо
+            <input name="contact" maxlength="48" placeholder="@username">
+          </label>
+          <button class="primary-button" type="submit">Сохранить</button>
+        </form>
+        <div class="install-card">
+          <div>
+            <h3>Не теряй Cerberus</h3>
+            <p>Добавь локальный сайт на главный экран телефона или рабочий стол, чтобы открывать его как приложение.</p>
+          </div>
+          <button class="primary-button" id="installFromProfile" type="button">Как добавить</button>
+        </div>
+      </section>
+
+      <section class="view" id="vendorView">
+        <div class="section-head">
+          <div>
+            <h2>Кабинет магазина</h2>
+            <p>Товары, входящие сообщения и демо-настройки оплаты для выбранного магазина.</p>
+          </div>
+          <select id="vendorCabinetSelect" aria-label="Выбрать магазин"></select>
+        </div>
+        <div class="vendor-dashboard">
+          <div class="vendor-summary" id="vendorSummary"></div>
+          <div class="vendor-products-panel">
+            <h3>Профиль на сайте</h3>
+            <form class="compact-form" id="vendorProfileForm">
+              <label>
+                Название профиля
+                <input name="title" maxlength="48" placeholder="Магазин игрушек">
+              </label>
+              <label>
+                Тип профиля
+                <select name="type">
+                  <option>Магазины</option>
+                  <option>Обменники</option>
+                  <option>Услуги</option>
+                </select>
+              </label>
+              <label>
+                Аватар / картинка
+                <input name="avatar" maxlength="500" placeholder="assets/cerberus-logo-transparent.png или ссылка">
+              </label>
+              <label>
+                Город
+                <input name="city" maxlength="32" placeholder="Local">
+              </label>
+              <label class="wide">
+                Описание профиля
+                <textarea name="description" maxlength="260" placeholder="Описание, которое увидят покупатели"></textarea>
+              </label>
+              <button class="primary-button" type="submit">Сохранить профиль</button>
+            </form>
+          </div>
+          <div class="vendor-products-panel">
+            <h3>Добавить товар</h3>
+            <form class="compact-form" id="vendorItemForm">
+              <label>
+                Название
+                <input name="name" required maxlength="42" placeholder="Название товара">
+              </label>
+              <label>
+                Картинка
+                <input name="image" maxlength="500" placeholder="assets/cerberus-logo-transparent.png или ссылка">
+              </label>
+              <label>
+                Вес / объем
+                <input name="weight" required maxlength="24" placeholder="1 шт">
+              </label>
+              <label>
+                Цена CRB
+                <input name="price" required type="number" min="1" max="999999" placeholder="100">
+              </label>
+              <label>
+                Категория
+                <select name="category">
+                  <option>Двор</option>
+                  <option>Лес</option>
+                  <option>Онлайн</option>
+                  <option>Доставка</option>
+                  <option>Другое</option>
+                </select>
+              </label>
+              <label>
+                Тип получения
+                <select name="locationType">
+                  <option>Онлайн</option>
+                  <option>Доставка</option>
+                  <option>Самовывоз</option>
+                </select>
+              </label>
+              <label class="wide">
+                Описание для покупателя
+                <textarea name="description" maxlength="220" placeholder="Что покупатель видит до покупки"></textarea>
+              </label>
+              <label class="wide">
+                Выдачи / коды / инструкции
+                <textarea name="stockText" required placeholder="Одна выдача&#10;&#10;Вторая выдача&#10;&#10;Третья выдача"></textarea>
+              </label>
+              <button class="primary-button" type="submit">Добавить товар</button>
+            </form>
+          </div>
+          <div class="vendor-products-panel">
+            <h3>Карточки магазина</h3>
+            <div id="vendorProductList"></div>
+          </div>
+          <div class="vendor-products-panel">
+            <h3>Сообщения клиентов</h3>
+            <div id="vendorMessageList"></div>
+          </div>
+          <div class="vendor-products-panel">
+            <h3>Будущая крипто-оплата</h3>
+            <form class="compact-form" id="paymentSettingsForm">
+              <label>
+                Статус
+                <select name="paymentMode">
+                  <option value="demo">Демо-режим</option>
+                  <option value="disabled">Отключено</option>
+                  <option value="planned">Подключить позже</option>
+                </select>
+              </label>
+              <label>
+                Валюта
+                <select name="paymentCurrency">
+                  <option>USDT</option>
+                  <option>BTC</option>
+                  <option>TON</option>
+                  <option>CRB Demo</option>
+                </select>
+              </label>
+              <label class="wide">
+                Заметка
+                <textarea name="paymentNote" maxlength="180" placeholder="Пока без реальных адресов и платежей"></textarea>
+              </label>
+              <button class="primary-button" type="submit">Сохранить настройки</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="adminView">
+        <div class="section-head">
+          <div>
+            <h2>Админ</h2>
+            <p>Добавляй и удаляй легальные позиции в витрине.</p>
+          </div>
+          <button class="ghost-button" id="resetDemo">Сбросить демо</button>
+        </div>
+        <form class="admin-form" id="productForm">
+          <label>
+            Название
+            <input name="name" required maxlength="42" placeholder="Premium UI Kit">
+          </label>
+          <label>
+            Категория
+            <select name="category" required>
+              <option>Цифровые товары</option>
+              <option>Мерч</option>
+              <option>Услуги</option>
+              <option>Коллекции</option>
+            </select>
+          </label>
+          <label>
+            Цена CRB
+            <input name="price" required type="number" min="1" max="9999" placeholder="120">
+          </label>
+          <label>
+            Продавец
+            <input name="vendor" required maxlength="28" placeholder="north_lab">
+          </label>
+          <label class="wide">
+            Описание
+            <textarea name="description" required maxlength="180" placeholder="Короткое описание товара"></textarea>
+          </label>
+          <button class="primary-button" type="submit">Добавить товар</button>
+        </form>
+        <form class="admin-form vendor-form" id="vendorForm">
+          <label>
+            Название магазина
+            <input name="name" required maxlength="32" placeholder="north_lab">
+          </label>
+          <label>
+            Логин кабинета
+            <input name="login" required maxlength="24" placeholder="north_lab_owner">
+          </label>
+          <label>
+            Пароль
+            <input name="password" required maxlength="48" placeholder="demo-password">
+          </label>
+          <label>
+            Статус
+            <select name="status">
+              <option>Активен</option>
+              <option>Пауза</option>
+              <option>Проверка</option>
+            </select>
+          </label>
+          <label>
+            Тип профиля
+            <select name="type">
+              <option>Магазины</option>
+              <option>Обменники</option>
+              <option>Услуги</option>
+            </select>
+          </label>
+          <label>
+            Город
+            <input name="city" maxlength="32" placeholder="Local">
+          </label>
+          <label class="wide">
+            Аватар / картинка
+            <input name="avatar" maxlength="500" placeholder="assets/cerberus-logo-transparent.png">
+          </label>
+          <label class="wide">
+            Описание магазина
+            <textarea name="description" maxlength="180" placeholder="Описание кабинета магазина"></textarea>
+          </label>
+          <button class="primary-button" type="submit">Создать кабинет магазина</button>
+        </form>
+        <form class="admin-form broadcast-form" id="broadcastForm">
+          <label>
+            Заголовок рассылки
+            <input name="title" required maxlength="50" placeholder="Обновление витрины">
+          </label>
+          <label>
+            Тип
+            <select name="type" required>
+              <option>SMS</option>
+              <option>Новость</option>
+              <option>Важное</option>
+              <option>Акция</option>
+              <option>Техработы</option>
+            </select>
+          </label>
+          <label class="wide">
+            Текст рассылки
+            <textarea name="body" required maxlength="260" placeholder="Сообщение, которое увидят пользователи в разделе Новости"></textarea>
+          </label>
+          <button class="primary-button" type="submit">Отправить рассылку</button>
+        </form>
+        <div class="admin-section-grid">
+          <div>
+            <h3>Управление карточками</h3>
+            <div class="admin-list" id="adminList"></div>
+          </div>
+          <div>
+            <h3>Кабинеты магазинов</h3>
+            <div class="admin-list" id="adminVendorList"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="cart-drawer" id="cartDrawer" aria-label="Корзина" aria-hidden="true">
+      <div class="cart-head">
+        <h2>Корзина</h2>
+        <button class="icon-button" id="cartClose" aria-label="Закрыть корзину">×</button>
+      </div>
+      <div class="cart-list" id="cartList"></div>
+      <div class="cart-footer">
+        <div>
+          <span>Итого</span>
+          <strong id="cartTotal">0 CRB</strong>
+        </div>
+        <button class="primary-button" id="checkoutButton">Оформить демо-заказ</button>
+      </div>
+    </aside>
+
+    <aside class="install-drawer" id="installDrawer" aria-label="Как добавить сайт" aria-hidden="true">
+      <div class="cart-head">
+        <h2>Добавить Cerberus</h2>
+        <button class="icon-button" id="installClose" aria-label="Закрыть">×</button>
+      </div>
+      <div class="install-guide">
+        <img src="assets/cerberus-logo-transparent.png" alt="Cerberus logo">
+        <p>После добавления на главный экран будет видна иконка Cerberus и сайт откроется быстрее.</p>
+        <div class="guide-block">
+          <h3>iPhone Safari</h3>
+          <ol>
+            <li>Открой сайт в Safari.</li>
+            <li>Нажми кнопку «Поделиться».</li>
+            <li>Выбери «На экран Домой».</li>
+            <li>Подтверди название Cerberus.</li>
+          </ol>
+        </div>
+        <div class="guide-block">
+          <h3>Android Chrome</h3>
+          <ol>
+            <li>Открой сайт в Chrome.</li>
+            <li>Нажми меню с тремя точками.</li>
+            <li>Выбери «Добавить на главный экран».</li>
+            <li>Подтверди установку ярлыка.</li>
+          </ol>
+        </div>
+        <div class="guide-block">
+          <h3>Windows</h3>
+          <ol>
+            <li>Открой файл сайта в браузере.</li>
+            <li>Создай ярлык на этот файл.</li>
+            <li>Закрепи ярлык на рабочем столе.</li>
+          </ol>
+        </div>
+      </div>
+    </aside>
+
+    <aside class="filter-drawer" id="filterDrawer" aria-label="Фильтры" aria-hidden="true">
+      <div class="cart-head">
+        <button class="ghost-button" id="filterReset" type="button">Очистить</button>
+        <h2>Фильтры</h2>
+        <button class="icon-button" id="filterClose" aria-label="Закрыть">×</button>
+      </div>
+      <form class="filter-form" id="filterForm">
+        <label>
+          Категория товара
+          <select name="category">
+            <option value="">Все товары</option>
+            <option>Цифровые товары</option>
+            <option>Мерч</option>
+            <option>Услуги</option>
+            <option>Коллекции</option>
+          </select>
+        </label>
+        <label>
+          Город
+          <input name="city" maxlength="32" placeholder="Любой город">
+        </label>
+        <label>
+          Цена от
+          <input name="minPrice" type="number" min="0" placeholder="0">
+        </label>
+        <label>
+          Цена до
+          <input name="maxPrice" type="number" min="0" placeholder="9999">
+        </label>
+        <label>
+          Формат
+          <select name="fulfillment">
+            <option value="">Любой</option>
+            <option>Моментально</option>
+            <option>Предзаказ</option>
+            <option>После связи</option>
+          </select>
+        </label>
+        <label>
+          Тип получения
+          <select name="locationType">
+            <option value="">Любой</option>
+            <option>Онлайн</option>
+            <option>Доставка</option>
+            <option>Самовывоз</option>
+          </select>
+        </label>
+        <button class="primary-button" type="submit">Показать</button>
+      </form>
+    </aside>
+
+    <aside class="payment-drawer" id="paymentDrawer" aria-label="Способ оплаты" aria-hidden="true">
+      <div class="cart-head">
+        <h2>Способ оплаты</h2>
+        <button class="icon-button" id="paymentClose" aria-label="Закрыть">×</button>
+      </div>
+      <div class="payment-options">
+        <p>Это демо-экран. Реальные крипто-платежи и банковские платежи пока не подключены.</p>
+        <button class="payment-option is-active" type="button" data-payment="wallet">
+          <span>Внутренний демо-кошелек</span>
+          <strong id="paymentWalletAmount">0 CRB</strong>
+        </button>
+        <button class="payment-option" type="button" data-payment="btc">
+          <span>BTC</span>
+          <strong>Позже</strong>
+        </button>
+        <button class="payment-option" type="button" data-payment="xmr">
+          <span>XMR</span>
+          <strong>Позже</strong>
+        </button>
+        <button class="payment-option" type="button" data-payment="card">
+          <span>Карта / QR</span>
+          <strong>Демо</strong>
+        </button>
+        <button class="primary-button" id="confirmPayment" type="button">Подтвердить демо-заказ</button>
+      </div>
+    </aside>
+
+    <aside class="site-modal" id="announcementModal" aria-label="Объявление сайта" aria-hidden="true">
+      <div class="site-modal-card">
+        <button class="icon-button" id="announcementClose" aria-label="Закрыть">×</button>
+        <h2 id="announcementTitle">Новости Cerberus</h2>
+        <p id="announcementBody"></p>
+        <button class="primary-button" id="announcementOk" type="button">Понятно</button>
+      </div>
+    </aside>
+
+    <aside class="profile-drawer" id="profileDrawer" aria-label="Профиль магазина" aria-hidden="true">
+      <div class="cart-head">
+        <h2 id="publicProfileTitle">Профиль</h2>
+        <button class="icon-button" id="profileDrawerClose" aria-label="Закрыть">×</button>
+      </div>
+      <div class="public-profile" id="publicProfile"></div>
+    </aside>
+  </div>
+
+  <template id="productTemplate">
+    <article class="product-card">
+      <div class="product-art"></div>
+      <div class="product-body">
+        <div class="product-meta">
+          <span class="category-pill"></span>
+          <span class="rating"></span>
+        </div>
+        <h3></h3>
+        <p></p>
+        <div class="vendor-row">
+          <span class="vendor"></span>
+          <span class="city"></span>
+        </div>
+        <div class="product-actions">
+          <strong class="price"></strong>
+          <div class="product-action-stack">
+            <button class="ghost-button message-button">Написать</button>
+            <button class="primary-button add-button">В корзину</button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <template id="directoryTemplate">
+    <article class="directory-card">
+      <div class="directory-rank"></div>
+      <div class="directory-body">
+        <div class="product-meta">
+          <span class="category-pill"></span>
+          <span class="rating"></span>
+        </div>
+        <h3></h3>
+        <p></p>
+        <div class="vendor-row">
+          <span class="vendor"></span>
+          <span class="city"></span>
+        </div>
+        <div class="directory-stats"></div>
+        <div class="product-actions">
+          <strong class="price"></strong>
+          <button class="primary-button open-directory-button">Открыть</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
