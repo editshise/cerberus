@@ -1462,26 +1462,71 @@ textarea {
 }
 
 @media (max-width: 920px) {
+  body {
+    padding-bottom: 86px;
+  }
+
   .app-shell {
     grid-template-columns: 1fr;
   }
 
   .sidebar {
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     height: auto;
-    border-right: 0;
+    padding: 10px 12px;
     border-bottom: 1px solid var(--line);
+    border-right: 0;
+    background: color-mix(in srgb, var(--panel) 92%, transparent);
+    backdrop-filter: blur(16px);
+  }
+
+  .brand {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .brand-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand strong {
+    font-size: 16px;
+  }
+
+  .brand small {
+    font-size: 12px;
   }
 
   .nav {
-    grid-template-columns: repeat(9, minmax(0, 1fr));
-    gap: 6px;
-    margin-top: 18px;
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 16;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--panel) 95%, transparent);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
   }
 
   .nav-item {
     justify-content: center;
-    padding: 10px 8px;
+    min-height: 46px;
+    padding: 8px 6px;
+    border-radius: 8px;
   }
 
   .nav-item span:last-child {
@@ -1490,7 +1535,8 @@ textarea {
 
   .trust-panel {
     position: static;
-    margin-top: 18px;
+    display: none;
+    margin: 0;
   }
 
   .hero,
@@ -1499,6 +1545,47 @@ textarea {
   .admin-section-grid,
   .vendor-dashboard {
     grid-template-columns: 1fr;
+  }
+
+  .main {
+    padding: 16px 12px 24px;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 63px;
+    z-index: 14;
+    padding: 8px 0 10px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(14px);
+  }
+
+  .hero {
+    display: none;
+  }
+
+  .section-head {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .section-head h2 {
+    font-size: 30px;
+    line-height: 1.05;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .directory-card {
+    grid-template-rows: 210px minmax(0, 1fr);
+    min-height: 390px;
+  }
+
+  .directory-cover {
+    height: 210px;
   }
 }
 
@@ -1547,27 +1634,82 @@ textarea {
   }
 
   .main {
-    padding: 16px;
+    padding: 12px 10px 22px;
   }
 
-  .topbar,
+  .topbar {
+    top: 63px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .section-head,
   .product-actions {
     align-items: stretch;
     flex-direction: column;
   }
 
+  .search-wrap {
+    min-height: 44px;
+  }
+
   .top-actions {
     width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 44px 1fr;
+    gap: 8px;
+  }
+
+  .top-actions .ghost-button {
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .top-actions #logoutButton {
+    display: none;
   }
 
   .cart-button {
-    flex: 1;
     justify-content: center;
+    min-height: 44px;
   }
 
-  .hero {
-    padding: 20px;
+  .section-head h2 {
+    font-size: 28px;
+  }
+
+  .section-head p {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .category-tabs {
+    overflow-x: auto;
+    display: flex;
+    gap: 8px;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .category-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-tabs button {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 0 18px;
+  }
+
+  .sort-row {
+    display: none;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .profile-form,
@@ -1618,10 +1760,49 @@ textarea {
 
   .directory-card {
     grid-template-columns: 1fr;
-    grid-template-rows: 190px minmax(0, 1fr);
+    grid-template-rows: minmax(220px, 48vw) minmax(0, 1fr);
+    min-height: 0;
   }
 
   .directory-cover {
-    height: 190px;
+    height: 100%;
+  }
+
+  .directory-body {
+    padding: 14px;
+  }
+
+  .directory-body h3 {
+    font-size: 24px;
+  }
+
+  .directory-body p {
+    font-size: 16px;
+  }
+
+  .directory-stats {
+    font-size: 14px;
+  }
+
+  .directory-body .product-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .directory-body .open-directory-button {
+    width: 100%;
+    min-height: 52px;
+    font-size: 17px;
+  }
+
+  .cart-drawer,
+  .install-drawer,
+  .filter-drawer,
+  .payment-drawer,
+  .profile-drawer {
+    width: 100vw;
+    border-left: 0;
   }
 }
