@@ -1463,7 +1463,7 @@ textarea {
 
 @media (max-width: 920px) {
   body {
-    padding-bottom: 86px;
+    padding-bottom: 0;
   }
 
   .app-shell {
@@ -1471,62 +1471,37 @@ textarea {
   }
 
   .sidebar {
-    position: sticky;
-    top: 0;
-    z-index: 15;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    position: static;
     height: auto;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--line);
     border-right: 0;
-    background: color-mix(in srgb, var(--panel) 92%, transparent);
-    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+    background: rgba(17, 20, 16, .78);
   }
 
   .brand {
-    gap: 10px;
-    min-width: 0;
+    gap: 12px;
   }
 
   .brand-logo {
-    width: 42px;
-    height: 42px;
-  }
-
-  .brand strong {
-    font-size: 16px;
-  }
-
-  .brand small {
-    font-size: 12px;
+    width: 56px;
+    height: 56px;
   }
 
   .nav {
-    position: fixed;
-    right: 10px;
-    bottom: 10px;
-    left: 10px;
-    z-index: 16;
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 5px;
-    margin: 0;
-    padding: 8px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--panel) 95%, transparent);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(18px);
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 18px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
   }
 
   .nav-item {
     justify-content: center;
-    min-height: 46px;
-    padding: 8px 6px;
-    border-radius: 8px;
+    min-height: 48px;
+    padding: 10px 8px;
   }
 
   .nav-item span:last-child {
@@ -1535,8 +1510,8 @@ textarea {
 
   .trust-panel {
     position: static;
-    display: none;
-    margin: 0;
+    display: block;
+    margin-top: 18px;
   }
 
   .hero,
@@ -1552,16 +1527,15 @@ textarea {
   }
 
   .topbar {
-    position: sticky;
-    top: 63px;
-    z-index: 14;
-    padding: 8px 0 10px;
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
-    backdrop-filter: blur(14px);
+    position: static;
+    padding: 0;
+    background: transparent;
+    backdrop-filter: none;
   }
 
   .hero {
-    display: none;
+    display: grid;
+    padding: 22px;
   }
 
   .section-head {
@@ -1580,12 +1554,12 @@ textarea {
   }
 
   .directory-card {
-    grid-template-rows: 210px minmax(0, 1fr);
-    min-height: 390px;
+    grid-template-rows: 220px minmax(0, 1fr);
+    min-height: 410px;
   }
 
   .directory-cover {
-    height: 210px;
+    height: 220px;
   }
 }
 
@@ -1638,7 +1612,6 @@ textarea {
   }
 
   .topbar {
-    top: 63px;
     align-items: stretch;
     flex-direction: column;
     gap: 8px;
@@ -1656,8 +1629,8 @@ textarea {
 
   .top-actions {
     width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 44px 1fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
   }
 
@@ -1668,10 +1641,11 @@ textarea {
   }
 
   .top-actions #logoutButton {
-    display: none;
+    display: inline-flex;
   }
 
   .cart-button {
+    flex: 1;
     justify-content: center;
     min-height: 44px;
   }
@@ -1704,7 +1678,7 @@ textarea {
   }
 
   .sort-row {
-    display: none;
+    display: flex;
   }
 
   .product-grid {
@@ -1760,7 +1734,7 @@ textarea {
 
   .directory-card {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(220px, 48vw) minmax(0, 1fr);
+    grid-template-rows: minmax(230px, 58vw) minmax(0, 1fr);
     min-height: 0;
   }
 
@@ -1785,10 +1759,11 @@ textarea {
   }
 
   .directory-body .product-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: row;
     gap: 10px;
     align-items: center;
+    justify-content: space-between;
   }
 
   .directory-body .open-directory-button {
