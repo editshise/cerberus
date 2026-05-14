@@ -145,15 +145,26 @@ const topServiceNames = [
 ];
 
 const storage = {
+  memory: {},
   get(key, fallback) {
     try {
-      return JSON.parse(localStorage.getItem(key)) ?? fallback;
+      const stored = localStorage.getItem(key);
+      if (stored === null && Object.prototype.hasOwnProperty.call(this.memory, key)) {
+        return this.memory[key];
+      }
+      return JSON.parse(stored) ?? fallback;
     } catch {
-      return fallback;
+      return Object.prototype.hasOwnProperty.call(this.memory, key) ? this.memory[key] : fallback;
     }
   },
   set(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    this.memory[key] = value;
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch {
+      return false;
+    }
   }
 };
 
@@ -184,12 +195,19 @@ let authMode = "login";
 let captchaAnswer = 0;
 
 products = products.map((product, index) => ({ order: index, ...product }));
+accounts = accounts.map((account) => ({
+  ...account,
+  login: String(account.login || "").trim(),
+  loginKey: String(account.loginKey || account.login || "").trim().toLowerCase()
+})).filter((account) => account.login);
 vendors = (vendors.length ? vendors : defaultVendors).map((vendor) => ({
   title: vendor.name,
   type: "Магазины",
   avatar: "assets/cerberus-logo-transparent.png",
   city: "Online",
-  ...vendor
+  ...vendor,
+  login: String(vendor.login || "").trim(),
+  loginKey: String(vendor.loginKey || vendor.login || "").trim().toLowerCase()
 }));
 
 const el = {
@@ -272,24 +290,31 @@ const el = {
 };
 
 function persist() {
-  storage.set("cerberusProducts", products);
-  storage.set("cerberusCart", cart);
-  storage.set("cerberusOrders", orders);
-  storage.set("cerberusProfile", profile);
-  storage.set("cerberusWallet", wallet);
-  storage.set("cerberusAccounts", accounts);
-  storage.set("cerberusSession", session);
-  storage.set("cerberusVendors", vendors);
-  storage.set("cerberusConversations", conversations);
-  storage.set("cerberusActiveConversation", activeConversationId);
-  storage.set("cerberusAnnouncements", announcements);
-  storage.set("cerberusSelectedVendor", selectedVendorName);
-  storage.set("cerberusFilters", activeFilters);
-  storage.set("cerberusDirectoryType", activeDirectoryType);
+  const results = [
+    storage.set("cerberusProducts", products),
+    storage.set("cerberusCart", cart),
+    storage.set("cerberusOrders", orders),
+    storage.set("cerberusProfile", profile),
+    storage.set("cerberusWallet", wallet),
+    storage.set("cerberusAccounts", accounts),
+    storage.set("cerberusSession", session),
+    storage.set("cerberusVendors", vendors),
+    storage.set("cerberusConversations", conversations),
+    storage.set("cerberusActiveConversation", activeConversationId),
+    storage.set("cerberusAnnouncements", announcements),
+    storage.set("cerberusSelectedVendor", selectedVendorName),
+    storage.set("cerberusFilters", activeFilters),
+    storage.set("cerberusDirectoryType", activeDirectoryType)
+  ];
+  return results.every(Boolean);
 }
 
 function money(value) {
   return `${Number(value).toLocaleString("ru-RU")} CRB`;
+}
+
+function normalizeLogin(value) {
+  return String(value || "").trim().toLowerCase();
 }
 
 function escapeHtml(value) {
@@ -474,6 +499,7 @@ function ensureDirectoryVendor(entry) {
       id: uid(),
       name: entry.vendor,
       login: `${entry.vendor}_owner`.slice(0, 24),
+      loginKey: normalizeLogin(`${entry.vendor}_owner`.slice(0, 24)),
       password: "change-me",
       status: "Активен",
       description: entry.description,
@@ -796,7 +822,8 @@ function availableStock(product) {
 }
 
 function selectedVendor() {
-  const sessionVendor = vendors.find((vendor) => vendor.login === session?.login);
+  const sessionKey = normalizeLogin(session?.login);
+  const sessionVendor = vendors.find((vendor) => (vendor.loginKey || normalizeLogin(vendor.login)) === sessionKey);
   const selectedName = sessionVendor ? sessionVendor.name : (selectedVendorName || vendors[0]?.name || "");
   return vendors.find((entry) => entry.name === selectedName) || vendors[0];
 }
@@ -817,7 +844,8 @@ function renderVendorCabinet() {
     return;
   }
 
-  const sessionVendor = vendors.find((vendor) => vendor.login === session?.login);
+  const sessionKey = normalizeLogin(session?.login);
+  const sessionVendor = vendors.find((vendor) => (vendor.loginKey || normalizeLogin(vendor.login)) === sessionKey);
   const selectedName = sessionVendor ? sessionVendor.name : (selectedVendorName || vendors[0].name);
   selectedVendorName = selectedName;
   el.vendorCabinetSelect.value = selectedName;
@@ -964,6 +992,7 @@ function saveProductEditor(id, container) {
       avatar: "assets/cerberus-logo-transparent.png",
       city: "Online",
       login: `${product.vendor}_owner`,
+      loginKey: normalizeLogin(`${product.vendor}_owner`),
       password: "market123",
       status: "Активен",
       description: `Автоматически созданный кабинет ${product.vendor}.`,
@@ -1195,9 +1224,10 @@ function setAuthMode(mode) {
 }
 
 function updateAuthGate() {
+  const sessionKey = normalizeLogin(session?.login);
   const accountExists = session && (
-    accounts.some((account) => account.login === session.login) ||
-    vendors.some((vendor) => vendor.login === session.login)
+    accounts.some((account) => (account.loginKey || normalizeLogin(account.login)) === sessionKey) ||
+    vendors.some((vendor) => (vendor.loginKey || normalizeLogin(vendor.login)) === sessionKey)
   );
   document.body.classList.toggle("auth-locked", !accountExists);
   if (!accountExists) {
@@ -1210,6 +1240,7 @@ function handleAuth(event) {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(el.authForm).entries());
   const login = data.login.trim();
+  const loginKey = normalizeLogin(login);
   const password = data.password;
   const captcha = Number(data.captcha);
 
@@ -1220,7 +1251,7 @@ function handleAuth(event) {
   }
 
   if (authMode === "register") {
-    if (accounts.some((account) => account.login.toLowerCase() === login.toLowerCase())) {
+    if (accounts.some((account) => (account.loginKey || normalizeLogin(account.login)) === loginKey)) {
       el.authError.textContent = "Такой логин уже зарегистрирован.";
       return;
     }
@@ -1228,12 +1259,12 @@ function handleAuth(event) {
       el.authError.textContent = "Пароли не совпадают.";
       return;
     }
-    accounts.push({ login, password, createdAt: new Date().toISOString() });
+    accounts.push({ login, loginKey, password, createdAt: new Date().toISOString() });
     profile.nickname = profile.nickname || login;
     wallet.activity.push(`Аккаунт создан: ${login}`);
   } else {
-    const account = accounts.find((entry) => entry.login === login && entry.password === password);
-    const vendorAccount = vendors.find((entry) => entry.login === login && entry.password === password);
+    const account = accounts.find((entry) => (entry.loginKey || normalizeLogin(entry.login)) === loginKey && entry.password === password);
+    const vendorAccount = vendors.find((entry) => (entry.loginKey || normalizeLogin(entry.login)) === loginKey && entry.password === password);
     if (!account && !vendorAccount) {
       el.authError.textContent = "Логин или пароль не подходят. Можно перейти в регистрацию.";
       generateCaptcha();
@@ -1242,8 +1273,12 @@ function handleAuth(event) {
     wallet.activity.push(vendorAccount ? `Вход магазина выполнен: ${vendorAccount.name}` : `Вход выполнен: ${login}`);
   }
 
-  session = { login, signedAt: new Date().toISOString() };
-  persist();
+  session = { login, loginKey, signedAt: new Date().toISOString() };
+  const saved = persist();
+  if (!saved) {
+    el.authError.textContent = "Браузер не дал сохранить аккаунт. Отключи приватный режим или разреши данные сайта.";
+    return;
+  }
   updateAuthGate();
   render();
 }
@@ -1517,6 +1552,7 @@ el.productForm.addEventListener("submit", (event) => {
       avatar: "assets/cerberus-logo-transparent.png",
       city: profile.city || "Online",
       login: `${data.vendor.trim()}_owner`,
+      loginKey: normalizeLogin(`${data.vendor.trim()}_owner`),
       password: "market123",
       status: "Активен",
       description: `Автоматически созданный кабинет ${data.vendor.trim()}.`,
@@ -1546,6 +1582,7 @@ el.vendorForm.addEventListener("submit", (event) => {
     avatar: data.avatar.trim() || "assets/cerberus-logo-transparent.png",
     city: data.city.trim() || "Online",
     login: data.login.trim(),
+    loginKey: normalizeLogin(data.login),
     password: data.password,
     status: data.status,
     description: data.description.trim(),
