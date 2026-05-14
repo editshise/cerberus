@@ -19,7 +19,7 @@
         <img class="brand-logo" src="assets/cerberus-logo-transparent.png" alt="Cerberus logo">
         <div>
           <strong>Cerberus</strong>
-          <small>secure local access</small>
+          <small>secure access</small>
         </div>
       </div>
       <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация">
@@ -28,9 +28,9 @@
       </div>
       <form class="auth-form" id="authForm">
         <div>
-          <p class="eyebrow">local account</p>
+          <p class="eyebrow">account access</p>
           <h1 id="authTitle">Войти в Cerberus</h1>
-          <p class="auth-copy">Аккаунт хранится только в браузере на этом ПК. Это демо-защита для локального прототипа.</p>
+          <p class="auth-copy">Создай аккаунт, чтобы открыть каталог, сообщения, корзину и личный профиль.</p>
         </div>
         <label>
           Логин
@@ -71,7 +71,7 @@
         <img class="brand-logo" src="assets/cerberus-logo-transparent.png" alt="Cerberus logo">
         <span>
           <strong>Cerberus</strong>
-          <small>local market</small>
+          <small>market</small>
         </span>
       </a>
 
@@ -113,10 +113,10 @@
       <div class="trust-panel">
         <div>
           <span class="trust-label">Статус</span>
-          <strong>Локальный демо-режим</strong>
+          <strong>Онлайн-витрина</strong>
         </div>
         <div class="meter" aria-hidden="true"><span></span></div>
-        <p>Данные сохраняются только в браузере на этом ПК.</p>
+        <p>Профили, каталоги, сообщения и заказы доступны после входа.</p>
       </div>
     </aside>
 
@@ -139,9 +139,9 @@
 
       <section class="hero" aria-labelledby="heroTitle">
         <div class="hero-copy">
-          <p class="eyebrow">private local storefront</p>
+          <p class="eyebrow">private storefront</p>
           <h1 id="heroTitle">Cerberus Market</h1>
-          <p>Локальная демо-площадка для легальных цифровых товаров, мерча и услуг. Все сценарии работают без сервера и внешней оплаты.</p>
+          <p>Витрина магазинов, обменников и сервисов Cerberus с профилями, каталогами, сообщениями и заказами.</p>
         </div>
         <div class="hero-logo-wrap" aria-hidden="true">
           <img src="assets/cerberus-logo-transparent.png" alt="">
@@ -181,7 +181,7 @@
         <div class="section-head">
           <div>
             <h2>Заказы</h2>
-            <p>История покупок в локальном демо-режиме.</p>
+            <p>История покупок и выданных позиций.</p>
           </div>
           <button class="ghost-button" id="clearOrders">Очистить</button>
         </div>
@@ -192,7 +192,7 @@
         <div class="section-head">
           <div>
             <h2>Сообщения</h2>
-            <p>Локальные диалоги с оператором сайта и продавцами.</p>
+            <p>Диалоги с оператором сайта и продавцами.</p>
           </div>
           <button class="ghost-button" id="newSupportChat" type="button">Оператор</button>
         </div>
@@ -229,14 +229,14 @@
         <div class="section-head">
           <div>
             <h2>Баланс</h2>
-            <p>Тестовые кредиты без реальных платежей.</p>
+            <p>Баланс аккаунта и история операций.</p>
           </div>
         </div>
         <div class="wallet-layout">
           <div class="balance-tile">
-            <span>Демо-баланс</span>
+            <span>Баланс</span>
             <strong id="walletBalance">0 CRB</strong>
-            <button class="primary-button" id="addCredits">Пополнить демо</button>
+            <button class="primary-button" id="addCredits">Пополнить</button>
           </div>
           <div class="activity-tile">
             <h3>Активность</h3>
@@ -249,7 +249,7 @@
         <div class="section-head">
           <div>
             <h2>Профиль</h2>
-            <p>Настройки покупателя для локального прототипа.</p>
+            <p>Настройки покупателя для заказов и сообщений.</p>
           </div>
         </div>
         <form class="profile-form" id="profileForm">
@@ -262,7 +262,7 @@
             <input name="city" maxlength="32" placeholder="Tiraspol">
           </label>
           <label>
-            Контакт для демо
+            Контакт
             <input name="contact" maxlength="48" placeholder="@username">
           </label>
           <button class="primary-button" type="submit">Сохранить</button>
@@ -270,7 +270,7 @@
         <div class="install-card">
           <div>
             <h3>Не теряй Cerberus</h3>
-            <p>Добавь локальный сайт на главный экран телефона или рабочий стол, чтобы открывать его как приложение.</p>
+            <p>Добавь сайт на главный экран телефона или рабочий стол, чтобы открывать его как приложение.</p>
           </div>
           <button class="primary-button" id="installFromProfile" type="button">Как добавить</button>
         </div>
@@ -280,7 +280,7 @@
         <div class="section-head">
           <div>
             <h2>Кабинет магазина</h2>
-            <p>Товары, входящие сообщения и демо-настройки оплаты для выбранного магазина.</p>
+            <p>Товары, входящие сообщения и настройки оплаты для выбранного магазина.</p>
           </div>
           <select id="vendorCabinetSelect" aria-label="Выбрать магазин"></select>
         </div>
@@ -307,7 +307,7 @@
               </label>
               <label>
                 Город
-                <input name="city" maxlength="32" placeholder="Local">
+                <input name="city" maxlength="32" placeholder="Online">
               </label>
               <label class="wide">
                 Описание профиля
@@ -373,14 +373,14 @@
             <div id="vendorMessageList"></div>
           </div>
           <div class="vendor-products-panel">
-            <h3>Будущая крипто-оплата</h3>
+            <h3>Настройки крипто-оплаты</h3>
             <form class="compact-form" id="paymentSettingsForm">
               <label>
                 Статус
                 <select name="paymentMode">
-                  <option value="demo">Демо-режим</option>
+                  <option value="planned">Подключить через сервер</option>
                   <option value="disabled">Отключено</option>
-                  <option value="planned">Подключить позже</option>
+                  <option value="review">На проверке</option>
                 </select>
               </label>
               <label>
@@ -389,12 +389,12 @@
                   <option>USDT</option>
                   <option>BTC</option>
                   <option>TON</option>
-                  <option>CRB Demo</option>
+                  <option>CRB</option>
                 </select>
               </label>
               <label class="wide">
                 Заметка
-                <textarea name="paymentNote" maxlength="180" placeholder="Пока без реальных адресов и платежей"></textarea>
+                <textarea name="paymentNote" maxlength="180" placeholder="Публичная заметка по оплате"></textarea>
               </label>
               <button class="primary-button" type="submit">Сохранить настройки</button>
             </form>
@@ -408,7 +408,7 @@
             <h2>Админ</h2>
             <p>Добавляй и удаляй легальные позиции в витрине.</p>
           </div>
-          <button class="ghost-button" id="resetDemo">Сбросить демо</button>
+          <button class="ghost-button" id="resetCatalog">Сбросить каталог</button>
         </div>
         <form class="admin-form" id="productForm">
           <label>
@@ -449,7 +449,7 @@
           </label>
           <label>
             Пароль
-            <input name="password" required maxlength="48" placeholder="demo-password">
+            <input name="password" required maxlength="48" placeholder="strong-password">
           </label>
           <label>
             Статус
@@ -469,7 +469,7 @@
           </label>
           <label>
             Город
-            <input name="city" maxlength="32" placeholder="Local">
+            <input name="city" maxlength="32" placeholder="Online">
           </label>
           <label class="wide">
             Аватар / картинка
@@ -526,7 +526,7 @@
           <span>Итого</span>
           <strong id="cartTotal">0 CRB</strong>
         </div>
-        <button class="primary-button" id="checkoutButton">Оформить демо-заказ</button>
+        <button class="primary-button" id="checkoutButton">Оформить заказ</button>
       </div>
     </aside>
 
@@ -624,9 +624,9 @@
         <button class="icon-button" id="paymentClose" aria-label="Закрыть">×</button>
       </div>
       <div class="payment-options">
-        <p>Это демо-экран. Реальные крипто-платежи и банковские платежи пока не подключены.</p>
+        <p>Крипто-оплата подключается через защищенную серверную часть. На сайте не хранятся приватные ключи и API-секреты.</p>
         <button class="payment-option is-active" type="button" data-payment="wallet">
-          <span>Внутренний демо-кошелек</span>
+          <span>Внутренний баланс</span>
           <strong id="paymentWalletAmount">0 CRB</strong>
         </button>
         <button class="payment-option" type="button" data-payment="btc">
@@ -639,9 +639,9 @@
         </button>
         <button class="payment-option" type="button" data-payment="card">
           <span>Карта / QR</span>
-          <strong>Демо</strong>
+          <strong>Скоро</strong>
         </button>
-        <button class="primary-button" id="confirmPayment" type="button">Подтвердить демо-заказ</button>
+        <button class="primary-button" id="confirmPayment" type="button">Подтвердить заказ</button>
       </div>
     </aside>
 

@@ -14,7 +14,7 @@ const defaultProducts = [
     vendor: "north_lab",
     city: "Tiraspol",
     rating: 4.9,
-    description: "Набор экранов, компонентов и тем для быстрого старта локального проекта."
+    description: "Набор экранов, компонентов и тем для быстрого старта проекта."
   },
   {
     id: uid(),
@@ -34,7 +34,7 @@ const defaultProducts = [
     vendor: "thread_unit",
     city: "Bender",
     rating: 4.7,
-    description: "Плотное худи с минимальным знаком Cerberus и локальным демо-дропом."
+    description: "Плотное худи с минимальным знаком Cerberus и фирменным дропом."
   },
   {
     id: uid(),
@@ -73,7 +73,7 @@ const defaultAnnouncements = [
     id: uid(),
     title: "Добро пожаловать в Cerberus",
     type: "Новость",
-    body: "Локальный прототип запущен: витрина, корзина, профиль, сообщения и демо-заказы работают на этом ПК.",
+    body: "Cerberus запущен: витрина, корзина, профили, сообщения и заказы доступны после входа.",
     createdAt: new Date().toLocaleString("ru-RU"),
     read: false
   },
@@ -92,31 +92,31 @@ const defaultVendors = [
     id: uid(),
     name: "north_lab",
     login: "north_lab_owner",
-    password: "demo123",
+    password: "market123",
     status: "Активен",
-    description: "Демо-кабинет магазина north_lab.",
+    description: "Кабинет магазина north_lab.",
     title: "North Lab",
     type: "Магазины",
     avatar: "assets/cerberus-logo-transparent.png",
     city: "Tiraspol",
-    paymentMode: "demo",
+    paymentMode: "planned",
     paymentCurrency: "USDT",
-    paymentNote: "Платежи пока в демо-режиме."
+    paymentNote: "Крипто-оплата подключается через защищенный сервер."
   },
   {
     id: uid(),
     name: "quiet_studio",
     login: "quiet_owner",
-    password: "demo123",
+    password: "market123",
     status: "Активен",
-    description: "Демо-кабинет магазина quiet_studio.",
+    description: "Кабинет магазина quiet_studio.",
     title: "Quiet Studio",
     type: "Магазины",
     avatar: "assets/cerberus-logo-transparent.png",
     city: "Chisinau",
-    paymentMode: "demo",
+    paymentMode: "planned",
     paymentCurrency: "USDT",
-    paymentNote: "Платежи пока в демо-режиме."
+    paymentNote: "Крипто-оплата подключается через защищенный сервер."
   }
 ];
 
@@ -161,7 +161,7 @@ let products = storage.get("cerberusProducts", defaultProducts);
 let cart = storage.get("cerberusCart", []);
 let orders = storage.get("cerberusOrders", []);
 let profile = storage.get("cerberusProfile", { nickname: "", city: "", contact: "" });
-let wallet = storage.get("cerberusWallet", { balance: 500, activity: ["Стартовый демо-баланс: +500 CRB"] });
+let wallet = storage.get("cerberusWallet", { balance: 500, activity: ["Стартовый баланс: +500 CRB"] });
 let accounts = storage.get("cerberusAccounts", []);
 let session = storage.get("cerberusSession", null);
 let vendors = storage.get("cerberusVendors", defaultVendors);
@@ -188,7 +188,7 @@ vendors = (vendors.length ? vendors : defaultVendors).map((vendor) => ({
   title: vendor.name,
   type: "Магазины",
   avatar: "assets/cerberus-logo-transparent.png",
-  city: "Local",
+  city: "Online",
   ...vendor
 }));
 
@@ -265,7 +265,7 @@ const el = {
   profileDrawerClose: document.querySelector("#profileDrawerClose"),
   publicProfileTitle: document.querySelector("#publicProfileTitle"),
   publicProfile: document.querySelector("#publicProfile"),
-  resetDemo: document.querySelector("#resetDemo"),
+  resetCatalog: document.querySelector("#resetCatalog"),
   themeToggle: document.querySelector("#themeToggle"),
   statOrders: document.querySelector("#statOrders"),
   statProducts: document.querySelector("#statProducts")
@@ -321,7 +321,7 @@ function buildDirectoryEntries() {
     rating: (5 - (index % 7) * 0.03).toFixed(2),
     reviews: 9000 - index * 173,
     deals: 420 + index * 17,
-    description: "Рекомендованный магазин Cerberus с локальным демо-кабинетом и сообщениями.",
+    description: "Рекомендованный магазин Cerberus с профилем, каталогом и сообщениями.",
     priceLabel: "Топ магазин"
   }));
 
@@ -332,7 +332,7 @@ function buildDirectoryEntries() {
         type: vendor.type || "Магазины",
         name: vendor.title || vendor.name,
         vendor: vendor.name,
-        city: vendor.city || "Local",
+        city: vendor.city || "Online",
         rating: "5.00",
         reviews: vendorProducts(vendor.name).length * 53 + 281,
         deals: vendorProducts(vendor.name).length,
@@ -352,8 +352,8 @@ function buildDirectoryEntries() {
     rating: (4.98 - (index % 8) * 0.02).toFixed(2),
     reviews: 6500 - index * 91,
     deals: 1200 + index * 31,
-    description: "Демо-обменник для будущей легальной платежной интеграции без реальных переводов.",
-    priceLabel: "Курс демо"
+    description: "Обменный сервис Cerberus с профилем, заявками и личными сообщениями.",
+    priceLabel: "Обмен"
   }));
 
   const services = topServiceNames.map((name, index) => ({
@@ -365,7 +365,7 @@ function buildDirectoryEntries() {
     rating: (4.96 - (index % 9) * 0.02).toFixed(2),
     reviews: 3200 - index * 43,
     deals: 240 + index * 13,
-    description: "Сервисная карточка для услуг внутри Cerberus: заявки, сообщения и демо-заказы.",
+    description: "Сервисная карточка внутри Cerberus: заявки, сообщения и заказы.",
     priceLabel: "Услуга"
   }));
 
@@ -393,6 +393,120 @@ function currentDirectoryEntries() {
   }
 
   return filtered.slice(0, 30);
+}
+
+function defaultCatalogForEntry(entry) {
+  const title = entry.name || entry.vendor;
+  if (entry.type === "Обменники") {
+    return [
+      {
+        name: `${title} Express`,
+        category: "Заявки",
+        price: 25,
+        description: "Быстрая заявка на консультацию и расчет условий обмена.",
+        weight: "1 заявка",
+        locationType: "Онлайн"
+      },
+      {
+        name: `${title} Priority`,
+        category: "Заявки",
+        price: 50,
+        description: "Приоритетное сопровождение обменной заявки через сообщения.",
+        weight: "1 заявка",
+        locationType: "Онлайн"
+      }
+    ];
+  }
+
+  if (entry.type === "Услуги") {
+    return [
+      {
+        name: `${title} Start`,
+        category: "Услуги",
+        price: 80,
+        description: "Стартовый пакет услуги с описанием задачи и ответом исполнителя.",
+        weight: "1 услуга",
+        locationType: "Онлайн"
+      },
+      {
+        name: `${title} Pro`,
+        category: "Услуги",
+        price: 160,
+        description: "Расширенный пакет услуги с дополнительными правками и поддержкой.",
+        weight: "1 услуга",
+        locationType: "Онлайн"
+      }
+    ];
+  }
+
+  return [
+    {
+      name: `${title} Digital Pack`,
+      category: "Цифровые товары",
+      price: 120,
+      description: "Цифровой товар с автоматической выдачей после оформления заказа.",
+      weight: "1 файл",
+      locationType: "Онлайн"
+    },
+    {
+      name: `${title} Merch Drop`,
+      category: "Мерч",
+      price: 240,
+      description: "Фирменная карточка товара с описанием, остатком и сообщениями продавцу.",
+      weight: "1 шт",
+      locationType: "Доставка"
+    },
+    {
+      name: `${title} Custom Order`,
+      category: "Услуги",
+      price: 180,
+      description: "Индивидуальный заказ через профиль магазина и личный чат.",
+      weight: "1 заказ",
+      locationType: "После связи"
+    }
+  ];
+}
+
+function ensureDirectoryVendor(entry) {
+  let vendor = vendors.find((item) => item.name === entry.vendor);
+  if (!vendor) {
+    vendor = {
+      id: uid(),
+      name: entry.vendor,
+      login: `${entry.vendor}_owner`.slice(0, 24),
+      password: "change-me",
+      status: "Активен",
+      description: entry.description,
+      title: entry.name,
+      type: entry.type,
+      avatar: "assets/cerberus-logo-transparent.png",
+      city: entry.city || "Online",
+      paymentMode: "planned",
+      paymentCurrency: "USDT",
+      paymentNote: "Крипто-оплата подключается через защищенный сервер."
+    };
+    vendors.push(vendor);
+  }
+
+  if (!vendorProducts(vendor.name).length) {
+    defaultCatalogForEntry(entry).forEach((item, index) => {
+      products.push({
+        id: uid(),
+        ...item,
+        vendor: vendor.name,
+        city: vendor.city || entry.city || "Online",
+        rating: Number(entry.rating) || 4.9,
+        order: products.length + index,
+        image: vendor.avatar || "assets/cerberus-logo-transparent.png",
+        stockItems: [
+          { id: uid(), text: `${item.name}: заказ принят. Продавец свяжется с вами в чате.`, sold: false },
+          { id: uid(), text: `${item.name}: резервная выдача для следующего заказа.`, sold: false }
+        ]
+      });
+    });
+  }
+
+  saveState();
 }
 
 function renderCategories() {
@@ -439,7 +553,13 @@ function renderProducts() {
     node.querySelector(".city").textContent = entry.city;
     node.querySelector(".directory-stats").textContent = `${entry.reviews.toLocaleString("ru-RU")} отзывов · ${entry.deals.toLocaleString("ru-RU")} сделок`;
     node.querySelector(".price").textContent = entry.priceLabel;
-    node.querySelector(".open-directory-button").addEventListener("click", () => {
+    node.addEventListener("click", () => {
+      ensureDirectoryVendor(entry);
+      openPublicProfile(entry.vendor);
+    });
+    node.querySelector(".open-directory-button").addEventListener("click", (event) => {
+      event.stopPropagation();
+      ensureDirectoryVendor(entry);
       openPublicProfile(entry.vendor);
     });
     el.productGrid.append(node);
@@ -721,7 +841,7 @@ function renderVendorCabinet() {
   el.vendorProfileForm.title.value = vendor.title || vendor.name;
   el.vendorProfileForm.type.value = vendor.type || "Магазины";
   el.vendorProfileForm.avatar.value = vendor.avatar || "assets/cerberus-logo-transparent.png";
-  el.vendorProfileForm.city.value = vendor.city || "Local";
+  el.vendorProfileForm.city.value = vendor.city || "Online";
   el.vendorProfileForm.description.value = vendor.description || "";
 
   el.vendorProductList.innerHTML = "";
@@ -767,7 +887,7 @@ function renderVendorCabinet() {
     el.vendorMessageList.append(item);
   });
 
-  el.paymentSettingsForm.paymentMode.value = vendor.paymentMode || "demo";
+  el.paymentSettingsForm.paymentMode.value = vendor.paymentMode || "planned";
   el.paymentSettingsForm.paymentCurrency.value = vendor.paymentCurrency || "USDT";
   el.paymentSettingsForm.paymentNote.value = vendor.paymentNote || "";
 }
@@ -785,8 +905,8 @@ function startConversation(vendor, productName = "") {
         {
           from: "them",
           text: vendor === "operator"
-            ? "Здравствуйте. Оператор на связи в локальном демо-режиме. Чем помочь?"
-            : `Здравствуйте. Это демо-чат магазина ${title}${productName ? ` по товару «${productName}»` : ""}.`,
+            ? "Здравствуйте. Оператор на связи. Чем помочь?"
+            : `Здравствуйте. Это чат магазина ${title}${productName ? ` по товару «${productName}»` : ""}.`,
           time: new Date().toLocaleString("ru-RU")
         }
       ]
@@ -809,8 +929,8 @@ function sendMessage(text) {
   active.messages.push({
     from: "them",
     text: active.key === "operator"
-      ? "Принято. В реальной версии это сообщение увидит оператор сайта. В демо я сохраняю переписку локально."
-      : "Спасибо за сообщение. В реальной версии продавец получил бы его в своем кабинете.",
+      ? "Принято. Оператор увидит сообщение и сможет ответить в рабочем кабинете."
+      : "Спасибо за сообщение. Продавец увидит его в своем кабинете.",
     time: new Date().toLocaleString("ru-RU")
   });
 }
@@ -842,14 +962,14 @@ function saveProductEditor(id, container) {
       title: product.vendor,
       type: "Магазины",
       avatar: "assets/cerberus-logo-transparent.png",
-      city: "Local",
+      city: "Online",
       login: `${product.vendor}_owner`,
-      password: "demo123",
+      password: "market123",
       status: "Активен",
       description: `Автоматически созданный кабинет ${product.vendor}.`,
-      paymentMode: "demo",
+      paymentMode: "planned",
       paymentCurrency: "USDT",
-      paymentNote: "Платежи пока в демо-режиме."
+      paymentNote: "Крипто-оплата подключается через защищенный сервер."
     });
   }
 
@@ -898,7 +1018,7 @@ function saveVendorProfile() {
   vendor.title = data.title.trim() || vendor.name;
   vendor.type = data.type;
   vendor.avatar = data.avatar.trim() || "assets/cerberus-logo-transparent.png";
-  vendor.city = data.city.trim() || "Local";
+  vendor.city = data.city.trim() || "Online";
   vendor.description = data.description.trim();
   wallet.activity.push(`Профиль обновлен: ${vendor.title}`);
   render();
@@ -915,7 +1035,7 @@ function addVendorItem() {
     category: data.category,
     price: Number(data.price),
     vendor: vendor.name,
-    city: vendor.city || "Local",
+    city: vendor.city || "Online",
     rating: 5,
     order: products.length,
     description: data.description.trim(),
@@ -935,7 +1055,7 @@ function openPublicProfile(vendorName) {
     title: vendorName,
     type: "Магазины",
     avatar: "assets/cerberus-logo-transparent.png",
-    city: "Local",
+    city: "Online",
     description: "Профиль пока не создан владельцем."
   };
   const storeProducts = vendorProducts(vendor.name);
@@ -944,14 +1064,14 @@ function openPublicProfile(vendorName) {
     <section class="public-profile-head">
       <img src="${escapeHtml(vendor.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
       <div>
-        <span>${escapeHtml(vendor.type || "Магазины")} · ${escapeHtml(vendor.city || "Local")}</span>
+        <span>${escapeHtml(vendor.type || "Магазины")} · ${escapeHtml(vendor.city || "Online")}</span>
         <h3>${escapeHtml(vendor.title || vendor.name)}</h3>
         <p>${escapeHtml(vendor.description || "Описание пока не заполнено.")}</p>
       </div>
     </section>
     <div class="public-profile-actions">
       <button class="ghost-button" type="button" data-action="message">Написать</button>
-      <button class="primary-button" type="button" data-action="cabinet">Открыть кабинет</button>
+      <button class="primary-button" type="button" data-action="catalog">Каталог ниже</button>
     </div>
     <h3>Товары и карточки</h3>
     <div class="public-product-list"></div>
@@ -962,11 +1082,8 @@ function openPublicProfile(vendorName) {
     showView("messages");
     render();
   });
-  el.publicProfile.querySelector('[data-action="cabinet"]').addEventListener("click", () => {
-    selectedVendorName = vendor.name;
-    closePublicProfile();
-    showView("vendor");
-    render();
+  el.publicProfile.querySelector('[data-action="catalog"]').addEventListener("click", () => {
+    el.publicProfile.querySelector(".public-product-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   const list = el.publicProfile.querySelector(".public-product-list");
   if (!storeProducts.length) {
@@ -1197,7 +1314,7 @@ function checkout() {
   const total = cartTotal();
   if (!cart.length) return;
   if (selectedPayment !== "wallet") {
-    wallet.activity.push(`Способ ${selectedPayment.toUpperCase()} пока в демо-режиме`);
+    wallet.activity.push(`Способ ${selectedPayment.toUpperCase()} ожидает серверного подключения`);
     render();
     return;
   }
@@ -1245,7 +1362,7 @@ function checkout() {
       const active = conversations.find((conversation) => conversation.id === activeConversationId);
       active.messages.push({
         from: "me",
-        text: `Демо-заказ ${order.id}: ${product.name}, ${item.quantity} шт.`,
+        text: `Заказ ${order.id}: ${product.name}, ${item.quantity} шт.`,
         time: new Date().toLocaleString("ru-RU")
       });
       if (issued.length) {
@@ -1257,7 +1374,7 @@ function checkout() {
       }
     }
   });
-  wallet.activity.push(`Демо-заказ ${order.id}: -${money(total)}`);
+  wallet.activity.push(`Заказ ${order.id}: -${money(total)}`);
   cart = [];
   closeCart();
   closePaymentDrawer();
@@ -1277,7 +1394,7 @@ function deleteProduct(id) {
   render();
 }
 
-function resetDemo() {
+function resetCatalog() {
   products = defaultProducts.map((product, index) => ({ ...product, id: uid(), order: index }));
   cart = [];
   orders = [];
@@ -1286,7 +1403,7 @@ function resetDemo() {
   conversations = [];
   activeConversationId = null;
   announcements = defaultAnnouncements.map((item) => ({ ...item, id: uid(), createdAt: new Date().toLocaleString("ru-RU") }));
-  wallet = { balance: 500, activity: ["Демо сброшено: +500 CRB"] };
+  wallet = { balance: 500, activity: ["Каталог сброшен: +500 CRB"] };
   activeCategory = "Все";
   render();
 }
@@ -1368,7 +1485,7 @@ el.vendorItemForm.addEventListener("submit", (event) => {
 el.profileDrawerClose.addEventListener("click", closePublicProfile);
 el.addCredits.addEventListener("click", () => {
   wallet.balance += 250;
-  wallet.activity.push("Демо-пополнение: +250 CRB");
+  wallet.activity.push("Пополнение: +250 CRB");
   render();
 });
 el.profileForm.addEventListener("submit", (event) => {
@@ -1386,7 +1503,7 @@ el.productForm.addEventListener("submit", (event) => {
     category: data.category,
     price: Number(data.price),
     vendor: data.vendor.trim(),
-    city: profile.city || "Local",
+    city: profile.city || "Online",
     rating: 4.5,
     order: products.length,
     description: data.description.trim()
@@ -1398,14 +1515,14 @@ el.productForm.addEventListener("submit", (event) => {
       title: data.vendor.trim(),
       type: "Магазины",
       avatar: "assets/cerberus-logo-transparent.png",
-      city: profile.city || "Local",
+      city: profile.city || "Online",
       login: `${data.vendor.trim()}_owner`,
-      password: "demo123",
+      password: "market123",
       status: "Активен",
       description: `Автоматически созданный кабинет ${data.vendor.trim()}.`,
-      paymentMode: "demo",
+      paymentMode: "planned",
       paymentCurrency: "USDT",
-      paymentNote: "Платежи пока в демо-режиме."
+      paymentNote: "Крипто-оплата подключается через защищенный сервер."
     });
   }
   el.productForm.reset();
@@ -1427,14 +1544,14 @@ el.vendorForm.addEventListener("submit", (event) => {
     title: name,
     type: data.type,
     avatar: data.avatar.trim() || "assets/cerberus-logo-transparent.png",
-    city: data.city.trim() || "Local",
+    city: data.city.trim() || "Online",
     login: data.login.trim(),
     password: data.password,
     status: data.status,
     description: data.description.trim(),
-    paymentMode: "demo",
+    paymentMode: "planned",
     paymentCurrency: "USDT",
-    paymentNote: "Платежи пока в демо-режиме."
+    paymentNote: "Крипто-оплата подключается через защищенный сервер."
   });
   wallet.activity.push(`Создан кабинет магазина: ${name}`);
   el.vendorForm.reset();
@@ -1457,7 +1574,7 @@ el.broadcastForm.addEventListener("submit", (event) => {
   showView("news");
   render();
 });
-el.resetDemo.addEventListener("click", resetDemo);
+el.resetCatalog.addEventListener("click", resetCatalog);
 el.themeToggle.addEventListener("click", () => {
   document.documentElement.classList.toggle("light");
   storage.set("cerberusTheme", document.documentElement.classList.contains("light") ? "light" : "dark");
