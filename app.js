@@ -8,63 +8,53 @@ function uid() {
 const defaultProducts = [
   {
     id: uid(),
-    name: "Cerberus UI Kit",
-    category: "Цифровые товары",
-    price: 140,
-    vendor: "north_lab",
+    name: "SnowBoard Basic",
+    category: "Мерч",
+    price: 120,
+    vendor: "snowboard",
     city: "Tiraspol",
     rating: 4.9,
-    description: "Набор экранов, компонентов и тем для быстрого старта проекта."
+    description: "Стартовая карточка SnowBoard, которую владелец сможет заменить в своем кабинете.",
+    image: "assets/snowboard.jpg",
+    weight: "1 шт",
+    locationType: "Онлайн",
+    stockItems: [
+      { id: uid(), text: "SnowBoard Basic: заявка принята, владелец страницы свяжется с вами в чате.", sold: false },
+      { id: uid(), text: "SnowBoard Basic: резервная выдача для следующего заказа.", sold: false }
+    ]
   },
   {
     id: uid(),
-    name: "Encrypted Notes Template",
-    category: "Цифровые товары",
-    price: 85,
-    vendor: "quiet_studio",
-    city: "Chisinau",
-    rating: 4.8,
-    description: "Шаблон личного блокнота с аккуратной структурой страниц и темной темой."
-  },
-  {
-    id: uid(),
-    name: "Black Label Hoodie",
+    name: "SnowBoard Premium",
     category: "Мерч",
     price: 260,
-    vendor: "thread_unit",
-    city: "Bender",
-    rating: 4.7,
-    description: "Плотное худи с минимальным знаком Cerberus и фирменным дропом."
+    vendor: "snowboard",
+    city: "Chisinau",
+    rating: 4.8,
+    description: "Расширенная карточка SnowBoard для каталога профиля.",
+    image: "assets/snowboard.jpg",
+    weight: "1 шт",
+    locationType: "Онлайн",
+    stockItems: [
+      { id: uid(), text: "SnowBoard Premium: заявка принята, владелец страницы свяжется с вами в чате.", sold: false }
+    ]
   },
   {
     id: uid(),
-    name: "Landing Page Audit",
-    category: "Услуги",
-    price: 190,
-    vendor: "signal_ops",
-    city: "Remote",
-    rating: 5,
-    description: "Разбор структуры страницы, визуальной иерархии и быстрых точек роста."
-  },
-  {
-    id: uid(),
-    name: "Icon Pack Vol. 1",
-    category: "Коллекции",
-    price: 70,
-    vendor: "vector_room",
-    city: "Odessa",
-    rating: 4.6,
-    description: "Коллекция монохромных пиктограмм для панелей, карточек и меню."
-  },
-  {
-    id: uid(),
-    name: "Product Photo Presets",
-    category: "Цифровые товары",
-    price: 110,
-    vendor: "frame_shop",
-    city: "Kyiv",
+    name: "CryptonyX Exchange Request",
+    category: "Заявки",
+    price: 50,
+    vendor: "cryptonyx",
+    city: "Online",
     rating: 4.9,
-    description: "Пресеты обработки фото для каталога, витрины и социальных публикаций."
+    description: "Заявка CryptonyX на консультацию и расчет условий обмена через сообщения.",
+    image: "assets/cryptonyx.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    stockItems: [
+      { id: uid(), text: "CryptonyX: заявка принята, оператор свяжется с вами в чате.", sold: false },
+      { id: uid(), text: "CryptonyX: резервная заявка для следующего заказа.", sold: false }
+    ]
   }
 ];
 
@@ -87,61 +77,49 @@ const defaultAnnouncements = [
   }
 ];
 
+const defaultAccounts = [
+  {
+    login: "admin",
+    loginKey: "admin",
+    password: "admin12345",
+    role: "admin",
+    createdAt: new Date().toISOString()
+  }
+];
+
 const defaultVendors = [
   {
     id: uid(),
-    name: "north_lab",
-    login: "north_lab_owner",
+    name: "snowboard",
+    login: "snowboard_owner",
     password: "market123",
     status: "Активен",
-    description: "Кабинет магазина north_lab.",
-    title: "North Lab",
+    description: "Профиль SnowBoard с аватаркой, описанием, каталогом и личными сообщениями.",
+    title: "SnowBoard",
     type: "Магазины",
-    avatar: "assets/cerberus-logo-transparent.png",
+    avatar: "assets/snowboard.jpg",
     city: "Tiraspol",
+    featured: true,
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
   },
   {
     id: uid(),
-    name: "quiet_studio",
-    login: "quiet_owner",
+    name: "cryptonyx",
+    login: "cryptonyx_owner",
     password: "market123",
     status: "Активен",
-    description: "Кабинет магазина quiet_studio.",
-    title: "Quiet Studio",
-    type: "Магазины",
-    avatar: "assets/cerberus-logo-transparent.png",
-    city: "Chisinau",
+    description: "Профиль обменника CryptonyX с заявками, каталогом и сообщениями.",
+    title: "CryptonyX",
+    type: "Обменники",
+    avatar: "assets/cryptonyx.jpg",
+    city: "Online",
+    featured: true,
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
   }
-];
-
-const topStoreNames = [
-  "North Lab", "Quiet Studio", "Thread Unit", "Signal Ops", "Vector Room", "Frame Shop",
-  "Iron Pixel", "Red Harbor", "Mono Craft", "Digital Yard", "Black Index", "Urban Kit",
-  "Cloud Desk", "Prime Goods", "Atlas Supply", "Neon Works", "Silver Box", "Nova Store",
-  "Core Market", "Line Agency", "Meta Pack", "Night Shift", "Studio 404", "Craft Point",
-  "Local Hub", "Echo Shop", "Metro Unit", "Sharp Goods", "Rift Studio", "Cerberus Select"
-];
-
-const topExchangerNames = [
-  "Cerberus Exchange", "Red Rate", "North Swap", "Prime Change", "Atlas Exchange", "Mono Rates",
-  "Fast Bridge", "Silver Trade", "Orbit Change", "Signal Exchange", "Nova Swap", "Core Rates",
-  "Vector Change", "Metro Swap", "Cloud Exchange", "Rift Change", "Local Rate", "Iron Swap",
-  "Black Bridge", "Echo Rates", "Sharp Exchange", "Night Change", "Line Swap", "Urban Rate",
-  "Frame Exchange", "Quiet Change", "Neon Swap", "Thread Rates", "Harbor Exchange", "Select Swap"
-];
-
-const topServiceNames = [
-  "Landing Audit", "Design Review", "Photo Presets", "Copywriting Desk", "SEO Local", "Support Crew",
-  "Delivery Desk", "Brand Kit", "UI Repair", "Content Pack", "Promo Setup", "Profile Boost",
-  "Analytics Room", "Card Design", "Catalog Setup", "Bot Setup", "CRM Helper", "Translation Unit",
-  "Moderation Desk", "Legal Templates", "Domain Helper", "Mirror Monitor", "Backup Service", "QA Check",
-  "Launch Plan", "Icon Lab", "Video Cut", "Product Naming", "Sales Script", "Service Concierge"
 ];
 
 const storage = {
@@ -173,7 +151,7 @@ let cart = storage.get("cerberusCart", []);
 let orders = storage.get("cerberusOrders", []);
 let profile = storage.get("cerberusProfile", { nickname: "", city: "", contact: "" });
 let wallet = storage.get("cerberusWallet", { balance: 500, activity: ["Стартовый баланс: +500 CRB"] });
-let accounts = storage.get("cerberusAccounts", []);
+let accounts = storage.get("cerberusAccounts", defaultAccounts);
 let session = storage.get("cerberusSession", null);
 let vendors = storage.get("cerberusVendors", defaultVendors);
 let conversations = storage.get("cerberusConversations", []);
@@ -191,6 +169,9 @@ let activeFilters = storage.get("cerberusFilters", {
 let selectedPayment = "wallet";
 let activeCategory = "Все";
 let activeDirectoryType = storage.get("cerberusDirectoryType", "Все");
+if (!["Все", "Магазины", "Обменники"].includes(activeDirectoryType)) {
+  activeDirectoryType = "Все";
+}
 let authMode = "login";
 let captchaAnswer = 0;
 
@@ -200,6 +181,11 @@ accounts = accounts.map((account) => ({
   login: String(account.login || "").trim(),
   loginKey: String(account.loginKey || account.login || "").trim().toLowerCase()
 })).filter((account) => account.login);
+defaultAccounts.forEach((defaultAccount) => {
+  if (!accounts.some((account) => account.loginKey === defaultAccount.loginKey)) {
+    accounts.push({ ...defaultAccount });
+  }
+});
 vendors = (vendors.length ? vendors : defaultVendors).map((vendor) => ({
   title: vendor.name,
   type: "Магазины",
@@ -209,6 +195,26 @@ vendors = (vendors.length ? vendors : defaultVendors).map((vendor) => ({
   login: String(vendor.login || "").trim(),
   loginKey: String(vendor.loginKey || vendor.login || "").trim().toLowerCase()
 }));
+defaultVendors.forEach((defaultVendor) => {
+  if (!vendors.some((vendor) => vendor.name === defaultVendor.name)) {
+    vendors.push({
+      ...defaultVendor,
+      id: uid(),
+      loginKey: normalizeLogin(defaultVendor.login)
+    });
+  }
+});
+const pinnedVendorNames = ["snowboard", "cryptonyx"];
+products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
+defaultProducts.forEach((defaultProduct) => {
+  if (!products.some((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name)) {
+    products.push({
+      ...defaultProduct,
+      id: uid(),
+      order: products.length
+    });
+  }
+});
 
 const el = {
   authScreen: document.querySelector("#authScreen"),
@@ -336,65 +342,24 @@ function productCode(product) {
 }
 
 function buildDirectoryEntries() {
-  const cities = ["Tiraspol", "Chisinau", "Bender", "Remote", "Kyiv", "Odessa"];
-  const stores = topStoreNames.map((name, index) => ({
-    id: `store-${index}`,
-    type: "Магазины",
-    name,
-    vendor: name.toLowerCase().replaceAll(" ", "_"),
-    city: cities[index % cities.length],
-    rating: (5 - (index % 7) * 0.03).toFixed(2),
-    reviews: 9000 - index * 173,
-    deals: 420 + index * 17,
-    description: "Рекомендованный магазин Cerberus с профилем, каталогом и сообщениями.",
-    priceLabel: "Топ магазин"
-  }));
-
-  vendors.forEach((vendor, index) => {
-    if (!stores.some((entry) => entry.vendor === vendor.name)) {
-      stores[index % stores.length] = {
-        id: `vendor-${vendor.id}`,
+  return vendors
+    .filter((vendor) => vendor.featured || ["snowboard", "cryptonyx"].includes(vendor.name))
+    .map((vendor, index) => {
+      const count = vendorProducts(vendor.name).length;
+      return {
+        id: `vendor-${vendor.id || index}`,
         type: vendor.type || "Магазины",
         name: vendor.title || vendor.name,
         vendor: vendor.name,
         city: vendor.city || "Online",
-        rating: "5.00",
-        reviews: vendorProducts(vendor.name).length * 53 + 281,
-        deals: vendorProducts(vendor.name).length,
-        description: vendor.description || "Личный кабинет магазина создан в админке.",
+        rating: (5 - index * 0.02).toFixed(2),
+        reviews: count * 53 + 281,
+        deals: count,
+        description: vendor.description || "Профиль создан в админке.",
         avatar: vendor.avatar || "assets/cerberus-logo-transparent.png",
-        priceLabel: "Кабинет"
+        priceLabel: vendor.type === "Обменники" ? "Обменник" : "Магазин"
       };
-    }
-  });
-
-  const exchangers = topExchangerNames.map((name, index) => ({
-    id: `exchange-${index}`,
-    type: "Обменники",
-    name,
-    vendor: name.toLowerCase().replaceAll(" ", "_"),
-    city: cities[(index + 2) % cities.length],
-    rating: (4.98 - (index % 8) * 0.02).toFixed(2),
-    reviews: 6500 - index * 91,
-    deals: 1200 + index * 31,
-    description: "Обменный сервис Cerberus с профилем, заявками и личными сообщениями.",
-    priceLabel: "Обмен"
-  }));
-
-  const services = topServiceNames.map((name, index) => ({
-    id: `service-${index}`,
-    type: "Услуги",
-    name,
-    vendor: name.toLowerCase().replaceAll(" ", "_"),
-    city: cities[(index + 4) % cities.length],
-    rating: (4.96 - (index % 9) * 0.02).toFixed(2),
-    reviews: 3200 - index * 43,
-    deals: 240 + index * 13,
-    description: "Сервисная карточка внутри Cerberus: заявки, сообщения и заказы.",
-    priceLabel: "Услуга"
-  }));
-
-  return [...stores, ...exchangers, ...services];
+    });
 }
 
 function currentDirectoryEntries() {
@@ -409,15 +374,7 @@ function currentDirectoryEntries() {
     return typeMatch && cityMatch && queryMatch;
   });
 
-  if (activeDirectoryType === "Все" && !query && !activeFilters.city) {
-    return [
-      ...filtered.filter((entry) => entry.type === "Магазины").slice(0, 10),
-      ...filtered.filter((entry) => entry.type === "Обменники").slice(0, 10),
-      ...filtered.filter((entry) => entry.type === "Услуги").slice(0, 10)
-    ];
-  }
-
-  return filtered.slice(0, 30);
+  return filtered;
 }
 
 function defaultCatalogForEntry(entry) {
@@ -536,14 +493,13 @@ function ensureDirectoryVendor(entry) {
 }
 
 function renderCategories() {
-  const categories = ["Все", "Магазины", "Обменники", "Услуги"];
+  const categories = ["Все", "Магазины", "Обменники"];
   const titleMap = {
-    "Все": "Топ-30 магазинов",
-    "Магазины": "Топ-30 магазинов",
-    "Обменники": "Топ-30 обменников",
-    "Услуги": "Топ-30 услуг"
+    "Все": "SnowBoard и CryptonyX",
+    "Магазины": "SnowBoard",
+    "Обменники": "CryptonyX"
   };
-  el.marketTitle.textContent = titleMap[activeDirectoryType] || "Топ-30";
+  el.marketTitle.textContent = titleMap[activeDirectoryType] || "SnowBoard и CryptonyX";
   el.categoryTabs.innerHTML = "";
 
   categories.forEach((category) => {
@@ -570,7 +526,9 @@ function renderProducts() {
 
   visible.forEach((entry, index) => {
     const node = el.directoryTemplate.content.firstElementChild.cloneNode(true);
-    node.querySelector(".directory-rank").textContent = `#${index + 1}`;
+    const cover = node.querySelector(".directory-cover");
+    cover.src = entry.avatar || "assets/cerberus-logo-transparent.png";
+    cover.alt = entry.name;
     node.querySelector(".category-pill").textContent = entry.type;
     node.querySelector(".rating").textContent = `★ ${entry.rating}`;
     node.querySelector("h3").textContent = entry.name;
@@ -1259,7 +1217,7 @@ function handleAuth(event) {
       el.authError.textContent = "Пароли не совпадают.";
       return;
     }
-    accounts.push({ login, loginKey, password, createdAt: new Date().toISOString() });
+    accounts.push({ login, loginKey, password, role: "user", createdAt: new Date().toISOString() });
     profile.nickname = profile.nickname || login;
     wallet.activity.push(`Аккаунт создан: ${login}`);
   } else {

@@ -585,20 +585,16 @@ select {
 .directory-card {
   position: relative;
   display: grid;
-  grid-template-columns: 78px minmax(0, 1fr);
-  min-height: 220px;
+  grid-template-rows: 230px minmax(0, 1fr);
+  min-height: 420px;
 }
 
-.directory-rank {
-  display: grid;
-  place-items: center;
-  border-right: 1px solid var(--line);
-  background:
-    linear-gradient(135deg, rgba(127, 19, 12, .45), rgba(200, 194, 184, .08)),
-    var(--panel-2);
-  color: var(--accent);
-  font-size: 22px;
-  font-weight: 900;
+.directory-cover {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  border-bottom: 1px solid var(--line);
+  background: #070707;
 }
 
 .directory-body {
@@ -1453,11 +1449,10 @@ textarea {
 
   .directory-card {
     grid-template-columns: 1fr;
+    grid-template-rows: 190px minmax(0, 1fr);
   }
 
-  .directory-rank {
-    min-height: 54px;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
+  .directory-cover {
+    height: 190px;
   }
 }
