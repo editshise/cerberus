@@ -211,6 +211,7 @@
                 <option value="file">Файл</option>
               </select>
               <input name="mediaUrl" maxlength="700" placeholder="Ссылка на файл или медиа">
+              <input name="mediaFile" type="file" accept="image/*,video/*,audio/*">
               <div class="emoji-row">
                 <button type="button" data-chat-emoji="👍">👍</button>
                 <button type="button" data-chat-emoji="🔥">🔥</button>
@@ -252,6 +253,7 @@
               <option value="audio">Голосовое/аудио</option>
             </select>
             <input name="mediaUrl" maxlength="700" placeholder="Ссылка на медиа">
+            <input name="mediaFile" type="file" accept="image/*,video/*,audio/*">
             <div class="emoji-row">
               <button type="button" data-emoji="👍">👍</button>
               <button type="button" data-emoji="🔥">🔥</button>
@@ -293,12 +295,24 @@
         <form class="profile-form" id="profileForm">
           <div class="profile-preview wide" id="profilePreview"></div>
           <label>
-            Никнейм
-            <input name="nickname" maxlength="24" placeholder="ghost_user">
+            Логин
+            <input name="nickname" maxlength="24" readonly>
+          </label>
+          <label>
+            Имя
+            <input name="firstName" maxlength="32" placeholder="Имя">
+          </label>
+          <label>
+            Фамилия
+            <input name="lastName" maxlength="32" placeholder="Фамилия">
           </label>
           <label>
             Аватар
             <input name="avatar" maxlength="700" placeholder="https://... или assets/cerberus-logo-transparent.png">
+          </label>
+          <label>
+            Загрузить аватар
+            <input name="avatarFile" type="file" accept="image/*">
           </label>
           <label class="wide">
             Описание
@@ -306,14 +320,25 @@
           </label>
           <label class="wide">
             Фото в профиль
-            <input name="photoUrl" maxlength="700" placeholder="Ссылка на фото профиля">
+            <input name="photoUrl" maxlength="700" placeholder="Ссылка на фото или видео профиля">
+          </label>
+          <label>
+            Загрузить фото/видео
+            <input name="profileMediaFile" type="file" accept="image/*,video/*">
+          </label>
+          <label>
+            Тип медиа
+            <select name="photoType">
+              <option value="image">Фото</option>
+              <option value="video">Видео</option>
+            </select>
           </label>
           <label>
             Город
             <input name="city" maxlength="32" placeholder="Tiraspol">
           </label>
           <label>
-            Контакт
+            Контакт в телеграме
             <input name="contact" maxlength="48" placeholder="@username">
           </label>
           <button class="primary-button" type="submit">Сохранить</button>

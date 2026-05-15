@@ -135,14 +135,6 @@ const defaultProducts = [
 const defaultAnnouncements = [
   {
     id: uid(),
-    title: "Добро пожаловать в Cerberus",
-    type: "Новость",
-    body: "Cerberus запущен: витрина, корзина, профили, сообщения и заказы доступны после входа.",
-    createdAt: new Date().toLocaleString("ru-RU"),
-    read: false
-  },
-  {
-    id: uid(),
     title: "Сохрани сайт на главный экран",
     type: "Важное",
     body: "Нажми «Добавить на экран» в верхней панели, чтобы открыть инструкцию для iPhone, Android и Windows.",
@@ -283,7 +275,7 @@ const storage = {
 let products = storage.get("cerberusProducts", defaultProducts);
 let cart = storage.get("cerberusCart", []);
 let orders = storage.get("cerberusOrders", []);
-const defaultProfile = { nickname: "", avatar: "", bio: "", photoUrl: "", city: "", contact: "", completedDeals: 0 };
+const defaultProfile = { nickname: "", firstName: "", lastName: "", avatar: "", bio: "", photoUrl: "", photoType: "image", city: "", contact: "", completedDeals: 0 };
 let profiles = storage.get("cerberusProfiles", {});
 let profile = storage.get("cerberusProfile", defaultProfile);
 let wallet = storage.get("cerberusWallet", { balance: 500, activity: ["Стартовый баланс: +500 CRB"] });
@@ -312,6 +304,7 @@ let authMode = "login";
 let captchaAnswer = 0;
 
 products = products.map((product, index) => ({ order: index, ...product }));
+announcements = cleanAnnouncements(announcements);
 profile = {
   ...defaultProfile,
   ...profile
@@ -586,6 +579,14 @@ function normalizeProfile(value) {
   return { ...defaultProfile, ...(value && typeof value === "object" ? value : {}) };
 }
 
+function cleanAnnouncements(list) {
+  return (Array.isArray(list) ? list : []).filter((item) => {
+    const title = String(item.title || "").toLowerCase();
+    const body = String(item.body || "").toLowerCase();
+    return !title.includes("добро пожаловать") && !body.includes("локальный прототип") && !body.includes("демо-заказы");
+  });
+}
+
 function activeLoginKey() {
   return normalizeLogin(session?.loginKey || session?.login);
 }
@@ -656,7 +657,7 @@ function applyCloudState(data) {
   conversations = Array.isArray(data.conversations) ? data.conversations : conversations;
   activeConversationId = typeof data.activeConversationId === "string" ? data.activeConversationId : activeConversationId;
   globalChat = Array.isArray(data.globalChat) ? data.globalChat : globalChat;
-  announcements = Array.isArray(data.announcements) ? data.announcements : announcements;
+  announcements = cleanAnnouncements(Array.isArray(data.announcements) ? data.announcements : announcements);
   reviews = Array.isArray(data.reviews) ? data.reviews : reviews;
   selectedVendorName = typeof data.selectedVendorName === "string" ? data.selectedVendorName : selectedVendorName;
   activeFilters = data.activeFilters && typeof data.activeFilters === "object" ? data.activeFilters : activeFilters;
@@ -710,7 +711,8 @@ async function saveCloudState() {
 }
 
 function currentUserName() {
-  return profile.nickname?.trim() || session?.login || "Пользователь";
+  const fullName = [profile.firstName, profile.lastName].map((item) => String(item || "").trim()).filter(Boolean).join(" ");
+  return fullName || profile.nickname?.trim() || session?.login || "Пользователь";
 }
 
 function profileAvatar() {
@@ -732,6 +734,24 @@ function rankForScore(score) {
 
 function currentRank() {
   return rankForScore(profileScore());
+}
+
+function fileToDataUrl(file) {
+  if (!file || !file.size) return Promise.resolve("");
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+function mediaTypeFromFile(file, fallback = "") {
+  if (!file?.type) return fallback;
+  if (file.type.startsWith("image/")) return "image";
+  if (file.type.startsWith("video/")) return "video";
+  if (file.type.startsWith("audio/")) return "audio";
+  return fallback || "file";
 }
 
 function renderMedia(message) {
@@ -1194,10 +1214,12 @@ function renderGlobalChat() {
     item.className = "global-chat-message";
     const canManage = message.authorKey === normalizeLogin(session?.login) || isOwnerAdmin();
     item.innerHTML = `
-      <img src="${escapeHtml(message.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
+      <button class="profile-link-button" type="button" data-user-profile="${escapeHtml(message.authorKey || "")}">
+        <img src="${escapeHtml(message.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
+      </button>
       <div>
         <div class="global-chat-head">
-          <strong>${escapeHtml(message.author || "Пользователь")}</strong>
+          <button class="text-profile-link" type="button" data-user-profile="${escapeHtml(message.authorKey || "")}">${escapeHtml(message.author || "Пользователь")}</button>
           <span class="rank-badge ${escapeHtml(message.rankClass || "rank-newbie")}">${escapeHtml(message.rank || "Новичок")}</span>
           <small>${escapeHtml(message.time)}</small>
         </div>
@@ -1222,6 +1244,7 @@ function renderGlobalChat() {
 
 function renderNews() {
   el.newsList.innerHTML = "";
+  announcements = cleanAnnouncements(announcements);
   if (!announcements.length) {
     el.newsList.innerHTML = '<div class="empty-state">Рассылок пока нет.</div>';
     return;
@@ -1286,22 +1309,29 @@ function renderWallet() {
 
 function renderProfile() {
   const rank = currentRank();
+  const login = profile.nickname || session?.login || "";
+  const mediaType = profile.photoType === "video" ? "video" : "image";
   el.profilePreview.innerHTML = `
     <div class="profile-preview-head">
       <img src="${escapeHtml(profileAvatar())}" alt="">
       <div>
         <strong>${escapeHtml(currentUserName())}</strong>
+        <small>@${escapeHtml(login)}</small>
         <span class="rank-badge ${rank.className}">${rank.name}</span>
         <p>${profileScore()} завершенных действий: покупки и закрытые обмены.</p>
       </div>
     </div>
     ${profile.bio ? `<p>${escapeHtml(profile.bio)}</p>` : ""}
-    ${profile.photoUrl ? `<img class="profile-cover-photo" src="${escapeHtml(profile.photoUrl)}" alt="">` : ""}
+    ${profile.contact ? `<a class="chat-media-link" href="https://t.me/${escapeHtml(profile.contact.replace(/^@/, ""))}" target="_blank" rel="noreferrer">${escapeHtml(profile.contact)}</a>` : ""}
+    ${profile.photoUrl ? (mediaType === "video" ? `<video class="profile-cover-photo" src="${escapeHtml(profile.photoUrl)}" controls></video>` : `<img class="profile-cover-photo" src="${escapeHtml(profile.photoUrl)}" alt="">`) : ""}
   `;
-  el.profileForm.nickname.value = profile.nickname;
+  el.profileForm.nickname.value = login;
+  el.profileForm.firstName.value = profile.firstName || "";
+  el.profileForm.lastName.value = profile.lastName || "";
   el.profileForm.avatar.value = profile.avatar;
   el.profileForm.bio.value = profile.bio;
   el.profileForm.photoUrl.value = profile.photoUrl;
+  el.profileForm.photoType.value = profile.photoType || "image";
   el.profileForm.city.value = profile.city;
   el.profileForm.contact.value = profile.contact;
 }
@@ -1543,6 +1573,9 @@ function renderVendorCabinet() {
       </div>
       ${conversation.completed ? `<span>Завершено: ${orderStatusMeta(conversation.status).label}</span>` : ""}
     `;
+    item.querySelectorAll("[data-user-profile]").forEach((button) => {
+      button.addEventListener("click", () => openUserProfile(button.dataset.userProfile));
+    });
     item.addEventListener("submit", (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(item).entries());
@@ -1594,18 +1627,20 @@ function startConversation(vendor, productName = "") {
   activeConversationId = conversation.id;
 }
 
-function sendMessage(data) {
+async function sendMessage(data, form = null) {
   const active = conversations.find((conversation) => conversation.id === activeConversationId);
   if (!active) return;
   const text = String(data.message || "").trim();
-  const mediaUrl = String(data.mediaUrl || "").trim();
+  const file = form?.elements.mediaFile?.files?.[0];
+  const uploadedMedia = await fileToDataUrl(file);
+  const mediaUrl = uploadedMedia || String(data.mediaUrl || "").trim();
   if (!text && !mediaUrl) return;
 
   active.messages.push({
     id: uid(),
     from: "me",
     text: text || "Медиа",
-    mediaType: data.mediaType,
+    mediaType: mediaTypeFromFile(file, data.mediaType),
     mediaUrl,
     reactions: {},
     time: new Date().toLocaleString("ru-RU")
@@ -1749,9 +1784,11 @@ function reactConversationMessage(conversationId, messageId, emoji) {
   render();
 }
 
-function sendGlobalMessage(data) {
+async function sendGlobalMessage(data, form = null) {
   const text = data.text.trim();
-  const mediaUrl = data.mediaUrl.trim();
+  const file = form?.elements.mediaFile?.files?.[0];
+  const uploadedMedia = await fileToDataUrl(file);
+  const mediaUrl = uploadedMedia || data.mediaUrl.trim();
   if (!text && !mediaUrl) return;
   const rank = currentRank();
   globalChat.push({
@@ -1762,7 +1799,7 @@ function sendGlobalMessage(data) {
     rank: rank.name,
     rankClass: rank.className,
     text: text || "Медиа",
-    mediaType: data.mediaType,
+    mediaType: mediaTypeFromFile(file, data.mediaType),
     mediaUrl,
     reactions: {},
     time: new Date().toLocaleString("ru-RU")
@@ -1929,6 +1966,37 @@ function addVendorItem() {
   wallet.activity.push(`Добавлен товар ${data.name.trim()}: ${stockItems.length} в наличии`);
   el.vendorItemForm.reset();
   render();
+}
+
+function openUserProfile(userKey) {
+  const key = normalizeLogin(userKey);
+  const userProfile = normalizeProfile(profiles[key]);
+  const account = accounts.find((item) => (item.loginKey || normalizeLogin(item.login)) === key);
+  const login = userProfile.nickname || account?.login || key || "user";
+  const displayName = [userProfile.firstName, userProfile.lastName].map((item) => String(item || "").trim()).filter(Boolean).join(" ") || login;
+  const rank = rankForScore(Number(userProfile.completedDeals || 0));
+  const media = userProfile.photoUrl
+    ? userProfile.photoType === "video"
+      ? `<video class="profile-cover-photo" src="${escapeHtml(userProfile.photoUrl)}" controls></video>`
+      : `<img class="profile-cover-photo" src="${escapeHtml(userProfile.photoUrl)}" alt="">`
+    : "";
+  el.publicProfileTitle.textContent = displayName;
+  el.publicProfile.dataset.vendor = "";
+  el.publicProfile.innerHTML = `
+    <section class="public-profile-head user-public-profile">
+      <img src="${escapeHtml(userProfile.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
+      <div>
+        <span>Обычный пользователь · @${escapeHtml(login)}</span>
+        <h3>${escapeHtml(displayName)}</h3>
+        <strong class="public-rating">${escapeHtml(rank.name)} · ${Number(userProfile.completedDeals || 0)} завершенных действий</strong>
+        ${userProfile.bio ? `<p>${escapeHtml(userProfile.bio)}</p>` : ""}
+        ${userProfile.contact ? `<a class="chat-media-link" href="https://t.me/${escapeHtml(userProfile.contact.replace(/^@/, ""))}" target="_blank" rel="noreferrer">${escapeHtml(userProfile.contact)}</a>` : ""}
+      </div>
+    </section>
+    ${media}
+  `;
+  el.profileDrawer.classList.add("is-open");
+  el.profileDrawer.setAttribute("aria-hidden", "false");
 }
 
 function openPublicProfile(vendorName) {
@@ -2396,10 +2464,10 @@ el.newSupportChat.addEventListener("click", () => {
   startConversation("operator");
   render();
 });
-el.chatForm.addEventListener("submit", (event) => {
+el.chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(el.chatForm).entries());
-  sendMessage(data);
+  await sendMessage(data, el.chatForm);
   el.chatForm.reset();
   render();
 });
@@ -2410,11 +2478,12 @@ el.chatForm.querySelectorAll("[data-chat-emoji]").forEach((button) => {
     input.focus();
   });
 });
-el.globalChatForm.addEventListener("submit", (event) => {
+el.globalChatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(el.globalChatForm).entries());
-  sendGlobalMessage(data);
+  await sendGlobalMessage(data, el.globalChatForm);
   el.globalChatForm.reset();
+  render();
 });
 el.globalChatForm.querySelectorAll("[data-emoji]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -2450,11 +2519,23 @@ el.addCredits.addEventListener("click", () => {
   wallet.activity.push("Пополнение: +250 CRB");
   render();
 });
-el.profileForm.addEventListener("submit", (event) => {
+el.profileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const data = Object.fromEntries(new FormData(el.profileForm).entries());
+  const avatarFile = el.profileForm.elements.avatarFile?.files?.[0];
+  const mediaFile = el.profileForm.elements.profileMediaFile?.files?.[0];
+  const avatarUpload = await fileToDataUrl(avatarFile);
+  const mediaUpload = await fileToDataUrl(mediaFile);
   profile = {
     ...profile,
-    ...Object.fromEntries(new FormData(el.profileForm).entries())
+    firstName: String(data.firstName || "").trim(),
+    lastName: String(data.lastName || "").trim(),
+    avatar: avatarUpload || String(data.avatar || "").trim(),
+    bio: String(data.bio || "").trim(),
+    photoUrl: mediaUpload || String(data.photoUrl || "").trim(),
+    photoType: mediaTypeFromFile(mediaFile, data.photoType || "image"),
+    city: String(data.city || "").trim(),
+    contact: String(data.contact || "").trim()
   };
   wallet.activity.push(`Профиль обновлен: ${profile.nickname || "без ника"}`);
   render();

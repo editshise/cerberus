@@ -625,7 +625,7 @@ select {
   display: none;
 }
 
-#publicProfile[data-vendor]:not([data-vendor="redqueen"]) .public-profile-head p {
+#publicProfile[data-vendor]:not([data-vendor="redqueen"]) .public-profile-head:not(.user-public-profile) p {
   display: none;
 }
 
@@ -1347,6 +1347,29 @@ select {
   border-radius: 8px;
   object-fit: cover;
   background: #070707;
+}
+
+.profile-link-button,
+.text-profile-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-link-button img {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #070707;
+}
+
+.text-profile-link {
+  font: inherit;
+  font-weight: 800;
 }
 
 .global-chat-head,
