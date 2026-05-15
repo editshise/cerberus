@@ -153,6 +153,13 @@ const defaultAnnouncements = [
 
 const defaultAccounts = [
   {
+    login: "admin2",
+    loginKey: "admin2",
+    password: "admin12345",
+    role: "admin",
+    createdAt: new Date().toISOString()
+  },
+  {
     login: "admin",
     loginKey: "admin",
     password: "admin12345",
@@ -179,6 +186,7 @@ const defaultVendors = [
     iconTags: ["❄️"],
     telegram: "https://t.me/snowboardmdbot",
     featured: true,
+    topOrder: 1,
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
@@ -199,6 +207,7 @@ const defaultVendors = [
     districts: [...locationOptions.districts["Молдова"]],
     telegram: "https://t.me/cryptonyxor",
     featured: true,
+    topOrder: 2,
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
@@ -220,6 +229,7 @@ const defaultVendors = [
     districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
     iconTags: ["🪪", "💱"],
     featured: true,
+    topOrder: 3,
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
@@ -361,6 +371,7 @@ function ensurePinnedDefaults() {
         type: defaultVendor.type,
         avatar: defaultVendor.avatar,
         telegram: defaultVendor.telegram,
+        topOrder: defaultVendor.topOrder,
         featured: true
       });
     } else if (["snowboard", "cryptonyx"].includes(defaultVendor.name)) {
@@ -371,6 +382,7 @@ function ensurePinnedDefaults() {
         iconTags: defaultVendor.iconTags,
         city: defaultVendor.city,
         telegram: defaultVendor.telegram,
+        topOrder: defaultVendor.topOrder,
         featured: true
       });
     }
@@ -572,6 +584,25 @@ function activeLoginKey() {
   return normalizeLogin(session?.loginKey || session?.login);
 }
 
+function isOwnerAdmin() {
+  return activeLoginKey() === "admin2";
+}
+
+function vendorForSession() {
+  const key = activeLoginKey();
+  return vendors.find((vendor) => (vendor.loginKey || normalizeLogin(vendor.login)) === key);
+}
+
+function canUseVendorCabinet() {
+  return isOwnerAdmin() || Boolean(vendorForSession());
+}
+
+function enforceAccessView(name) {
+  if (name === "admin" && !isOwnerAdmin()) return "market";
+  if (name === "vendor" && !canUseVendorCabinet()) return "market";
+  return name;
+}
+
 function syncActiveProfile() {
   const key = activeLoginKey();
   if (!key) return;
@@ -742,6 +773,20 @@ function hasFilterValue(values, filterValue) {
   return asArray(values).some((value) => String(value).toLowerCase() === String(filterValue).toLowerCase());
 }
 
+function splitList(value) {
+  return String(value || "")
+    .split(/[,\n]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseIcons(value) {
+  return String(value || "")
+    .split(/\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function reviewsForVendor(vendorName) {
   return reviews.filter((review) => review.vendor === vendorName);
 }
@@ -764,7 +809,7 @@ function canReviewVendor(vendorName) {
 
 function buildDirectoryEntries() {
   return vendors
-    .filter((vendor) => vendor.featured || ["snowboard", "cryptonyx", "redqueen"].includes(vendor.name))
+    .filter((vendor) => vendor.featured !== false && (vendor.featured || ["snowboard", "cryptonyx", "redqueen"].includes(vendor.name)))
     .map((vendor, index) => {
       const count = vendorProducts(vendor.name).length;
       return {
@@ -802,7 +847,13 @@ function currentDirectoryEntries() {
     return typeMatch && countryMatch && cityMatch && districtMatch && iconMatch && queryMatch;
   });
 
-  return filtered;
+  return filtered
+    .sort((a, b) => {
+      const vendorA = vendors.find((vendor) => vendor.name === a.vendor);
+      const vendorB = vendors.find((vendor) => vendor.name === b.vendor);
+      return Number(vendorA?.topOrder ?? 999) - Number(vendorB?.topOrder ?? 999);
+    })
+    .slice(0, 10);
 }
 
 function defaultCatalogForEntry(entry) {
@@ -942,6 +993,20 @@ function renderCategories() {
     });
     el.categoryTabs.append(button);
   });
+}
+
+function renderAccessControls() {
+  el.navItems.forEach((item) => {
+    const view = item.dataset.view;
+    const hidden = (view === "admin" && !isOwnerAdmin()) || (view === "vendor" && !canUseVendorCabinet());
+    item.hidden = hidden;
+    if (hidden && item.classList.contains("is-active")) {
+      showView("market");
+    }
+  });
+  if (el.vendorCabinetSelect) {
+    el.vendorCabinetSelect.hidden = !isOwnerAdmin();
+  }
 }
 
 function renderProducts() {
@@ -1089,7 +1154,7 @@ function renderGlobalChat() {
   globalChat.forEach((message) => {
     const item = document.createElement("article");
     item.className = "global-chat-message";
-    const canManage = message.authorKey === normalizeLogin(session?.login) || session?.login === "admin";
+    const canManage = message.authorKey === normalizeLogin(session?.login) || isOwnerAdmin();
     item.innerHTML = `
       <img src="${escapeHtml(message.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
       <div>
@@ -1204,6 +1269,11 @@ function renderProfile() {
 }
 
 function renderAdmin() {
+  if (!isOwnerAdmin()) {
+    el.adminList.innerHTML = "";
+    el.adminVendorList.innerHTML = "";
+    return;
+  }
   el.adminList.innerHTML = "";
   products
     .slice()
@@ -1256,11 +1326,62 @@ function renderAdmin() {
         <span>${escapeHtml(vendor.status)} · login: ${escapeHtml(vendor.login)} · ${vendorProducts(vendor.name).length} карточек</span>
         <p>${escapeHtml(vendor.description || "Без описания")}</p>
       </div>
+      <div class="admin-product-editor wide">
+        <label>
+          Логин владельца
+          <input data-field="vendorLogin" value="${escapeHtml(vendor.login || "")}" maxlength="32">
+        </label>
+        <label>
+          Новый пароль
+          <input data-field="vendorPassword" type="password" maxlength="48" placeholder="Оставь пустым">
+        </label>
+        <label>
+          Тип
+          <select data-field="vendorType">
+            <option ${vendor.type === "Магазины" ? "selected" : ""}>Магазины</option>
+            <option ${vendor.type === "Обменники" ? "selected" : ""}>Обменники</option>
+            <option ${vendor.type === "Услуги" ? "selected" : ""}>Услуги</option>
+          </select>
+        </label>
+        <label>
+          Топ-10
+          <select data-field="vendorFeatured">
+            <option value="true" ${vendor.featured !== false ? "selected" : ""}>В топе</option>
+            <option value="false" ${vendor.featured === false ? "selected" : ""}>Скрыт из топа</option>
+          </select>
+        </label>
+        <label>
+          Позиция
+          <input data-field="vendorTopOrder" type="number" min="1" max="10" value="${escapeHtml(vendor.topOrder || "")}">
+        </label>
+        <label>
+          Страна
+          <input data-field="vendorCountries" value="${escapeHtml(asArray(vendor.countries).join(", "))}" maxlength="80">
+        </label>
+        <label>
+          Город
+          <input data-field="vendorCities" value="${escapeHtml(asArray(vendor.cities || vendor.city).join(", "))}" maxlength="120">
+        </label>
+        <label>
+          Районы
+          <input data-field="vendorDistricts" value="${escapeHtml(asArray(vendor.districts).join(", "))}" maxlength="180">
+        </label>
+        <label>
+          Иконки
+          <input data-field="vendorIcons" value="${escapeHtml(asArray(vendor.iconTags).join(" "))}" maxlength="40">
+        </label>
+        <label>
+          Telegram
+          <input data-field="vendorTelegram" value="${escapeHtml(vendor.telegram || "")}" maxlength="140">
+        </label>
+      </div>
       <div class="admin-editor-actions">
+        <button class="primary-button" type="button" data-action="save">Сохранить</button>
         <button class="ghost-button" type="button" data-action="open">Открыть</button>
         <button class="ghost-button danger-action" type="button" data-action="delete">Удалить</button>
       </div>
     `;
+    item.querySelector('[data-action="save"]').addEventListener("click", () => saveVendorAdmin(vendor.name, item));
     item.querySelector('[data-action="open"]').addEventListener("click", () => {
       selectedVendorName = vendor.name;
       showView("vendor");
@@ -1297,29 +1418,29 @@ function availableStock(product) {
 function selectedVendor() {
   const sessionKey = normalizeLogin(session?.login);
   const sessionVendor = vendors.find((vendor) => (vendor.loginKey || normalizeLogin(vendor.login)) === sessionKey);
-  const selectedName = sessionVendor ? sessionVendor.name : (selectedVendorName || vendors[0]?.name || "");
+  const selectedName = !isOwnerAdmin() && sessionVendor ? sessionVendor.name : (selectedVendorName || sessionVendor?.name || vendors[0]?.name || "");
   return vendors.find((entry) => entry.name === selectedName) || vendors[0];
 }
 
 function renderVendorCabinet() {
   el.vendorCabinetSelect.innerHTML = "";
-  vendors.forEach((vendor) => {
+  const availableVendors = isOwnerAdmin() ? vendors : vendors.filter((vendor) => vendor.name === vendorForSession()?.name);
+  availableVendors.forEach((vendor) => {
     const option = document.createElement("option");
     option.value = vendor.name;
     option.textContent = vendor.name;
     el.vendorCabinetSelect.append(option);
   });
 
-  if (!vendors.length) {
-    el.vendorSummary.innerHTML = '<div class="empty-state">Сначала создай кабинет магазина в админке.</div>';
+  if (!availableVendors.length) {
+    el.vendorSummary.innerHTML = '<div class="empty-state">К этому аккаунту пока не привязан кабинет. Админ должен назначить профиль.</div>';
     el.vendorProductList.innerHTML = "";
     el.vendorMessageList.innerHTML = "";
     return;
   }
 
-  const sessionKey = normalizeLogin(session?.login);
-  const sessionVendor = vendors.find((vendor) => (vendor.loginKey || normalizeLogin(vendor.login)) === sessionKey);
-  const selectedName = sessionVendor ? sessionVendor.name : (selectedVendorName || vendors[0].name);
+  const sessionVendor = vendorForSession();
+  const selectedName = !isOwnerAdmin() && sessionVendor ? sessionVendor.name : (selectedVendorName || availableVendors[0].name);
   selectedVendorName = selectedName;
   el.vendorCabinetSelect.value = selectedName;
   const vendor = vendors.find((entry) => entry.name === selectedName) || vendors[0];
@@ -1590,6 +1711,12 @@ function saveProductEditor(id, container) {
   product.price = Number(container.querySelector('[data-field="price"]').value || product.price);
   product.vendor = container.querySelector('[data-field="vendor"]').value.trim();
   product.description = container.querySelector('[data-field="description"]').value.trim();
+  const vendor = vendors.find((item) => item.name === product.vendor);
+  product.countries = asArray(vendor?.countries);
+  product.cities = asArray(vendor?.cities || vendor?.city);
+  product.districts = asArray(vendor?.districts);
+  product.iconTags = asArray(vendor?.iconTags);
+  product.city = vendor?.city || product.city || "Online";
 
   if (product.vendor && !vendors.some((vendor) => vendor.name === product.vendor)) {
     vendors.push({
@@ -1636,6 +1763,30 @@ function deleteVendor(name) {
   render();
 }
 
+async function saveVendorAdmin(name, container) {
+  const vendor = vendors.find((item) => item.name === name);
+  if (!vendor || !isOwnerAdmin()) return;
+  const login = container.querySelector('[data-field="vendorLogin"]').value.trim();
+  const password = container.querySelector('[data-field="vendorPassword"]').value;
+  vendor.login = login || vendor.login;
+  vendor.loginKey = normalizeLogin(vendor.login);
+  vendor.type = container.querySelector('[data-field="vendorType"]').value;
+  vendor.featured = container.querySelector('[data-field="vendorFeatured"]').value === "true";
+  vendor.topOrder = Number(container.querySelector('[data-field="vendorTopOrder"]').value || 999);
+  vendor.countries = splitList(container.querySelector('[data-field="vendorCountries"]').value);
+  vendor.cities = splitList(container.querySelector('[data-field="vendorCities"]').value);
+  vendor.city = vendor.cities[0] || vendor.city || "Online";
+  vendor.districts = splitList(container.querySelector('[data-field="vendorDistricts"]').value);
+  vendor.iconTags = parseIcons(container.querySelector('[data-field="vendorIcons"]').value);
+  vendor.telegram = container.querySelector('[data-field="vendorTelegram"]').value.trim();
+  if (password) {
+    vendor.passwordHash = await hashPassword(vendor.loginKey, password);
+    delete vendor.password;
+  }
+  wallet.activity.push(`Кабинет обновлен: ${vendor.name}`);
+  render();
+}
+
 function savePaymentSettings() {
   const selectedName = el.vendorCabinetSelect.value || vendors[0]?.name;
   const vendor = vendors.find((item) => item.name === selectedName);
@@ -1673,6 +1824,10 @@ function addVendorItem() {
     price: Number(data.price),
     vendor: vendor.name,
     city: vendor.city || "Online",
+    countries: asArray(vendor.countries),
+    cities: asArray(vendor.cities || vendor.city),
+    districts: asArray(vendor.districts),
+    iconTags: asArray(vendor.iconTags),
     rating: 5,
     order: products.length,
     description: data.description.trim(),
@@ -1937,6 +2092,7 @@ function logout() {
 }
 
 function render() {
+  renderAccessControls();
   renderCategories();
   renderProducts();
   renderFilterForm();
@@ -2069,6 +2225,7 @@ function checkout() {
 }
 
 function showView(name) {
+  name = enforceAccessView(name);
   el.navItems.forEach((item) => item.classList.toggle("is-active", item.dataset.view === name));
   el.views.forEach((view) => view.classList.remove("is-visible"));
   document.querySelector(`#${name}View`).classList.add("is-visible");
@@ -2219,7 +2376,11 @@ el.productForm.addEventListener("submit", (event) => {
     category: data.category,
     price: Number(data.price),
     vendor: data.vendor.trim(),
-    city: profile.city || "Online",
+    city: data.city.trim() || profile.city || "Online",
+    countries: data.country ? [data.country] : [],
+    cities: data.city.trim() ? [data.city.trim()] : [],
+    districts: splitList(data.district),
+    iconTags: parseIcons(data.icons),
     rating: 4.5,
     order: products.length,
     description: data.description.trim()
@@ -2231,7 +2392,11 @@ el.productForm.addEventListener("submit", (event) => {
       title: data.vendor.trim(),
       type: "Магазины",
       avatar: "assets/cerberus-logo-transparent.png",
-      city: profile.city || "Online",
+      city: data.city.trim() || profile.city || "Online",
+      countries: data.country ? [data.country] : [],
+      cities: data.city.trim() ? [data.city.trim()] : [],
+      districts: splitList(data.district),
+      iconTags: parseIcons(data.icons),
       login: `${data.vendor.trim()}_owner`,
       loginKey: normalizeLogin(`${data.vendor.trim()}_owner`),
       password: "market123",
@@ -2262,6 +2427,13 @@ el.vendorForm.addEventListener("submit", async (event) => {
     type: data.type,
     avatar: data.avatar.trim() || "assets/cerberus-logo-transparent.png",
     city: data.city.trim() || "Online",
+    countries: data.country ? [data.country] : [],
+    cities: data.city.trim() ? [data.city.trim()] : [],
+    districts: splitList(data.districts),
+    iconTags: parseIcons(data.icons),
+    telegram: data.telegram.trim(),
+    featured: data.featured === "true",
+    topOrder: Number(data.topOrder || 999),
     login: data.login.trim(),
     loginKey: normalizeLogin(data.login),
     passwordHash: await hashPassword(data.login, data.password),

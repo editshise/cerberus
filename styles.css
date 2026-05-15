@@ -998,7 +998,9 @@ select {
 
 .cart-button[hidden],
 .cart-drawer[hidden],
-.payment-drawer[hidden] {
+.payment-drawer[hidden],
+.nav-item[hidden],
+#vendorCabinetSelect[hidden] {
   display: none !important;
 }
 

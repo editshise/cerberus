@@ -491,6 +491,26 @@
             Продавец
             <input name="vendor" required maxlength="28" placeholder="snowboard">
           </label>
+          <label>
+            Страна
+            <select name="country">
+              <option value="">Любая</option>
+              <option>Молдова</option>
+              <option>ПМР</option>
+            </select>
+          </label>
+          <label>
+            Город
+            <input name="city" maxlength="40" placeholder="Кишинев">
+          </label>
+          <label>
+            Район
+            <input name="district" maxlength="80" placeholder="Центр, Ботаника">
+          </label>
+          <label>
+            Иконки
+            <input name="icons" maxlength="40" placeholder="❄️ 💱">
+          </label>
           <label class="wide">
             Описание
             <textarea name="description" required maxlength="180" placeholder="Короткое описание товара"></textarea>
@@ -527,8 +547,39 @@
             </select>
           </label>
           <label>
+            Позиция в топ-10
+            <input name="topOrder" type="number" min="1" max="10" placeholder="1">
+          </label>
+          <label>
+            Показывать в топе
+            <select name="featured">
+              <option value="true">Да</option>
+              <option value="false">Нет</option>
+            </select>
+          </label>
+          <label>
             Город
             <input name="city" maxlength="32" placeholder="Online">
+          </label>
+          <label>
+            Страна
+            <select name="country">
+              <option value="">Любая</option>
+              <option>Молдова</option>
+              <option>ПМР</option>
+            </select>
+          </label>
+          <label>
+            Районы
+            <input name="districts" maxlength="160" placeholder="Центр, Ботаника">
+          </label>
+          <label>
+            Telegram
+            <input name="telegram" maxlength="120" placeholder="https://t.me/name">
+          </label>
+          <label>
+            Иконки
+            <input name="icons" maxlength="40" placeholder="❄️ 💱">
           </label>
           <label class="wide">
             Аватар / картинка
