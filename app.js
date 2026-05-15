@@ -718,7 +718,7 @@ function profileAvatar() {
 }
 
 function profileScore() {
-  return orders.length + Number(profile.completedDeals || 0);
+  return Number(profile.completedDeals || 0);
 }
 
 function rankForScore(score) {
@@ -812,6 +812,26 @@ function currentReviewKey() {
 function canReviewVendor(vendorName) {
   const key = currentReviewKey();
   return !reviews.some((review) => review.vendor === vendorName && review.authorKey === key);
+}
+
+function orderStatusMeta(status) {
+  const map = {
+    pending: { label: "В работе", className: "is-pending" },
+    success: { label: "Успешно", className: "is-success" },
+    refund: { label: "Возврат", className: "is-refund" },
+    failed: { label: "Неудачно", className: "is-failed" }
+  };
+  return map[status] || map.pending;
+}
+
+function visibleConversations() {
+  const key = activeLoginKey();
+  const sessionVendor = vendorForSession();
+  if (isOwnerAdmin()) return conversations;
+  if (sessionVendor) {
+    return conversations.filter((conversation) => conversation.vendorName === sessionVendor.name || conversation.key === `vendor:${sessionVendor.name}`);
+  }
+  return conversations.filter((conversation) => !conversation.clientKey || conversation.clientKey === key);
 }
 
 function buildDirectoryEntries() {
@@ -1084,18 +1104,24 @@ function renderCart() {
 
 function renderOrders() {
   el.ordersList.innerHTML = "";
-  if (!orders.length) {
-    el.ordersList.innerHTML = '<div class="empty-state">Пока нет заказов.</div>';
+  const key = activeLoginKey();
+  const visibleOrders = orders.filter((order) => (!order.clientKey || order.clientKey === key) && order.status && order.status !== "pending");
+  if (!visibleOrders.length) {
+    el.ordersList.innerHTML = '<div class="empty-state">Пока нет заявок. Когда оператор закроет обращение, здесь появится статус.</div>';
     return;
   }
 
-  orders.forEach((order) => {
+  visibleOrders.forEach((order) => {
+    const status = orderStatusMeta(order.status);
     const item = document.createElement("article");
     item.className = "order-item";
     item.innerHTML = `
-      <strong>Заказ ${order.id}</strong>
-      <span>${order.createdAt}</span>
-      <span>${order.items.length} поз. · ${money(order.total)}</span>
+      <div class="order-head">
+        <strong>${escapeHtml(order.productName || `Заказ ${order.id}`)}</strong>
+        <span class="order-status ${status.className}">${status.label}</span>
+      </div>
+      <span>${escapeHtml(order.vendorTitle || order.vendorName || "Оператор")} · ${escapeHtml(order.createdAt || "")}</span>
+      <span>${order.closedAt ? `Завершен: ${escapeHtml(order.closedAt)}` : "Ожидает решения оператора"}</span>
     `;
     el.ordersList.append(item);
   });
@@ -1103,11 +1129,12 @@ function renderOrders() {
 
 function renderConversations() {
   el.conversationList.innerHTML = "";
-  if (!conversations.length) {
+  const list = visibleConversations();
+  if (!list.length) {
     el.conversationList.innerHTML = '<div class="empty-state">Нет диалогов. Напиши продавцу из карточки товара или оператору.</div>';
   }
 
-  conversations.forEach((conversation) => {
+  list.forEach((conversation) => {
     const last = conversation.messages.at(-1);
     const button = document.createElement("button");
     button.type = "button";
@@ -1124,7 +1151,7 @@ function renderConversations() {
     el.conversationList.append(button);
   });
 
-  const active = conversations.find((conversation) => conversation.id === activeConversationId);
+  const active = list.find((conversation) => conversation.id === activeConversationId);
   el.chatTitle.textContent = active ? active.title : "Выберите чат";
   el.chatThread.innerHTML = "";
 
@@ -1456,7 +1483,7 @@ function renderVendorCabinet() {
   el.vendorCabinetSelect.value = selectedName;
   const vendor = vendors.find((entry) => entry.name === selectedName) || vendors[0];
   const storeProducts = vendorProducts(vendor.name);
-  const storeConversations = conversations.filter((conversation) => conversation.key === `vendor:${vendor.name}`);
+  const storeConversations = conversations.filter((conversation) => conversation.vendorName === vendor.name || conversation.key === `vendor:${vendor.name}`);
 
   el.vendorSummary.innerHTML = `
     <article class="vendor-summary-card">
@@ -1509,7 +1536,12 @@ function renderVendorCabinet() {
       <span>${last ? escapeHtml(last.text) : "Новый диалог"}</span>
       <input name="reply" maxlength="220" placeholder="Ответить клиенту от имени магазина">
       <button class="primary-button" type="submit">Ответить</button>
-      ${vendor.type === "Обменники" ? `<button class="ghost-button" type="button" data-action="complete">${conversation.completed ? "Закрыто" : "Закрыть сделку +1"}</button>` : ""}
+      <div class="vendor-close-actions">
+        <button class="ghost-button" type="button" data-status="success" ${conversation.completed ? "disabled" : ""}>Успешно</button>
+        <button class="ghost-button" type="button" data-status="refund" ${conversation.completed ? "disabled" : ""}>Возврат</button>
+        <button class="ghost-button" type="button" data-status="failed" ${conversation.completed ? "disabled" : ""}>Неудачно</button>
+      </div>
+      ${conversation.completed ? `<span>Завершено: ${orderStatusMeta(conversation.status).label}</span>` : ""}
     `;
     item.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -1518,7 +1550,9 @@ function renderVendorCabinet() {
       item.reset();
       render();
     });
-    item.querySelector('[data-action="complete"]')?.addEventListener("click", () => completeExchangeConversation(conversation.id));
+    item.querySelectorAll("[data-status]").forEach((button) => {
+      button.addEventListener("click", () => completeConversation(conversation.id, button.dataset.status));
+    });
     el.vendorMessageList.append(item);
   });
 
@@ -1528,14 +1562,21 @@ function renderVendorCabinet() {
 }
 
 function startConversation(vendor, productName = "") {
+  const clientKey = activeLoginKey() || "guest";
   const title = vendor === "operator" ? "Оператор Cerberus" : `@${vendor}`;
-  const key = vendor === "operator" ? "operator" : `vendor:${vendor}`;
+  const key = vendor === "operator" ? `operator:${clientKey}` : `vendor:${vendor}:${clientKey}`;
   let conversation = conversations.find((item) => item.key === key);
   if (!conversation) {
     conversation = {
       id: uid(),
       key,
       title,
+      clientKey,
+      clientName: currentUserName(),
+      vendorName: vendor === "operator" ? "operator" : vendor,
+      productName,
+      status: "pending",
+      completed: false,
       messages: [
         {
           id: uid(),
@@ -1549,6 +1590,7 @@ function startConversation(vendor, productName = "") {
     };
     conversations.unshift(conversation);
   }
+  conversation.productName = productName || conversation.productName || "";
   activeConversationId = conversation.id;
 }
 
@@ -1575,9 +1617,33 @@ function inquiryText(product, vendor) {
   return `Здравствуйте, я по поводу карточки «${product.name}» у ${vendorTitle} на маркетплейсе Cerberus. Актуально? Хочу уточнить детали и договориться с оператором.`;
 }
 
+function ensureOrderForConversation(product, vendor, conversation) {
+  if (!conversation) return null;
+  let order = orders.find((item) => item.conversationId === conversation.id && item.productId === product.id);
+  if (!order) {
+    order = {
+      id: uid().slice(0, 8).toUpperCase(),
+      conversationId: conversation.id,
+      productId: product.id,
+      productName: product.name,
+      vendorName: vendor.name,
+      vendorTitle: vendor.title || vendor.name,
+      clientKey: conversation.clientKey || activeLoginKey(),
+      clientName: conversation.clientName || currentUserName(),
+      status: "pending",
+      createdAt: new Date().toLocaleString("ru-RU")
+    };
+    orders.unshift(order);
+  }
+  conversation.orderId = order.id;
+  conversation.productName = product.name;
+  return order;
+}
+
 function contactOnSite(product, vendor) {
   startConversation(vendor.name, product.name);
   const conversation = conversations.find((item) => item.id === activeConversationId);
+  ensureOrderForConversation(product, vendor, conversation);
   const text = inquiryText(product, vendor);
   const alreadySent = conversation?.messages.some((message) => message.from === "me" && message.text === text);
   if (conversation && !alreadySent) {
@@ -1644,20 +1710,33 @@ function replyAsVendor(conversationId, text) {
   wallet.activity.push(`Магазин ответил в диалоге ${conversation.title}`);
 }
 
-function completeExchangeConversation(conversationId) {
+function completeConversation(conversationId, status = "success") {
   const conversation = conversations.find((item) => item.id === conversationId);
   if (!conversation || conversation.completed) return;
+  const statusMeta = orderStatusMeta(status);
   conversation.completed = true;
-  conversation.completedAt = new Date().toISOString();
-  profile.completedDeals = Number(profile.completedDeals || 0) + 1;
+  conversation.status = status;
+  conversation.completedAt = new Date().toLocaleString("ru-RU");
+  const order = orders.find((item) => item.id === conversation.orderId || item.conversationId === conversation.id);
+  if (order) {
+    order.status = status;
+    order.closedAt = conversation.completedAt;
+    order.closedBy = activeLoginKey();
+  }
+  if (status === "success" && conversation.clientKey) {
+    profiles[conversation.clientKey] = normalizeProfile({
+      ...profiles[conversation.clientKey],
+      completedDeals: Number(profiles[conversation.clientKey]?.completedDeals || 0) + 1
+    });
+  }
   conversation.messages.push({
     id: uid(),
     from: "them",
-    text: "Сделка закрыта сотрудником обменника. Клиенту начислен +1 к репутации.",
+    text: `Заявка завершена оператором. Статус: ${statusMeta.label}.`,
     reactions: {},
     time: new Date().toLocaleString("ru-RU")
   });
-  wallet.activity.push(`Закрыта обменная сделка: +1 к репутации`);
+  wallet.activity.push(`Заявка закрыта: ${statusMeta.label}`);
   render();
 }
 
@@ -2308,7 +2387,8 @@ el.cartToggle.addEventListener("click", openCart);
 el.cartClose.addEventListener("click", closeCart);
 el.checkout.addEventListener("click", openPaymentDrawer);
 el.clearOrders.addEventListener("click", () => {
-  orders = [];
+  const key = activeLoginKey();
+  orders = orders.filter((order) => order.clientKey && order.clientKey !== key);
   wallet.activity.push("История заказов очищена");
   render();
 });

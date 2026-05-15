@@ -1105,6 +1105,49 @@ select {
   background: var(--panel);
 }
 
+.order-head,
+.vendor-close-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.order-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.order-status.is-success {
+  border-color: #31c77f;
+  color: #69e3a5;
+}
+
+.order-status.is-refund {
+  border-color: #f2c94c;
+  color: #f2c94c;
+}
+
+.order-status.is-failed {
+  border-color: #ff4d3d;
+  color: #ff6b5e;
+}
+
+.order-status.is-pending {
+  color: var(--muted);
+}
+
+.vendor-close-actions {
+  justify-content: start;
+}
+
 .line-item-row,
 .admin-item {
   grid-template-columns: minmax(0, 1fr) auto;
