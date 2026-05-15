@@ -620,6 +620,15 @@ select {
   line-height: 1.45;
 }
 
+.directory-body p:empty,
+.public-profile-head p:empty {
+  display: none;
+}
+
+#publicProfile[data-vendor]:not([data-vendor="redqueen"]) .public-profile-head p {
+  display: none;
+}
+
 .directory-stats {
   color: var(--muted);
   font-size: 13px;
@@ -1781,7 +1790,7 @@ textarea {
 
   .product-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 18px;
   }
 
   .profile-form,
@@ -1833,42 +1842,58 @@ textarea {
 
   .directory-card {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(230px, 58vw) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     min-height: 0;
+    padding: 12px;
+    border-radius: 28px;
+    background: #101010;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
   }
 
   .directory-cover {
-    height: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 22px;
+    border-bottom: 0;
   }
 
   .directory-body {
-    padding: 14px;
+    padding: 18px 4px 4px;
+    gap: 16px;
   }
 
   .directory-body h3 {
-    font-size: 24px;
+    font-size: 32px;
+    line-height: 1.05;
   }
 
   .directory-body p {
-    font-size: 16px;
+    font-size: 20px;
+    line-height: 1.35;
   }
 
   .directory-stats {
-    font-size: 14px;
+    display: none;
+  }
+
+  .directory-card .product-meta,
+  .directory-card .vendor-row {
+    display: none;
   }
 
   .directory-body .product-actions {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 10px;
-    align-items: center;
-    justify-content: space-between;
+    align-items: stretch;
+    justify-content: start;
   }
 
   .directory-body .open-directory-button {
     width: 100%;
-    min-height: 52px;
-    font-size: 17px;
+    min-height: 58px;
+    border-radius: 22px;
+    font-size: 18px;
   }
 
   .public-contact-actions {

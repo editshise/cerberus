@@ -168,6 +168,26 @@ const defaultAccounts = [
   }
 ];
 
+function ensureDefaultAccounts() {
+  accounts = (Array.isArray(accounts) ? accounts : []).map((account) => ({
+    ...account,
+    login: String(account.login || "").trim(),
+    loginKey: String(account.loginKey || account.login || "").trim().toLowerCase()
+  })).filter((account) => account.login);
+
+  defaultAccounts.forEach((defaultAccount) => {
+    const existing = accounts.find((account) => account.loginKey === defaultAccount.loginKey);
+    if (!existing) {
+      accounts.push({ ...defaultAccount });
+      return;
+    }
+    existing.role = defaultAccount.role;
+    if (!existing.password) {
+      existing.password = defaultAccount.password;
+    }
+  });
+}
+
 const defaultVendors = [
   {
     id: uid(),
@@ -297,16 +317,7 @@ profile = {
   ...profile
 };
 profiles = profiles && typeof profiles === "object" && !Array.isArray(profiles) ? profiles : {};
-accounts = accounts.map((account) => ({
-  ...account,
-  login: String(account.login || "").trim(),
-  loginKey: String(account.loginKey || account.login || "").trim().toLowerCase()
-})).filter((account) => account.login);
-defaultAccounts.forEach((defaultAccount) => {
-  if (!accounts.some((account) => account.loginKey === defaultAccount.loginKey)) {
-    accounts.push({ ...defaultAccount });
-  }
-});
+ensureDefaultAccounts();
 vendors = (vendors.length ? vendors : defaultVendors).map((vendor) => ({
   title: vendor.name,
   type: "Магазины",
@@ -650,6 +661,7 @@ function applyCloudState(data) {
   selectedVendorName = typeof data.selectedVendorName === "string" ? data.selectedVendorName : selectedVendorName;
   activeFilters = data.activeFilters && typeof data.activeFilters === "object" ? data.activeFilters : activeFilters;
   activeDirectoryType = typeof data.activeDirectoryType === "string" ? data.activeDirectoryType : activeDirectoryType;
+  ensureDefaultAccounts();
   ensurePinnedDefaults();
   loadActiveProfile();
 }
@@ -824,7 +836,11 @@ function buildDirectoryEntries() {
         avatar: vendor.avatar || "assets/cerberus-logo-transparent.png",
         priceLabel: vendor.type === "Обменники" ? "Обменник" : vendor.type === "Услуги" ? "Услуга" : "Магазин"
       };
-    });
+    })
+    .map((entry) => ({
+      ...entry,
+      description: entry.vendor === "redqueen" ? entry.description : ""
+    }));
 }
 
 function currentDirectoryEntries() {
@@ -993,7 +1009,7 @@ function renderCategories() {
 function renderAccessControls() {
   el.navItems.forEach((item) => {
     const view = item.dataset.view;
-    const hidden = (view === "admin" && !isOwnerAdmin()) || (view === "vendor" && !canUseVendorCabinet());
+    const hidden = view === "wallet" || (view === "admin" && !isOwnerAdmin()) || (view === "vendor" && !canUseVendorCabinet());
     item.hidden = hidden;
     if (hidden && item.classList.contains("is-active")) {
       showView("market");
@@ -1849,6 +1865,7 @@ function openPublicProfile(vendorName) {
   const vendorReviews = reviewsForVendor(vendor.name);
   const canReview = canReviewVendor(vendor.name);
   el.publicProfileTitle.textContent = vendor.title || vendor.name;
+  el.publicProfile.dataset.vendor = vendor.name;
   el.publicProfile.innerHTML = `
     <section class="public-profile-head">
       <img src="${escapeHtml(vendor.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
