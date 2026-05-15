@@ -63,6 +63,40 @@ const defaultProducts = [
       { id: uid(), text: "CryptonyX: заявка принята, оператор свяжется с вами в чате.", sold: false },
       { id: uid(), text: "CryptonyX: резервная заявка для следующего заказа.", sold: false }
     ]
+  },
+  {
+    id: uid(),
+    name: "Покупка верификацией карточек/кошельков",
+    category: "Услуги",
+    price: 150,
+    vendor: "redqueen",
+    city: "Молдова и ПМР",
+    rating: 4.88,
+    description: "Заявка Red Queen на легальную проверку и оформление покупки верификаций карточек/кошельков.",
+    image: "assets/red-queen-buy-card-verification.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    stockItems: [
+      { id: uid(), text: "Red Queen: заявка на покупку верификацией принята, оператор свяжется с вами в чате.", sold: false },
+      { id: uid(), text: "Red Queen: резервная заявка на покупку верификацией.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
+    name: "Продажа верификаций карточек и кошельков",
+    category: "Услуги",
+    price: 180,
+    vendor: "redqueen",
+    city: "Молдова и ПМР",
+    rating: 4.86,
+    description: "Заявка Red Queen на легальное размещение предложения по верификациям карточек и кошельков.",
+    image: "assets/red-queen-sell-card-verification.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    stockItems: [
+      { id: uid(), text: "Red Queen: заявка на продажу верификаций принята, оператор свяжется с вами в чате.", sold: false },
+      { id: uid(), text: "Red Queen: резервная заявка на продажу верификаций.", sold: false }
+    ]
   }
 ];
 
@@ -127,6 +161,22 @@ const defaultVendors = [
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
+  },
+  {
+    id: uid(),
+    name: "redqueen",
+    login: "redqueen_owner",
+    password: "market123",
+    status: "Активен",
+    description: "Скупка/Продажа карт/кошельков. Регион работы: Молдова и ПМР, все города Молдовы и ПМР.",
+    title: "Red Queen",
+    type: "Услуги",
+    avatar: "assets/red-queen.jpg",
+    city: "Молдова и ПМР",
+    featured: true,
+    paymentMode: "planned",
+    paymentCurrency: "USDT",
+    paymentNote: "Крипто-оплата подключается через защищенный сервер."
   }
 ];
 
@@ -180,7 +230,7 @@ let activeFilters = storage.get("cerberusFilters", {
 let selectedPayment = "wallet";
 let activeCategory = "Все";
 let activeDirectoryType = storage.get("cerberusDirectoryType", "Все");
-if (!["Все", "Магазины", "Обменники"].includes(activeDirectoryType)) {
+if (!["Все", "Магазины", "Обменники", "Услуги"].includes(activeDirectoryType)) {
   activeDirectoryType = "Все";
 }
 let authMode = "login";
@@ -220,7 +270,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["snowboard", "cryptonyx"];
+const pinnedVendorNames = ["snowboard", "cryptonyx", "redqueen"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
   if (!products.some((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name)) {
@@ -231,6 +281,39 @@ defaultProducts.forEach((defaultProduct) => {
     });
   }
 });
+
+function ensurePinnedDefaults() {
+  vendors = (vendors.length ? vendors : defaultVendors).map((vendor) => ({
+    title: vendor.name,
+    type: "Магазины",
+    avatar: "assets/cerberus-logo-transparent.png",
+    city: "Online",
+    ...vendor,
+    login: String(vendor.login || "").trim(),
+    loginKey: String(vendor.loginKey || vendor.login || "").trim().toLowerCase()
+  }));
+  defaultVendors.forEach((defaultVendor) => {
+    if (!vendors.some((vendor) => vendor.name === defaultVendor.name)) {
+      vendors.push({
+        ...defaultVendor,
+        id: uid(),
+        loginKey: normalizeLogin(defaultVendor.login)
+      });
+    }
+  });
+  products = products
+    .filter((product) => pinnedVendorNames.includes(product.vendor))
+    .map((product, index) => ({ order: index, ...product }));
+  defaultProducts.forEach((defaultProduct) => {
+    if (!products.some((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name)) {
+      products.push({
+        ...defaultProduct,
+        id: uid(),
+        order: products.length
+      });
+    }
+  });
+}
 
 const el = {
   authScreen: document.querySelector("#authScreen"),
@@ -438,6 +521,7 @@ function applyCloudState(data) {
   selectedVendorName = typeof data.selectedVendorName === "string" ? data.selectedVendorName : selectedVendorName;
   activeFilters = data.activeFilters && typeof data.activeFilters === "object" ? data.activeFilters : activeFilters;
   activeDirectoryType = typeof data.activeDirectoryType === "string" ? data.activeDirectoryType : activeDirectoryType;
+  ensurePinnedDefaults();
   loadActiveProfile();
 }
 
@@ -457,6 +541,7 @@ async function loadCloudState() {
     applyCloudState(data.data);
     persist();
     suppressCloudSave = false;
+    scheduleCloudSave();
   }
 }
 
@@ -546,7 +631,7 @@ function productCode(product) {
 
 function buildDirectoryEntries() {
   return vendors
-    .filter((vendor) => vendor.featured || ["snowboard", "cryptonyx"].includes(vendor.name))
+    .filter((vendor) => vendor.featured || ["snowboard", "cryptonyx", "redqueen"].includes(vendor.name))
     .map((vendor, index) => {
       const count = vendorProducts(vendor.name).length;
       return {
@@ -560,7 +645,7 @@ function buildDirectoryEntries() {
         deals: count,
         description: vendor.description || "Профиль создан в админке.",
         avatar: vendor.avatar || "assets/cerberus-logo-transparent.png",
-        priceLabel: vendor.type === "Обменники" ? "Обменник" : "Магазин"
+        priceLabel: vendor.type === "Обменники" ? "Обменник" : vendor.type === "Услуги" ? "Услуга" : "Магазин"
       };
     });
 }
@@ -696,11 +781,12 @@ function ensureDirectoryVendor(entry) {
 }
 
 function renderCategories() {
-  const categories = ["Все", "Магазины", "Обменники"];
+  const categories = ["Все", "Магазины", "Обменники", "Услуги"];
   const titleMap = {
     "Все": 'ТОП - 10 <span class="elite-title">ЭЛИТА</span>',
     "Магазины": "Магазины",
-    "Обменники": "Обменники"
+    "Обменники": "Обменники",
+    "Услуги": "Услуги"
   };
   el.marketTitle.innerHTML = titleMap[activeDirectoryType] || "Магазины";
   el.categoryTabs.innerHTML = "";
