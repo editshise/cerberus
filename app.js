@@ -544,7 +544,7 @@ function ensureDirectoryVendor(entry) {
     });
   }
 
-  saveState();
+  persist();
 }
 
 function renderCategories() {
