@@ -550,7 +550,7 @@ function ensureDirectoryVendor(entry) {
 function renderCategories() {
   const categories = ["Все", "Магазины", "Обменники"];
   const titleMap = {
-    "Все": "ТОП - 10 Магазинов",
+    "Все": "ТОП - 10 ЭЛИТА",
     "Магазины": "ТОП - 10 Магазинов",
     "Обменники": "ТОП - 10 Обменников"
   };
