@@ -2652,7 +2652,6 @@ async function initApp() {
   setAuthMode(accounts.length || vendors.length ? "login" : "register");
   updateAuthGate();
   render();
-  showAnnouncementModal();
 }
 
 initApp();

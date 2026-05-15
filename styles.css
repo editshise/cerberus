@@ -1732,6 +1732,18 @@ textarea {
     overflow: hidden;
   }
 
+  .auth-screen,
+  .sidebar,
+  .topbar,
+  .site-modal {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .site-modal {
+    background: rgba(0, 0, 0, .82);
+  }
+
   .auth-screen {
     align-items: start;
     place-items: start stretch;
