@@ -375,6 +375,9 @@ function renderMedia(message) {
   if (message.mediaType === "audio") {
     return `<audio class="chat-media" src="${url}" controls></audio>`;
   }
+  if (message.mediaType === "file") {
+    return `<a class="chat-media-link" href="${url}" target="_blank" rel="noreferrer">Скачать файл</a>`;
+  }
   return `<a class="chat-media-link" href="${url}" target="_blank" rel="noreferrer">Открыть медиа</a>`;
 }
 
@@ -684,13 +687,23 @@ function renderConversations() {
   }
 
   active.messages.forEach((message) => {
+    message.id = message.id || uid();
     const bubble = document.createElement("div");
     bubble.className = `message-bubble ${message.from === "me" ? "from-me" : "from-them"}`;
     bubble.innerHTML = `
       <strong>${message.from === "me" ? "Вы" : escapeHtml(active.title)}</strong>
       <span>${escapeHtml(message.text)}</span>
+      ${renderMedia(message)}
+      <div class="message-tools">
+        <button type="button" data-action="react" data-emoji="👍">👍 ${message.reactions?.["👍"] || ""}</button>
+        <button type="button" data-action="react" data-emoji="🔥">🔥 ${message.reactions?.["🔥"] || ""}</button>
+        <button type="button" data-action="react" data-emoji="✅">✅ ${message.reactions?.["✅"] || ""}</button>
+      </div>
       <small>${escapeHtml(message.time)}</small>
     `;
+    bubble.querySelectorAll("[data-action='react']").forEach((button) => {
+      button.addEventListener("click", () => reactConversationMessage(active.id, message.id, button.dataset.emoji));
+    });
     el.chatThread.append(bubble);
   });
 }
@@ -1000,10 +1013,11 @@ function startConversation(vendor, productName = "") {
       title,
       messages: [
         {
+          id: uid(),
           from: "them",
           text: vendor === "operator"
             ? "Здравствуйте. Оператор на связи. Чем помочь?"
-            : `Здравствуйте. Это чат магазина ${title}${productName ? ` по товару «${productName}»` : ""}.`,
+            : `Здравствуйте. Это чат магазина ${title}.`,
           time: new Date().toLocaleString("ru-RU")
         }
       ]
@@ -1013,21 +1027,20 @@ function startConversation(vendor, productName = "") {
   activeConversationId = conversation.id;
 }
 
-function sendMessage(text) {
+function sendMessage(data) {
   const active = conversations.find((conversation) => conversation.id === activeConversationId);
-  if (!active || !text.trim()) return;
+  if (!active) return;
+  const text = String(data.message || "").trim();
+  const mediaUrl = String(data.mediaUrl || "").trim();
+  if (!text && !mediaUrl) return;
 
   active.messages.push({
+    id: uid(),
     from: "me",
-    text: text.trim(),
-    time: new Date().toLocaleString("ru-RU")
-  });
-
-  active.messages.push({
-    from: "them",
-    text: active.key === "operator"
-      ? "Принято. Оператор увидит сообщение и сможет ответить в рабочем кабинете."
-      : "Спасибо за сообщение. Продавец увидит его в своем кабинете.",
+    text: text || "Медиа",
+    mediaType: data.mediaType,
+    mediaUrl,
+    reactions: {},
     time: new Date().toLocaleString("ru-RU")
   });
 }
@@ -1036,8 +1049,10 @@ function replyAsVendor(conversationId, text) {
   const conversation = conversations.find((item) => item.id === conversationId);
   if (!conversation || !text.trim()) return;
   conversation.messages.push({
+    id: uid(),
     from: "them",
     text: text.trim(),
+    reactions: {},
     time: new Date().toLocaleString("ru-RU")
   });
   wallet.activity.push(`Магазин ответил в диалоге ${conversation.title}`);
@@ -1050,11 +1065,22 @@ function completeExchangeConversation(conversationId) {
   conversation.completedAt = new Date().toISOString();
   profile.completedDeals = Number(profile.completedDeals || 0) + 1;
   conversation.messages.push({
+    id: uid(),
     from: "them",
     text: "Сделка закрыта сотрудником обменника. Клиенту начислен +1 к репутации.",
+    reactions: {},
     time: new Date().toLocaleString("ru-RU")
   });
   wallet.activity.push(`Закрыта обменная сделка: +1 к репутации`);
+  render();
+}
+
+function reactConversationMessage(conversationId, messageId, emoji) {
+  const conversation = conversations.find((item) => item.id === conversationId);
+  const message = conversation?.messages.find((item) => item.id === messageId);
+  if (!message) return;
+  message.reactions = message.reactions || {};
+  message.reactions[emoji] = (message.reactions[emoji] || 0) + 1;
   render();
 }
 
@@ -1525,14 +1551,18 @@ function checkout() {
       startConversation(product.vendor, product.name);
       const active = conversations.find((conversation) => conversation.id === activeConversationId);
       active.messages.push({
+        id: uid(),
         from: "me",
         text: `Заказ ${order.id}: ${product.name}, ${item.quantity} шт.`,
+        reactions: {},
         time: new Date().toLocaleString("ru-RU")
       });
       if (issued.length) {
         active.messages.push({
+          id: uid(),
           from: "them",
           text: `Выдача по заказу ${order.id}:\n${issued.join("\n\n")}`,
+          reactions: {},
           time: new Date().toLocaleString("ru-RU")
         });
       }
@@ -1622,9 +1652,16 @@ el.newSupportChat.addEventListener("click", () => {
 el.chatForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(el.chatForm).entries());
-  sendMessage(data.message || "");
+  sendMessage(data);
   el.chatForm.reset();
   render();
+});
+el.chatForm.querySelectorAll("[data-chat-emoji]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const input = el.chatForm.elements.message;
+    input.value = `${input.value}${button.dataset.chatEmoji}`;
+    input.focus();
+  });
 });
 el.globalChatForm.addEventListener("submit", (event) => {
   event.preventDefault();

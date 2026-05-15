@@ -210,7 +210,21 @@
             </div>
             <div class="chat-thread" id="chatThread"></div>
             <form class="chat-compose" id="chatForm">
-              <input name="message" maxlength="240" placeholder="Написать сообщение">
+              <input name="message" maxlength="320" placeholder="Написать сообщение">
+              <select name="mediaType" aria-label="Тип медиа">
+                <option value="">Без медиа</option>
+                <option value="image">Фото</option>
+                <option value="video">Видео</option>
+                <option value="audio">Голосовое/аудио</option>
+                <option value="file">Файл</option>
+              </select>
+              <input name="mediaUrl" maxlength="700" placeholder="Ссылка на файл или медиа">
+              <div class="emoji-row">
+                <button type="button" data-chat-emoji="👍">👍</button>
+                <button type="button" data-chat-emoji="🔥">🔥</button>
+                <button type="button" data-chat-emoji="💬">💬</button>
+                <button type="button" data-chat-emoji="✅">✅</button>
+              </div>
               <button class="primary-button" type="submit">Отправить</button>
             </form>
           </div>

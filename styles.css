@@ -1287,15 +1287,20 @@ select {
 
 .chat-compose {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1.2fr) 130px minmax(0, .9fr) auto;
   gap: 10px;
   padding: 16px;
   border-top: 1px solid var(--line);
 }
 
-.chat-compose input {
+.chat-compose input,
+.chat-compose select {
   min-height: 42px;
   padding: 0 12px;
+}
+
+.chat-compose .emoji-row {
+  grid-column: 1 / 5;
 }
 
 .news-item {
@@ -1715,7 +1720,8 @@ textarea {
   }
 
   .global-chat-form .emoji-row,
-  .global-chat-form .primary-button {
+  .global-chat-form .primary-button,
+  .chat-compose .emoji-row {
     grid-column: auto;
   }
 
