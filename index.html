@@ -133,7 +133,7 @@
         <div class="top-actions">
           <button class="ghost-button" id="installOpen" type="button">Добавить на экран</button>
           <button class="icon-button" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">◐</button>
-          <button class="cart-button" id="cartToggle" aria-label="Открыть корзину">
+          <button class="cart-button" id="cartToggle" aria-label="Открыть корзину" hidden>
             <span>Корзина</span>
             <strong id="cartCount">0</strong>
           </button>
@@ -574,7 +574,7 @@
       </section>
     </main>
 
-    <aside class="cart-drawer" id="cartDrawer" aria-label="Корзина" aria-hidden="true">
+    <aside class="cart-drawer" id="cartDrawer" aria-label="Корзина" aria-hidden="true" hidden>
       <div class="cart-head">
         <h2>Корзина</h2>
         <button class="icon-button" id="cartClose" aria-label="Закрыть корзину">×</button>
@@ -668,14 +668,6 @@
           </select>
         </label>
         <label>
-          Цена от
-          <input name="minPrice" type="number" min="0" placeholder="0">
-        </label>
-        <label>
-          Цена до
-          <input name="maxPrice" type="number" min="0" placeholder="9999">
-        </label>
-        <label>
           Формат
           <select name="fulfillment">
             <option value="">Любой</option>
@@ -697,7 +689,7 @@
       </form>
     </aside>
 
-    <aside class="payment-drawer" id="paymentDrawer" aria-label="Способ оплаты" aria-hidden="true">
+    <aside class="payment-drawer" id="paymentDrawer" aria-label="Способ оплаты" aria-hidden="true" hidden>
       <div class="cart-head">
         <h2>Способ оплаты</h2>
         <button class="icon-button" id="paymentClose" aria-label="Закрыть">×</button>

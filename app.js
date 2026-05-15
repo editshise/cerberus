@@ -190,6 +190,7 @@ const defaultVendors = [
     type: "Обменники",
     avatar: "assets/cryptonyx.jpg",
     city: "Online",
+    telegram: "cryptonyxor",
     featured: true,
     paymentMode: "planned",
     paymentCurrency: "USDT",
@@ -206,6 +207,7 @@ const defaultVendors = [
     type: "Услуги",
     avatar: "assets/red-queen.jpg",
     city: "Молдова и ПМР",
+    telegram: "redqueen",
     countries: ["Молдова", "ПМР"],
     cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
     districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
@@ -1381,6 +1383,39 @@ function sendMessage(data) {
   });
 }
 
+function inquiryText(product, vendor) {
+  const vendorTitle = vendor.title || vendor.name;
+  return `Здравствуйте, я по поводу карточки «${product.name}» у ${vendorTitle} на маркетплейсе Cerberus. Актуально? Хочу уточнить детали и договориться с оператором.`;
+}
+
+function contactOnSite(product, vendor) {
+  startConversation(vendor.name, product.name);
+  const conversation = conversations.find((item) => item.id === activeConversationId);
+  const text = inquiryText(product, vendor);
+  const alreadySent = conversation?.messages.some((message) => message.from === "me" && message.text === text);
+  if (conversation && !alreadySent) {
+    conversation.messages.push({
+      id: uid(),
+      from: "me",
+      text,
+      reactions: {},
+      time: new Date().toLocaleString("ru-RU")
+    });
+  }
+  closePublicProfile();
+  showView("messages");
+  render();
+}
+
+function contactTelegram(product, vendor) {
+  const handle = String(vendor.telegram || vendor.telegramHandle || vendor.name || "").replace(/^@/, "").trim();
+  const text = `Привет, я по поводу этого заказа с маркетплейса Cerberus: «${product.name}». Товар еще в наличии? Хочу уточнить детали.`;
+  const url = handle
+    ? `https://t.me/${encodeURIComponent(handle)}?text=${encodeURIComponent(text)}`
+    : `https://t.me/share/url?text=${encodeURIComponent(text)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 function replyAsVendor(conversationId, text) {
   const conversation = conversations.find((item) => item.id === conversationId);
   if (!conversation || !text.trim()) return;
@@ -1616,7 +1651,6 @@ function openPublicProfile(vendorName) {
       <div>
         <div class="product-meta">
           <span class="category-pill">${escapeHtml(product.category)}</span>
-          <span>В наличии ${availableStock(product)}</span>
         </div>
         <h4>${escapeHtml(product.name)}</h4>
         <p>${escapeHtml(product.description || "Без описания")}</p>
@@ -1624,13 +1658,14 @@ function openPublicProfile(vendorName) {
           <span>${escapeHtml(product.weight || "1 шт")}</span>
           <span>${escapeHtml(product.locationType || "Онлайн")}</span>
         </div>
-        <div class="product-actions">
-          <strong>${money(product.price)}</strong>
-          <button class="primary-button" type="button">Купить</button>
+        <div class="product-actions public-contact-actions">
+          <button class="primary-button" type="button" data-action="site-contact">Приобрести на сайте</button>
+          <button class="ghost-button" type="button" data-action="telegram-contact">Приобрести в телеграме</button>
         </div>
       </div>
     `;
-    card.querySelector("button").addEventListener("click", () => addToCart(product.id));
+    card.querySelector('[data-action="site-contact"]').addEventListener("click", () => contactOnSite(product, vendor));
+    card.querySelector('[data-action="telegram-contact"]').addEventListener("click", () => contactTelegram(product, vendor));
     list.append(card);
   });
   el.profileDrawer.classList.add("is-open");
