@@ -5,6 +5,14 @@ function uid() {
   return `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+const SUPABASE_URL = "https://fcizffijtbfsixqpyiof.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_kV_lCtSEz-1o7stgnLyv0w_CoyXx2cr";
+const CLOUD_STATE_ID = "cerberus-main";
+const cloudClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let cloudSaveTimer = null;
+let cloudSaving = false;
+let suppressCloudSave = false;
+
 const defaultProducts = [
   {
     id: uid(),
@@ -149,7 +157,9 @@ const storage = {
 let products = storage.get("cerberusProducts", defaultProducts);
 let cart = storage.get("cerberusCart", []);
 let orders = storage.get("cerberusOrders", []);
-let profile = storage.get("cerberusProfile", { nickname: "", avatar: "", bio: "", photoUrl: "", city: "", contact: "", completedDeals: 0 });
+const defaultProfile = { nickname: "", avatar: "", bio: "", photoUrl: "", city: "", contact: "", completedDeals: 0 };
+let profiles = storage.get("cerberusProfiles", {});
+let profile = storage.get("cerberusProfile", defaultProfile);
 let wallet = storage.get("cerberusWallet", { balance: 500, activity: ["Стартовый баланс: +500 CRB"] });
 let accounts = storage.get("cerberusAccounts", defaultAccounts);
 let session = storage.get("cerberusSession", null);
@@ -178,15 +188,10 @@ let captchaAnswer = 0;
 
 products = products.map((product, index) => ({ order: index, ...product }));
 profile = {
-  nickname: "",
-  avatar: "",
-  bio: "",
-  photoUrl: "",
-  city: "",
-  contact: "",
-  completedDeals: 0,
+  ...defaultProfile,
   ...profile
 };
+profiles = profiles && typeof profiles === "object" && !Array.isArray(profiles) ? profiles : {};
 accounts = accounts.map((account) => ({
   ...account,
   login: String(account.login || "").trim(),
@@ -310,10 +315,12 @@ const el = {
 };
 
 function persist() {
+  syncActiveProfile();
   const results = [
     storage.set("cerberusProducts", products),
     storage.set("cerberusCart", cart),
     storage.set("cerberusOrders", orders),
+    storage.set("cerberusProfiles", profiles),
     storage.set("cerberusProfile", profile),
     storage.set("cerberusWallet", wallet),
     storage.set("cerberusAccounts", accounts),
@@ -327,6 +334,9 @@ function persist() {
     storage.set("cerberusFilters", activeFilters),
     storage.set("cerberusDirectoryType", activeDirectoryType)
   ];
+  if (!suppressCloudSave) {
+    scheduleCloudSave();
+  }
   return results.every(Boolean);
 }
 
@@ -336,6 +346,141 @@ function money(value) {
 
 function normalizeLogin(value) {
   return String(value || "").trim().toLowerCase();
+}
+
+async function hashPassword(loginKey, password) {
+  const source = `${normalizeLogin(loginKey)}:${String(password || "")}`;
+  const bytes = new TextEncoder().encode(source);
+  const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function ensureCredentialHashes() {
+  const groups = [accounts, vendors];
+  for (const group of groups) {
+    for (const item of group) {
+      if (!item.passwordHash && item.password) {
+        item.passwordHash = await hashPassword(item.loginKey || item.login, item.password);
+      }
+      delete item.password;
+    }
+  }
+}
+
+async function credentialMatches(item, loginKey, password) {
+  if (!item) return false;
+  if (item.passwordHash) {
+    return item.passwordHash === await hashPassword(loginKey, password);
+  }
+  if (item.password === password) {
+    item.passwordHash = await hashPassword(loginKey, password);
+    delete item.password;
+    return true;
+  }
+  return false;
+}
+
+function normalizeProfile(value) {
+  return { ...defaultProfile, ...(value && typeof value === "object" ? value : {}) };
+}
+
+function activeLoginKey() {
+  return normalizeLogin(session?.loginKey || session?.login);
+}
+
+function syncActiveProfile() {
+  const key = activeLoginKey();
+  if (!key) return;
+  profiles[key] = normalizeProfile(profile);
+}
+
+function loadActiveProfile() {
+  const key = activeLoginKey();
+  if (!key) return;
+  profile = normalizeProfile(profiles[key] || profile);
+  profile.nickname = profile.nickname || session.login || "";
+  profiles[key] = profile;
+}
+
+function cloudState() {
+  syncActiveProfile();
+  return {
+    products,
+    cart,
+    orders,
+    profiles,
+    wallet,
+    accounts,
+    vendors,
+    conversations,
+    activeConversationId,
+    globalChat,
+    announcements,
+    selectedVendorName,
+    activeFilters,
+    activeDirectoryType
+  };
+}
+
+function applyCloudState(data) {
+  if (!data || typeof data !== "object") return;
+  products = Array.isArray(data.products) ? data.products : products;
+  cart = Array.isArray(data.cart) ? data.cart : cart;
+  orders = Array.isArray(data.orders) ? data.orders : orders;
+  profiles = data.profiles && typeof data.profiles === "object" && !Array.isArray(data.profiles) ? data.profiles : profiles;
+  wallet = data.wallet && typeof data.wallet === "object" ? data.wallet : wallet;
+  accounts = Array.isArray(data.accounts) ? data.accounts : accounts;
+  vendors = Array.isArray(data.vendors) ? data.vendors : vendors;
+  conversations = Array.isArray(data.conversations) ? data.conversations : conversations;
+  activeConversationId = typeof data.activeConversationId === "string" ? data.activeConversationId : activeConversationId;
+  globalChat = Array.isArray(data.globalChat) ? data.globalChat : globalChat;
+  announcements = Array.isArray(data.announcements) ? data.announcements : announcements;
+  selectedVendorName = typeof data.selectedVendorName === "string" ? data.selectedVendorName : selectedVendorName;
+  activeFilters = data.activeFilters && typeof data.activeFilters === "object" ? data.activeFilters : activeFilters;
+  activeDirectoryType = typeof data.activeDirectoryType === "string" ? data.activeDirectoryType : activeDirectoryType;
+  loadActiveProfile();
+}
+
+async function loadCloudState() {
+  if (!cloudClient) return;
+  const { data, error } = await cloudClient
+    .from("cerberus_state")
+    .select("data")
+    .eq("id", CLOUD_STATE_ID)
+    .maybeSingle();
+  if (error) {
+    console.warn("Supabase load failed", error.message);
+    return;
+  }
+  if (data?.data) {
+    suppressCloudSave = true;
+    applyCloudState(data.data);
+    persist();
+    suppressCloudSave = false;
+  }
+}
+
+function scheduleCloudSave() {
+  if (!cloudClient || suppressCloudSave) return;
+  window.clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = window.setTimeout(saveCloudState, 650);
+}
+
+async function saveCloudState() {
+  if (!cloudClient || cloudSaving) return;
+  cloudSaving = true;
+  await ensureCredentialHashes();
+  const { error } = await cloudClient
+    .from("cerberus_state")
+    .upsert({
+      id: CLOUD_STATE_ID,
+      data: cloudState(),
+      updated_at: new Date().toISOString()
+    });
+  if (error) {
+    console.warn("Supabase save failed", error.message);
+  }
+  cloudSaving = false;
 }
 
 function currentUserName() {
@@ -1387,10 +1532,12 @@ function updateAuthGate() {
   if (!accountExists) {
     session = null;
     generateCaptcha();
+  } else {
+    loadActiveProfile();
   }
 }
 
-function handleAuth(event) {
+async function handleAuth(event) {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(el.authForm).entries());
   const login = data.login.trim();
@@ -1413,12 +1560,15 @@ function handleAuth(event) {
       el.authError.textContent = "Пароли не совпадают.";
       return;
     }
-    accounts.push({ login, loginKey, password, role: "user", createdAt: new Date().toISOString() });
-    profile.nickname = profile.nickname || login;
+    accounts.push({ login, loginKey, passwordHash: await hashPassword(loginKey, password), role: "user", createdAt: new Date().toISOString() });
+    profile = normalizeProfile({ ...profiles[loginKey], nickname: profiles[loginKey]?.nickname || login });
+    profiles[loginKey] = profile;
     wallet.activity.push(`Аккаунт создан: ${login}`);
   } else {
-    const account = accounts.find((entry) => (entry.loginKey || normalizeLogin(entry.login)) === loginKey && entry.password === password);
-    const vendorAccount = vendors.find((entry) => (entry.loginKey || normalizeLogin(entry.login)) === loginKey && entry.password === password);
+    const accountCandidate = accounts.find((entry) => (entry.loginKey || normalizeLogin(entry.login)) === loginKey);
+    const vendorCandidate = vendors.find((entry) => (entry.loginKey || normalizeLogin(entry.login)) === loginKey);
+    const account = await credentialMatches(accountCandidate, loginKey, password) ? accountCandidate : null;
+    const vendorAccount = await credentialMatches(vendorCandidate, loginKey, password) ? vendorCandidate : null;
     if (!account && !vendorAccount) {
       el.authError.textContent = "Логин или пароль не подходят. Можно перейти в регистрацию.";
       generateCaptcha();
@@ -1428,6 +1578,7 @@ function handleAuth(event) {
   }
 
   session = { login, loginKey, signedAt: new Date().toISOString() };
+  loadActiveProfile();
   const saved = persist();
   if (!saved) {
     el.authError.textContent = "Браузер не дал сохранить аккаунт. Отключи приватный режим или разреши данные сайта.";
@@ -1748,7 +1899,7 @@ el.productForm.addEventListener("submit", (event) => {
   showView("market");
   render();
 });
-el.vendorForm.addEventListener("submit", (event) => {
+el.vendorForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(el.vendorForm).entries());
   const name = data.name.trim();
@@ -1766,7 +1917,7 @@ el.vendorForm.addEventListener("submit", (event) => {
     city: data.city.trim() || "Online",
     login: data.login.trim(),
     loginKey: normalizeLogin(data.login),
-    password: data.password,
+    passwordHash: await hashPassword(data.login, data.password),
     status: data.status,
     description: data.description.trim(),
     paymentMode: "planned",
@@ -1800,11 +1951,16 @@ el.themeToggle.addEventListener("click", () => {
   storage.set("cerberusTheme", document.documentElement.classList.contains("light") ? "light" : "dark");
 });
 
-if (storage.get("cerberusTheme", "dark") === "light") {
-  document.documentElement.classList.add("light");
+async function initApp() {
+  if (storage.get("cerberusTheme", "dark") === "light") {
+    document.documentElement.classList.add("light");
+  }
+
+  await loadCloudState();
+  setAuthMode(accounts.length || vendors.length ? "login" : "register");
+  updateAuthGate();
+  render();
+  showAnnouncementModal();
 }
 
-setAuthMode(accounts.length || vendors.length ? "login" : "register");
-updateAuthGate();
-render();
-showAnnouncementModal();
+initApp();
