@@ -13,6 +13,19 @@ let cloudSaveTimer = null;
 let cloudSaving = false;
 let suppressCloudSave = false;
 
+const locationOptions = {
+  countries: ["Молдова", "ПМР"],
+  cities: {
+    "Молдова": ["Кишинев", "Бельцы", "Бендеры", "Комрат", "Кагул", "Унгены", "Оргеев", "Сороки", "Хынчешты", "Чадыр-Лунга", "Дрокия", "Страшены", "Единцы", "Каушаны", "Рышканы", "Флорешты", "Чимишлия", "Калараш", "Ниспорены", "Леова", "Фалешты", "Тараклия", "Теленешты", "Резина", "Штефан-Водэ", "Окница", "Бричаны", "Дондюшаны", "Шолданешты", "Басарабяска", "Криуляны", "Яловены", "Глодяны", "Сынжерей", "Кантемир"],
+    "ПМР": ["Тирасполь", "Бендеры", "Рыбница", "Дубоссары", "Слободзея", "Григориополь", "Каменка", "Днестровск"]
+  },
+  districts: {
+    "Молдова": ["Кишинев", "Бельцы", "Бендеры", "Гагаузия", "Анений Ной", "Басарабяска", "Бричаны", "Кагул", "Кантемир", "Калараш", "Каушаны", "Чимишлия", "Криуляны", "Дондюшаны", "Дрокия", "Дубоссары", "Единцы", "Фалешты", "Флорешты", "Глодяны", "Хынчешты", "Яловены", "Леова", "Ниспорены", "Окница", "Оргеев", "Резина", "Рышканы", "Сынжерей", "Сороки", "Страшены", "Шолданешты", "Штефан-Водэ", "Тараклия", "Теленешты", "Унгены"],
+    "ПМР": ["Тирасполь", "Бендеры", "Каменский район", "Рыбницкий район", "Дубоссарский район", "Григориопольский район", "Слободзейский район"]
+  }
+};
+const iconOptions = ["❄️", "💎", "💊", "🍫", "🌳", "🎆", "💉", "🏥", "🧊", "🪪", "💱", "🧳"];
+
 const defaultProducts = [
   {
     id: uid(),
@@ -21,6 +34,10 @@ const defaultProducts = [
     price: 120,
     vendor: "snowboard",
     city: "Tiraspol",
+    countries: ["ПМР"],
+    cities: ["Тирасполь"],
+    districts: ["Тирасполь"],
+    iconTags: ["❄️", "🧳"],
     rating: 4.9,
     description: "Стартовая карточка SnowBoard, которую владелец сможет заменить в своем кабинете.",
     image: "assets/snowboard.jpg",
@@ -38,6 +55,10 @@ const defaultProducts = [
     price: 260,
     vendor: "snowboard",
     city: "Chisinau",
+    countries: ["Молдова"],
+    cities: ["Кишинев"],
+    districts: ["Кишинев"],
+    iconTags: ["❄️", "💎"],
     rating: 4.8,
     description: "Расширенная карточка SnowBoard для каталога профиля.",
     image: "assets/snowboard.jpg",
@@ -54,6 +75,10 @@ const defaultProducts = [
     price: 50,
     vendor: "cryptonyx",
     city: "Online",
+    countries: ["Молдова", "ПМР"],
+    cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
+    districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
+    iconTags: ["💱", "🧳"],
     rating: 4.9,
     description: "Заявка CryptonyX на консультацию и расчет условий обмена через сообщения.",
     image: "assets/cryptonyx.jpg",
@@ -71,8 +96,12 @@ const defaultProducts = [
     price: 150,
     vendor: "redqueen",
     city: "Молдова и ПМР",
+    countries: ["Молдова", "ПМР"],
+    cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
+    districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
+    iconTags: ["🪪", "💱"],
     rating: 4.88,
-    description: "Заявка Red Queen на легальную проверку и оформление покупки верификаций карточек/кошельков.",
+    description: "Покупка/Продажа карт и кошельков верификации.",
     image: "assets/red-queen-buy-card-verification.jpg",
     weight: "1 заявка",
     locationType: "Онлайн",
@@ -88,8 +117,12 @@ const defaultProducts = [
     price: 180,
     vendor: "redqueen",
     city: "Молдова и ПМР",
+    countries: ["Молдова", "ПМР"],
+    cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
+    districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
+    iconTags: ["🪪", "💱"],
     rating: 4.86,
-    description: "Заявка Red Queen на легальное размещение предложения по верификациям карточек и кошельков.",
+    description: "Покупка/Продажа карт и кошельков верификации.",
     image: "assets/red-queen-sell-card-verification.jpg",
     weight: "1 заявка",
     locationType: "Онлайн",
@@ -168,11 +201,15 @@ const defaultVendors = [
     login: "redqueen_owner",
     password: "market123",
     status: "Активен",
-    description: "Скупка/Продажа карт/кошельков. Регион работы: Молдова и ПМР, все города Молдовы и ПМР.",
+    description: "Скупка/Продажа карт/кошельков.",
     title: "Red Queen",
     type: "Услуги",
     avatar: "assets/red-queen.jpg",
     city: "Молдова и ПМР",
+    countries: ["Молдова", "ПМР"],
+    cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
+    districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
+    iconTags: ["🪪", "💱"],
     featured: true,
     paymentMode: "planned",
     paymentCurrency: "USDT",
@@ -221,7 +258,10 @@ let announcements = storage.get("cerberusAnnouncements", defaultAnnouncements);
 let selectedVendorName = storage.get("cerberusSelectedVendor", vendors[0]?.name || "");
 let activeFilters = storage.get("cerberusFilters", {
   category: "",
+  country: "",
   city: "",
+  district: "",
+  icon: "",
   minPrice: "",
   maxPrice: "",
   fulfillment: "",
@@ -293,11 +333,24 @@ function ensurePinnedDefaults() {
     loginKey: String(vendor.loginKey || vendor.login || "").trim().toLowerCase()
   }));
   defaultVendors.forEach((defaultVendor) => {
-    if (!vendors.some((vendor) => vendor.name === defaultVendor.name)) {
+    const existingVendor = vendors.find((vendor) => vendor.name === defaultVendor.name);
+    if (!existingVendor) {
       vendors.push({
         ...defaultVendor,
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
+      });
+    } else if (defaultVendor.name === "redqueen") {
+      Object.assign(existingVendor, {
+        description: defaultVendor.description,
+        countries: defaultVendor.countries,
+        cities: defaultVendor.cities,
+        districts: defaultVendor.districts,
+        iconTags: defaultVendor.iconTags,
+        city: defaultVendor.city,
+        type: defaultVendor.type,
+        avatar: defaultVendor.avatar,
+        featured: true
       });
     }
   });
@@ -305,15 +358,28 @@ function ensurePinnedDefaults() {
     .filter((product) => pinnedVendorNames.includes(product.vendor))
     .map((product, index) => ({ order: index, ...product }));
   defaultProducts.forEach((defaultProduct) => {
-    if (!products.some((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name)) {
+    const existingProduct = products.find((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name);
+    if (!existingProduct) {
       products.push({
         ...defaultProduct,
         id: uid(),
         order: products.length
       });
+    } else if (defaultProduct.vendor === "redqueen") {
+      Object.assign(existingProduct, {
+        description: defaultProduct.description,
+        countries: defaultProduct.countries,
+        cities: defaultProduct.cities,
+        districts: defaultProduct.districts,
+        iconTags: defaultProduct.iconTags,
+        city: defaultProduct.city,
+        image: defaultProduct.image
+      });
     }
   });
 }
+
+ensurePinnedDefaults();
 
 const el = {
   authScreen: document.querySelector("#authScreen"),
@@ -629,6 +695,16 @@ function productCode(product) {
     .toUpperCase();
 }
 
+function asArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  return value ? [value] : [];
+}
+
+function hasFilterValue(values, filterValue) {
+  if (!filterValue) return true;
+  return asArray(values).some((value) => String(value).toLowerCase() === String(filterValue).toLowerCase());
+}
+
 function buildDirectoryEntries() {
   return vendors
     .filter((vendor) => vendor.featured || ["snowboard", "cryptonyx", "redqueen"].includes(vendor.name))
@@ -640,6 +716,10 @@ function buildDirectoryEntries() {
         name: vendor.title || vendor.name,
         vendor: vendor.name,
         city: vendor.city || "Online",
+        countries: asArray(vendor.countries),
+        cities: asArray(vendor.cities || vendor.city),
+        districts: asArray(vendor.districts),
+        iconTags: asArray(vendor.iconTags),
         rating: (5 - index * 0.02).toFixed(2),
         reviews: count * 53 + 281,
         deals: count,
@@ -654,12 +734,15 @@ function currentDirectoryEntries() {
   const query = el.search.value.trim().toLowerCase();
   const filtered = buildDirectoryEntries().filter((entry) => {
     const typeMatch = activeDirectoryType === "Все" || entry.type === activeDirectoryType;
-    const cityMatch = !activeFilters.city || entry.city.toLowerCase().includes(activeFilters.city.toLowerCase());
+    const countryMatch = hasFilterValue(entry.countries, activeFilters.country);
+    const cityMatch = !activeFilters.city || hasFilterValue(entry.cities, activeFilters.city) || entry.city.toLowerCase().includes(activeFilters.city.toLowerCase());
+    const districtMatch = hasFilterValue(entry.districts, activeFilters.district);
+    const iconMatch = hasFilterValue(entry.iconTags, activeFilters.icon);
     const queryMatch = [entry.name, entry.type, entry.vendor, entry.city, entry.description]
       .join(" ")
       .toLowerCase()
       .includes(query);
-    return typeMatch && cityMatch && queryMatch;
+    return typeMatch && countryMatch && cityMatch && districtMatch && iconMatch && queryMatch;
   });
 
   return filtered;
@@ -1001,6 +1084,28 @@ function renderNews() {
 
 function renderFilterForm() {
   if (!el.filterForm) return;
+  const countrySelect = el.filterForm.elements.country;
+  const citySelect = el.filterForm.elements.city;
+  const districtSelect = el.filterForm.elements.district;
+  const iconSelect = el.filterForm.elements.icon;
+  const countries = locationOptions.countries;
+  const selectedCountry = activeFilters.country || "";
+  const cities = selectedCountry ? locationOptions.cities[selectedCountry] || [] : [...new Set(Object.values(locationOptions.cities).flat())];
+  const districts = selectedCountry ? locationOptions.districts[selectedCountry] || [] : [...new Set(Object.values(locationOptions.districts).flat())];
+
+  if (countrySelect) {
+    countrySelect.innerHTML = '<option value="">Любая страна</option>' + countries.map((country) => `<option>${country}</option>`).join("");
+  }
+  if (citySelect) {
+    citySelect.innerHTML = '<option value="">Любой город</option>' + cities.map((city) => `<option>${city}</option>`).join("");
+  }
+  if (districtSelect) {
+    districtSelect.innerHTML = '<option value="">Любой район</option>' + districts.map((district) => `<option>${district}</option>`).join("");
+  }
+  if (iconSelect) {
+    iconSelect.innerHTML = '<option value="">Все иконки</option>' + iconOptions.map((icon) => `<option value="${icon}">${icon}</option>`).join("");
+  }
+
   Object.entries(activeFilters).forEach(([key, value]) => {
     if (el.filterForm.elements[key]) {
       el.filterForm.elements[key].value = value;
@@ -1851,10 +1956,16 @@ el.installClose.addEventListener("click", closeInstallGuide);
 el.filterOpen.addEventListener("click", openFilterDrawer);
 el.filterClose.addEventListener("click", closeFilterDrawer);
 el.filterReset.addEventListener("click", () => {
-  activeFilters = { category: "", city: "", minPrice: "", maxPrice: "", fulfillment: "", locationType: "" };
+  activeFilters = { category: "", country: "", city: "", district: "", icon: "", minPrice: "", maxPrice: "", fulfillment: "", locationType: "" };
   activeCategory = "Все";
   closeFilterDrawer();
   render();
+});
+el.filterForm.elements.country?.addEventListener("change", () => {
+  activeFilters.country = el.filterForm.elements.country.value;
+  activeFilters.city = "";
+  activeFilters.district = "";
+  renderFilterForm();
 });
 el.filterForm.addEventListener("submit", (event) => {
   event.preventDefault();
