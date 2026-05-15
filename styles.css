@@ -1544,7 +1544,7 @@ textarea {
 
 @media (max-width: 920px) {
   body {
-    padding-bottom: 0;
+    padding-bottom: 76px;
   }
 
   .app-shell {
@@ -1552,15 +1552,22 @@ textarea {
   }
 
   .sidebar {
-    position: static;
+    position: fixed;
+    z-index: 30;
+    left: 0;
+    right: 0;
+    bottom: 0;
     height: auto;
+    padding: 8px;
+    border-top: 1px solid var(--line);
     border-right: 0;
-    border-bottom: 1px solid var(--line);
-    background: rgba(17, 20, 16, .78);
+    border-bottom: 0;
+    background: rgba(13, 13, 12, .94);
+    backdrop-filter: blur(16px);
   }
 
   .brand {
-    gap: 12px;
+    display: none;
   }
 
   .brand-logo {
@@ -1569,9 +1576,11 @@ textarea {
   }
 
   .nav {
-    grid-template-columns: repeat(9, minmax(0, 1fr));
+    display: flex;
+    grid-template-columns: none;
     gap: 6px;
-    margin-top: 18px;
+    overflow-x: auto;
+    margin-top: 0;
     padding: 0;
     border: 0;
     background: transparent;
@@ -1580,6 +1589,7 @@ textarea {
   }
 
   .nav-item {
+    flex: 0 0 58px;
     justify-content: center;
     min-height: 48px;
     padding: 10px 8px;
@@ -1590,9 +1600,7 @@ textarea {
   }
 
   .trust-panel {
-    position: static;
-    display: block;
-    margin-top: 18px;
+    display: none;
   }
 
   .hero,
@@ -1604,7 +1612,7 @@ textarea {
   }
 
   .main {
-    padding: 16px 12px 24px;
+    padding: 16px 12px 88px;
   }
 
   .topbar {
@@ -1652,7 +1660,7 @@ textarea {
   .auth-screen {
     align-items: start;
     place-items: start stretch;
-    padding: 10px;
+    padding: 10px 10px 88px;
   }
 
   .auth-card {
@@ -1689,7 +1697,16 @@ textarea {
   }
 
   .main {
-    padding: 12px 10px 22px;
+    padding: 12px 10px 92px;
+  }
+
+  .sidebar {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .nav-item {
+    flex-basis: 54px;
+    min-height: 52px;
   }
 
   .topbar {

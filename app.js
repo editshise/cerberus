@@ -277,15 +277,10 @@ let announcements = storage.get("cerberusAnnouncements", defaultAnnouncements);
 let reviews = storage.get("cerberusReviews", []);
 let selectedVendorName = storage.get("cerberusSelectedVendor", vendors[0]?.name || "");
 let activeFilters = storage.get("cerberusFilters", {
-  category: "",
   country: "",
   city: "",
   district: "",
-  icon: "",
-  minPrice: "",
-  maxPrice: "",
-  fulfillment: "",
-  locationType: ""
+  icon: ""
 });
 let selectedPayment = "wallet";
 let activeCategory = "Все";
@@ -1225,7 +1220,7 @@ function renderFilterForm() {
     districtSelect.innerHTML = '<option value="">Любой район</option>' + districts.map((district) => `<option>${district}</option>`).join("");
   }
   if (iconSelect) {
-    iconSelect.innerHTML = '<option value="">Все иконки</option>' + iconOptions.map((icon) => `<option value="${icon}">${icon}</option>`).join("");
+    iconSelect.innerHTML = '<option value="">Все категории</option>' + iconOptions.map((icon) => `<option value="${icon}">${icon}</option>`).join("");
   }
 
   Object.entries(activeFilters).forEach(([key, value]) => {
@@ -2263,7 +2258,7 @@ el.installClose.addEventListener("click", closeInstallGuide);
 el.filterOpen.addEventListener("click", openFilterDrawer);
 el.filterClose.addEventListener("click", closeFilterDrawer);
 el.filterReset.addEventListener("click", () => {
-  activeFilters = { category: "", country: "", city: "", district: "", icon: "", minPrice: "", maxPrice: "", fulfillment: "", locationType: "" };
+  activeFilters = { country: "", city: "", district: "", icon: "" };
   activeCategory = "Все";
   closeFilterDrawer();
   render();
@@ -2277,7 +2272,7 @@ el.filterForm.elements.country?.addEventListener("change", () => {
 el.filterForm.addEventListener("submit", (event) => {
   event.preventDefault();
   activeFilters = Object.fromEntries(new FormData(el.filterForm).entries());
-  activeCategory = activeFilters.category || "Все";
+  activeCategory = "Все";
   closeFilterDrawer();
   render();
 });
