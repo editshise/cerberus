@@ -932,6 +932,12 @@ select {
   line-height: 1.45;
 }
 
+.public-rating {
+  display: inline-flex;
+  margin: 8px 0;
+  color: #ffe27a;
+}
+
 .public-profile-actions {
   display: flex;
   gap: 10px;
@@ -978,6 +984,34 @@ select {
 .cart-drawer[hidden],
 .payment-drawer[hidden] {
   display: none !important;
+}
+
+.public-reviews,
+.public-review-list,
+.public-review-form {
+  display: grid;
+  gap: 10px;
+}
+
+.public-review-form {
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+}
+
+.public-review-item {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.public-review-item p {
+  margin: 6px 0;
+  color: var(--muted);
+}
+
+.public-review-item span,
+.muted-text {
+  color: var(--muted);
 }
 
 .vendor-profile-mini {
@@ -1803,6 +1837,10 @@ textarea {
   }
 
   .public-contact-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .public-review-form {
     grid-template-columns: 1fr;
   }
 

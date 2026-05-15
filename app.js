@@ -24,69 +24,68 @@ const locationOptions = {
     "ПМР": ["Тирасполь", "Бендеры", "Каменский район", "Рыбницкий район", "Дубоссарский район", "Григориопольский район", "Слободзейский район"]
   }
 };
+const chisinauDistricts = ["Центр", "Ботаника", "Буюканы", "Рышкановка", "Чеканы", "Телецентр", "Скулянка", "Старая Почта", "Дурлешты", "Кодру", "Аэропорт"];
 const iconOptions = ["❄️", "💎", "💊", "🍫", "🌳", "🎆", "💉", "🏥", "🧊", "🪪", "💱", "🧳"];
 
 const defaultProducts = [
   {
     id: uid(),
-    name: "SnowBoard Basic",
+    name: "Продажа ❄️",
     category: "Мерч",
-    price: 120,
+    price: 0,
     vendor: "snowboard",
-    city: "Tiraspol",
-    countries: ["ПМР"],
-    cities: ["Тирасполь"],
-    districts: ["Тирасполь"],
-    iconTags: ["❄️", "🧳"],
-    rating: 4.9,
-    description: "Стартовая карточка SnowBoard, которую владелец сможет заменить в своем кабинете.",
-    image: "assets/snowboard.jpg",
-    weight: "1 шт",
-    locationType: "Онлайн",
-    stockItems: [
-      { id: uid(), text: "SnowBoard Basic: заявка принята, владелец страницы свяжется с вами в чате.", sold: false },
-      { id: uid(), text: "SnowBoard Basic: резервная выдача для следующего заказа.", sold: false }
-    ]
-  },
-  {
-    id: uid(),
-    name: "SnowBoard Premium",
-    category: "Мерч",
-    price: 260,
-    vendor: "snowboard",
-    city: "Chisinau",
+    city: "Кишинев",
     countries: ["Молдова"],
     cities: ["Кишинев"],
-    districts: ["Кишинев"],
-    iconTags: ["❄️", "💎"],
-    rating: 4.8,
-    description: "Расширенная карточка SnowBoard для каталога профиля.",
+    districts: chisinauDistricts,
+    iconTags: ["❄️"],
+    rating: 4.9,
+    description: "Связь с оператором SnowBoard по карточке профиля.",
     image: "assets/snowboard.jpg",
-    weight: "1 шт",
+    weight: "1 заявка",
     locationType: "Онлайн",
     stockItems: [
-      { id: uid(), text: "SnowBoard Premium: заявка принята, владелец страницы свяжется с вами в чате.", sold: false }
+      { id: uid(), text: "SnowBoard: заявка принята, оператор свяжется с вами в чате.", sold: false }
     ]
   },
   {
     id: uid(),
-    name: "CryptonyX Exchange Request",
+    name: "Обмен криптовалюты",
     category: "Заявки",
-    price: 50,
+    price: 0,
     vendor: "cryptonyx",
-    city: "Online",
-    countries: ["Молдова", "ПМР"],
-    cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
-    districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
     iconTags: ["💱", "🧳"],
     rating: 4.9,
-    description: "Заявка CryptonyX на консультацию и расчет условий обмена через сообщения.",
+    description: "1$ = 19 лей",
     image: "assets/cryptonyx.jpg",
     weight: "1 заявка",
     locationType: "Онлайн",
     stockItems: [
-      { id: uid(), text: "CryptonyX: заявка принята, оператор свяжется с вами в чате.", sold: false },
-      { id: uid(), text: "CryptonyX: резервная заявка для следующего заказа.", sold: false }
+      { id: uid(), text: "CryptonyX: заявка на обмен криптовалюты принята, оператор свяжется с вами в чате.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
+    name: "Обнал криптовалюты",
+    category: "Заявки",
+    price: 0,
+    vendor: "cryptonyx",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱", "🧳"],
+    rating: 4.9,
+    description: "1$ = 17 лей",
+    image: "assets/cryptonyx.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    stockItems: [
+      { id: uid(), text: "CryptonyX: заявка на обнал криптовалюты принята, оператор свяжется с вами в чате.", sold: false }
     ]
   },
   {
@@ -173,7 +172,12 @@ const defaultVendors = [
     title: "SnowBoard",
     type: "Магазины",
     avatar: "assets/snowboard.jpg",
-    city: "Tiraspol",
+    city: "Кишинев",
+    countries: ["Молдова"],
+    cities: ["Кишинев"],
+    districts: chisinauDistricts,
+    iconTags: ["❄️"],
+    telegram: "https://t.me/snowboardmdbot",
     featured: true,
     paymentMode: "planned",
     paymentCurrency: "USDT",
@@ -189,8 +193,11 @@ const defaultVendors = [
     title: "CryptonyX",
     type: "Обменники",
     avatar: "assets/cryptonyx.jpg",
-    city: "Online",
-    telegram: "cryptonyxor",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    telegram: "https://t.me/cryptonyxor",
     featured: true,
     paymentMode: "planned",
     paymentCurrency: "USDT",
@@ -207,7 +214,7 @@ const defaultVendors = [
     type: "Услуги",
     avatar: "assets/red-queen.jpg",
     city: "Молдова и ПМР",
-    telegram: "redqueen",
+    telegram: "https://t.me/redqueenmd",
     countries: ["Молдова", "ПМР"],
     cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
     districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
@@ -257,6 +264,7 @@ let conversations = storage.get("cerberusConversations", []);
 let activeConversationId = storage.get("cerberusActiveConversation", null);
 let globalChat = storage.get("cerberusGlobalChat", []);
 let announcements = storage.get("cerberusAnnouncements", defaultAnnouncements);
+let reviews = storage.get("cerberusReviews", []);
 let selectedVendorName = storage.get("cerberusSelectedVendor", vendors[0]?.name || "");
 let activeFilters = storage.get("cerberusFilters", {
   category: "",
@@ -354,11 +362,30 @@ function ensurePinnedDefaults() {
         avatar: defaultVendor.avatar,
         featured: true
       });
+    } else if (["snowboard", "cryptonyx"].includes(defaultVendor.name)) {
+      Object.assign(existingVendor, {
+        countries: defaultVendor.countries,
+        cities: defaultVendor.cities,
+        districts: defaultVendor.districts,
+        iconTags: defaultVendor.iconTags,
+        city: defaultVendor.city,
+        telegram: defaultVendor.telegram,
+        featured: true
+      });
     }
   });
   products = products
     .filter((product) => pinnedVendorNames.includes(product.vendor))
     .map((product, index) => ({ order: index, ...product }));
+  const defaultProductNamesByVendor = defaultProducts.reduce((acc, product) => {
+    acc[product.vendor] = acc[product.vendor] || new Set();
+    acc[product.vendor].add(product.name);
+    return acc;
+  }, {});
+  products = products.filter((product) => {
+    if (!["cryptonyx", "snowboard"].includes(product.vendor)) return true;
+    return defaultProductNamesByVendor[product.vendor]?.has(product.name);
+  });
   defaultProducts.forEach((defaultProduct) => {
     const existingProduct = products.find((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name);
     if (!existingProduct) {
@@ -367,15 +394,19 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (defaultProduct.vendor === "redqueen") {
+    } else if (["redqueen", "cryptonyx", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
+        category: defaultProduct.category,
+        name: defaultProduct.name,
         description: defaultProduct.description,
         countries: defaultProduct.countries,
         cities: defaultProduct.cities,
         districts: defaultProduct.districts,
         iconTags: defaultProduct.iconTags,
         city: defaultProduct.city,
-        image: defaultProduct.image
+        image: defaultProduct.image,
+        weight: defaultProduct.weight,
+        locationType: defaultProduct.locationType
       });
     }
   });
@@ -481,6 +512,7 @@ function persist() {
     storage.set("cerberusActiveConversation", activeConversationId),
     storage.set("cerberusGlobalChat", globalChat),
     storage.set("cerberusAnnouncements", announcements),
+    storage.set("cerberusReviews", reviews),
     storage.set("cerberusSelectedVendor", selectedVendorName),
     storage.set("cerberusFilters", activeFilters),
     storage.set("cerberusDirectoryType", activeDirectoryType)
@@ -567,6 +599,7 @@ function cloudState() {
     activeConversationId,
     globalChat,
     announcements,
+    reviews,
     selectedVendorName,
     activeFilters,
     activeDirectoryType
@@ -586,6 +619,7 @@ function applyCloudState(data) {
   activeConversationId = typeof data.activeConversationId === "string" ? data.activeConversationId : activeConversationId;
   globalChat = Array.isArray(data.globalChat) ? data.globalChat : globalChat;
   announcements = Array.isArray(data.announcements) ? data.announcements : announcements;
+  reviews = Array.isArray(data.reviews) ? data.reviews : reviews;
   selectedVendorName = typeof data.selectedVendorName === "string" ? data.selectedVendorName : selectedVendorName;
   activeFilters = data.activeFilters && typeof data.activeFilters === "object" ? data.activeFilters : activeFilters;
   activeDirectoryType = typeof data.activeDirectoryType === "string" ? data.activeDirectoryType : activeDirectoryType;
@@ -707,6 +741,26 @@ function hasFilterValue(values, filterValue) {
   return asArray(values).some((value) => String(value).toLowerCase() === String(filterValue).toLowerCase());
 }
 
+function reviewsForVendor(vendorName) {
+  return reviews.filter((review) => review.vendor === vendorName);
+}
+
+function ratingForVendor(vendorName) {
+  const vendorReviews = reviewsForVendor(vendorName);
+  if (!vendorReviews.length) return "5.00";
+  const sum = vendorReviews.reduce((total, review) => total + Number(review.rating || 5), 0);
+  return (sum / vendorReviews.length).toFixed(2);
+}
+
+function currentReviewKey() {
+  return activeLoginKey() || "guest";
+}
+
+function canReviewVendor(vendorName) {
+  const key = currentReviewKey();
+  return !reviews.some((review) => review.vendor === vendorName && review.authorKey === key);
+}
+
 function buildDirectoryEntries() {
   return vendors
     .filter((vendor) => vendor.featured || ["snowboard", "cryptonyx", "redqueen"].includes(vendor.name))
@@ -722,9 +776,9 @@ function buildDirectoryEntries() {
         cities: asArray(vendor.cities || vendor.city),
         districts: asArray(vendor.districts),
         iconTags: asArray(vendor.iconTags),
-        rating: (5 - index * 0.02).toFixed(2),
-        reviews: count * 53 + 281,
-        deals: count,
+        rating: ratingForVendor(vendor.name),
+        reviews: reviewsForVendor(vendor.name).length,
+        deals: 0,
         description: vendor.description || "Профиль создан в админке.",
         avatar: vendor.avatar || "assets/cerberus-logo-transparent.png",
         priceLabel: vendor.type === "Обменники" ? "Обменник" : vendor.type === "Услуги" ? "Услуга" : "Магазин"
@@ -1217,7 +1271,7 @@ function renderAdmin() {
 }
 
 function renderStats() {
-  el.statOrders.textContent = orders.length;
+  el.statOrders.textContent = 0;
   el.statProducts.textContent = products.length;
 }
 
@@ -1408,12 +1462,40 @@ function contactOnSite(product, vendor) {
 }
 
 function contactTelegram(product, vendor) {
-  const handle = String(vendor.telegram || vendor.telegramHandle || vendor.name || "").replace(/^@/, "").trim();
+  const telegram = String(vendor.telegram || vendor.telegramHandle || vendor.name || "").trim();
+  const handle = telegram.replace(/^https?:\/\/t\.me\//, "").replace(/^@/, "").trim();
   const text = `Привет, я по поводу этого заказа с маркетплейса Cerberus: «${product.name}». Товар еще в наличии? Хочу уточнить детали.`;
   const url = handle
     ? `https://t.me/${encodeURIComponent(handle)}?text=${encodeURIComponent(text)}`
     : `https://t.me/share/url?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function submitVendorReview(vendorName, form) {
+  if (!session) {
+    wallet.activity.push("Войдите в аккаунт, чтобы оставить отзыв.");
+    render();
+    return;
+  }
+  const authorKey = currentReviewKey();
+  if (!canReviewVendor(vendorName)) {
+    wallet.activity.push("Вы уже оставили отзыв этому профилю.");
+    render();
+    return;
+  }
+  const data = Object.fromEntries(new FormData(form).entries());
+  reviews.unshift({
+    id: uid(),
+    vendor: vendorName,
+    authorKey,
+    author: currentUserName(),
+    rating: Math.max(1, Math.min(5, Number(data.rating || 5))),
+    text: String(data.text || "").trim(),
+    createdAt: new Date().toLocaleString("ru-RU")
+  });
+  wallet.activity.push(`Отзыв добавлен для ${vendorName}`);
+  openPublicProfile(vendorName);
+  persist();
 }
 
 function replyAsVendor(conversationId, text) {
@@ -1613,6 +1695,8 @@ function openPublicProfile(vendorName) {
     description: "Профиль пока не создан владельцем."
   };
   const storeProducts = vendorProducts(vendor.name);
+  const vendorReviews = reviewsForVendor(vendor.name);
+  const canReview = canReviewVendor(vendor.name);
   el.publicProfileTitle.textContent = vendor.title || vendor.name;
   el.publicProfile.innerHTML = `
     <section class="public-profile-head">
@@ -1620,6 +1704,7 @@ function openPublicProfile(vendorName) {
       <div>
         <span>${escapeHtml(vendor.type || "Магазины")} · ${escapeHtml(vendor.city || "Online")}</span>
         <h3>${escapeHtml(vendor.title || vendor.name)}</h3>
+        <strong class="public-rating">★ ${ratingForVendor(vendor.name)} · ${vendorReviews.length} отзывов · 0 сделок</strong>
         <p>${escapeHtml(vendor.description || "Описание пока не заполнено.")}</p>
       </div>
     </section>
@@ -1629,6 +1714,31 @@ function openPublicProfile(vendorName) {
     </div>
     <h3>Товары и карточки</h3>
     <div class="public-product-list"></div>
+    <section class="public-reviews">
+      <h3>Отзывы</h3>
+      ${canReview ? `
+        <form class="public-review-form">
+          <select name="rating" aria-label="Оценка">
+            <option value="5">5 звезд</option>
+            <option value="4">4 звезды</option>
+            <option value="3">3 звезды</option>
+            <option value="2">2 звезды</option>
+            <option value="1">1 звезда</option>
+          </select>
+          <input name="text" maxlength="180" placeholder="Ваш отзыв">
+          <button class="primary-button" type="submit">Оставить отзыв</button>
+        </form>
+      ` : `<p class="muted-text">Вы уже оставили отзыв этому профилю.</p>`}
+      <div class="public-review-list">
+        ${vendorReviews.length ? vendorReviews.map((review) => `
+          <article class="public-review-item">
+            <strong>★ ${Number(review.rating || 5).toFixed(0)} · ${escapeHtml(review.author || "Пользователь")}</strong>
+            <p>${escapeHtml(review.text || "Без текста")}</p>
+            <span>${escapeHtml(review.createdAt || "")}</span>
+          </article>
+        `).join("") : `<div class="empty-state">Пока нет отзывов. Рейтинг держится на 5.00.</div>`}
+      </div>
+    </section>
   `;
   el.publicProfile.querySelector('[data-action="message"]').addEventListener("click", () => {
     startConversation(vendor.name, vendor.title || vendor.name);
@@ -1638,6 +1748,10 @@ function openPublicProfile(vendorName) {
   });
   el.publicProfile.querySelector('[data-action="catalog"]').addEventListener("click", () => {
     el.publicProfile.querySelector(".public-product-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  el.publicProfile.querySelector(".public-review-form")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    submitVendorReview(vendor.name, event.currentTarget);
   });
   const list = el.publicProfile.querySelector(".public-product-list");
   if (!storeProducts.length) {
