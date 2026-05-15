@@ -550,11 +550,11 @@ function ensureDirectoryVendor(entry) {
 function renderCategories() {
   const categories = ["Все", "Магазины", "Обменники"];
   const titleMap = {
-    "Все": "SnowBoard и CryptonyX",
-    "Магазины": "SnowBoard",
-    "Обменники": "CryptonyX"
+    "Все": "ТОП - 10 Магазинов",
+    "Магазины": "ТОП - 10 Магазинов",
+    "Обменники": "ТОП - 10 Обменников"
   };
-  el.marketTitle.textContent = titleMap[activeDirectoryType] || "SnowBoard и CryptonyX";
+  el.marketTitle.textContent = titleMap[activeDirectoryType] || "ТОП - 10 Магазинов";
   el.categoryTabs.innerHTML = "";
 
   categories.forEach((category) => {
