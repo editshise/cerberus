@@ -360,6 +360,7 @@ function ensurePinnedDefaults() {
         city: defaultVendor.city,
         type: defaultVendor.type,
         avatar: defaultVendor.avatar,
+        telegram: defaultVendor.telegram,
         featured: true
       });
     } else if (["snowboard", "cryptonyx"].includes(defaultVendor.name)) {
@@ -1773,8 +1774,8 @@ function openPublicProfile(vendorName) {
           <span>${escapeHtml(product.locationType || "Онлайн")}</span>
         </div>
         <div class="product-actions public-contact-actions">
-          <button class="primary-button" type="button" data-action="site-contact">Приобрести на сайте</button>
-          <button class="ghost-button" type="button" data-action="telegram-contact">Приобрести в телеграме</button>
+          <button class="primary-button site-contact-button" type="button" data-action="site-contact">Связь на сайте</button>
+          <button class="telegram-contact-button" type="button" data-action="telegram-contact">Связь в телеграме</button>
         </div>
       </div>
     `;

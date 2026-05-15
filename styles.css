@@ -980,6 +980,22 @@ select {
   min-height: 48px;
 }
 
+.site-contact-button {
+  background: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 80%, #000);
+  color: #160908;
+  font-weight: 800;
+}
+
+.telegram-contact-button {
+  border: 1px solid #516477;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2f80c9, #34404c);
+  color: #f4f8ff;
+  font-weight: 800;
+  padding: 0 14px;
+}
+
 .cart-button[hidden],
 .cart-drawer[hidden],
 .payment-drawer[hidden] {
