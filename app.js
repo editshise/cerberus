@@ -550,11 +550,11 @@ function ensureDirectoryVendor(entry) {
 function renderCategories() {
   const categories = ["Все", "Магазины", "Обменники"];
   const titleMap = {
-    "Все": "ТОП - 10 ЭЛИТА",
-    "Магазины": "ТОП - 10 Магазинов",
-    "Обменники": "ТОП - 10 Обменников"
+    "Все": 'ТОП - 10 <span class="elite-title">ЭЛИТА</span>',
+    "Магазины": "Магазины",
+    "Обменники": "Обменники"
   };
-  el.marketTitle.textContent = titleMap[activeDirectoryType] || "ТОП - 10 Магазинов";
+  el.marketTitle.innerHTML = titleMap[activeDirectoryType] || "Магазины";
   el.categoryTabs.innerHTML = "";
 
   categories.forEach((category) => {

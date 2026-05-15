@@ -526,6 +526,13 @@ body.auth-locked .auth-screen {
   font-size: 28px;
 }
 
+.elite-title {
+  color: #f4d84f;
+  text-shadow:
+    0 0 8px rgba(244, 216, 79, .42),
+    0 0 18px rgba(244, 216, 79, .2);
+}
+
 .sort-row {
   display: flex;
   gap: 8px;
