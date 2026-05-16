@@ -1212,14 +1212,16 @@ function renderGlobalChat() {
   globalChat.forEach((message) => {
     const item = document.createElement("article");
     item.className = "global-chat-message";
-    const canManage = message.authorKey === normalizeLogin(session?.login) || isOwnerAdmin();
+    const authorKey = message.authorKey || normalizeLogin(message.author);
+    message.authorKey = authorKey;
+    const canManage = authorKey === normalizeLogin(session?.login) || isOwnerAdmin();
     item.innerHTML = `
-      <button class="profile-link-button" type="button" data-user-profile="${escapeHtml(message.authorKey || "")}">
+      <button class="profile-link-button" type="button" data-user-profile="${escapeHtml(authorKey)}">
         <img src="${escapeHtml(message.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
       </button>
       <div>
         <div class="global-chat-head">
-          <button class="text-profile-link" type="button" data-user-profile="${escapeHtml(message.authorKey || "")}">${escapeHtml(message.author || "Пользователь")}</button>
+          <button class="text-profile-link" type="button" data-user-profile="${escapeHtml(authorKey)}">${escapeHtml(message.author || "Пользователь")}</button>
           <span class="rank-badge ${escapeHtml(message.rankClass || "rank-newbie")}">${escapeHtml(message.rank || "Новичок")}</span>
           <small>${escapeHtml(message.time)}</small>
         </div>
@@ -1233,6 +1235,9 @@ function renderGlobalChat() {
         </div>
       </div>
     `;
+    item.querySelectorAll("[data-user-profile]").forEach((button) => {
+      button.addEventListener("click", () => openUserProfile(button.dataset.userProfile));
+    });
     item.querySelectorAll("[data-action='react']").forEach((button) => {
       button.addEventListener("click", () => reactGlobalMessage(message.id, button.dataset.emoji));
     });
@@ -1573,9 +1578,6 @@ function renderVendorCabinet() {
       </div>
       ${conversation.completed ? `<span>Завершено: ${orderStatusMeta(conversation.status).label}</span>` : ""}
     `;
-    item.querySelectorAll("[data-user-profile]").forEach((button) => {
-      button.addEventListener("click", () => openUserProfile(button.dataset.userProfile));
-    });
     item.addEventListener("submit", (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(item).entries());
