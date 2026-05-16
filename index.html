@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cerberus Market</title>
   <link rel="icon" type="image/png" href="assets/cerberus-logo-transparent.png">
-  <link rel="manifest" href="manifest.json?v=20260516-6">
+  <link rel="manifest" href="manifest.json?v=20260516-7">
   <meta name="theme-color" content="#080808">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Cerberus">
-  <link rel="apple-touch-icon" href="assets/cerberus-logo-transparent.png?v=20260516-6">
-  <link rel="stylesheet" href="styles.css?v=20260516-6">
+  <link rel="apple-touch-icon" href="assets/cerberus-logo-transparent.png?v=20260516-7">
+  <link rel="stylesheet" href="styles.css?v=20260516-7">
 </head>
 <body>
   <section class="auth-screen" id="authScreen" aria-labelledby="authTitle">
@@ -239,10 +239,16 @@
         <div class="section-head">
           <div>
             <h2>Общий чат</h2>
-            <p>Сообщения пользователей Cerberus с аватарками, именами и рангами.</p>
+            <p>Групповой чат пользователей Cerberus с профилями, медиа и реакциями.</p>
           </div>
         </div>
         <div class="global-chat-panel">
+          <div class="global-chat-top">
+            <div>
+              <strong>Cerberus Chat</strong>
+              <span>общая группа сайта</span>
+            </div>
+          </div>
           <div class="global-chat-list" id="globalChatList"></div>
           <form class="global-chat-form" id="globalChatForm">
             <input name="text" maxlength="320" placeholder="Написать в общий чат">
@@ -823,6 +829,6 @@
   </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=20260516-6"></script>
+  <script src="app.js?v=20260516-7"></script>
 </body>
 </html>

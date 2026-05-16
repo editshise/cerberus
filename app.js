@@ -1205,32 +1205,35 @@ function renderConversations() {
 function renderGlobalChat() {
   el.globalChatList.innerHTML = "";
   if (!globalChat.length) {
-    el.globalChatList.innerHTML = '<div class="empty-state">Пока нет сообщений. Будь первым.</div>';
+    el.globalChatList.innerHTML = '<div class="empty-state chat-empty-state">Пока нет сообщений. Будь первым.</div>';
     return;
   }
 
   globalChat.forEach((message) => {
     const item = document.createElement("article");
-    item.className = "global-chat-message";
     const authorKey = message.authorKey || normalizeLogin(message.author);
     message.authorKey = authorKey;
+    const isMine = authorKey === normalizeLogin(session?.login);
     const canManage = authorKey === normalizeLogin(session?.login) || isOwnerAdmin();
+    item.className = `global-chat-message ${isMine ? "is-mine" : "is-other"}`;
     item.innerHTML = `
-      <button class="profile-link-button" type="button" data-user-profile="${escapeHtml(authorKey)}">
-        <img src="${escapeHtml(message.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
-      </button>
-      <div>
+      ${isMine ? "" : `
+        <button class="profile-link-button" type="button" data-user-profile="${escapeHtml(authorKey)}" aria-label="Открыть профиль">
+          <img src="${escapeHtml(message.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
+        </button>
+      `}
+      <div class="global-chat-bubble">
         <div class="global-chat-head">
           <button class="text-profile-link" type="button" data-user-profile="${escapeHtml(authorKey)}">${escapeHtml(message.author || "Пользователь")}</button>
           <span class="rank-badge ${escapeHtml(message.rankClass || "rank-newbie")}">${escapeHtml(message.rank || "Новичок")}</span>
           <small>${escapeHtml(message.time)}</small>
         </div>
-        <p>${escapeHtml(message.text)}</p>
+        ${message.text ? `<p>${escapeHtml(message.text)}</p>` : ""}
         ${renderMedia(message)}
         <div class="message-tools">
-          <button type="button" data-action="react" data-emoji="👍">👍 ${message.reactions?.["👍"] || ""}</button>
-          <button type="button" data-action="react" data-emoji="🔥">🔥 ${message.reactions?.["🔥"] || ""}</button>
-          <button type="button" data-action="react" data-emoji="✅">✅ ${message.reactions?.["✅"] || ""}</button>
+          <button type="button" title="Лайк" data-action="react" data-emoji="👍">👍 ${message.reactions?.["👍"] || ""}</button>
+          <button type="button" title="Огонь" data-action="react" data-emoji="🔥">🔥 ${message.reactions?.["🔥"] || ""}</button>
+          <button type="button" title="Готово" data-action="react" data-emoji="✅">✅ ${message.reactions?.["✅"] || ""}</button>
           ${canManage ? '<button type="button" data-action="edit">Изменить</button><button type="button" data-action="delete">Удалить у всех</button>' : ""}
         </div>
       </div>
@@ -1245,6 +1248,7 @@ function renderGlobalChat() {
     item.querySelector("[data-action='delete']")?.addEventListener("click", () => deleteGlobalMessage(message.id));
     el.globalChatList.append(item);
   });
+  el.globalChatList.scrollTop = el.globalChatList.scrollHeight;
 }
 
 function renderNews() {
