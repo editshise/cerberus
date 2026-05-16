@@ -770,6 +770,10 @@ select {
   transition: transform .2s ease;
 }
 
+.profile-drawer {
+  width: min(720px, 100vw);
+}
+
 .filter-drawer.is-open,
 .payment-drawer.is-open,
 .profile-drawer.is-open {
@@ -904,6 +908,136 @@ select {
   gap: 16px;
   align-content: start;
   padding: 18px;
+}
+
+.public-user-profile {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0d0d0d;
+}
+
+.public-user-cover {
+  min-height: 190px;
+  background-color: #111;
+  background-position: center;
+  background-size: cover;
+}
+
+.public-user-main {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 18px;
+  align-items: end;
+  padding: 0 22px 18px;
+  margin-top: -66px;
+}
+
+.public-user-avatar {
+  width: 132px;
+  height: 132px;
+  border: 5px solid #0d0d0d;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #050505;
+}
+
+.public-user-identity {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding-bottom: 10px;
+}
+
+.public-user-identity h3 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.public-user-identity span,
+.public-user-type,
+.public-user-bio,
+.public-user-stats span,
+.public-user-empty {
+  color: var(--muted);
+}
+
+.public-user-type {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px;
+}
+
+.public-user-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.public-user-stats div {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 16px 10px;
+  border-right: 1px solid var(--line);
+}
+
+.public-user-stats div:last-child {
+  border-right: 0;
+}
+
+.public-user-stats strong {
+  color: var(--text);
+  font-size: 22px;
+}
+
+.public-user-bio {
+  display: grid;
+  gap: 8px;
+  padding: 18px 22px;
+  line-height: 1.5;
+}
+
+.public-user-bio p {
+  margin: 0;
+  color: var(--text);
+}
+
+.public-user-tabs {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.public-user-tabs span {
+  padding: 14px 18px;
+  border-bottom: 2px solid var(--accent);
+  font-weight: 900;
+}
+
+.public-user-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--line);
+}
+
+.public-user-post {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: #050505;
+}
+
+.public-user-empty {
+  padding: 28px 22px;
+  text-align: center;
 }
 
 .public-profile-head {
@@ -1953,6 +2087,39 @@ textarea {
   .public-product-card img {
     width: 100%;
     height: 180px;
+  }
+
+  .public-profile {
+    padding: 10px;
+  }
+
+  .public-user-cover {
+    min-height: 150px;
+  }
+
+  .public-user-main {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 12px;
+    padding: 0 14px 14px;
+    margin-top: -46px;
+  }
+
+  .public-user-avatar {
+    width: 92px;
+    height: 92px;
+    border-width: 4px;
+  }
+
+  .public-user-identity h3 {
+    font-size: 24px;
+  }
+
+  .public-user-stats strong {
+    font-size: 18px;
+  }
+
+  .public-user-bio {
+    padding: 14px;
   }
 
   .directory-card {

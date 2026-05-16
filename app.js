@@ -1970,6 +1970,23 @@ function addVendorItem() {
   render();
 }
 
+function publicUserMedia(userProfile) {
+  const gallery = Array.isArray(userProfile.mediaGallery) ? userProfile.mediaGallery : [];
+  const items = [...gallery];
+  if (userProfile.photoUrl && !items.some((item) => item.url === userProfile.photoUrl)) {
+    items.unshift({
+      url: userProfile.photoUrl,
+      type: userProfile.photoType === "video" ? "video" : "image"
+    });
+  }
+  return items
+    .filter((item) => item && item.url)
+    .map((item) => item.type === "video"
+      ? `<video class="public-user-post" src="${escapeHtml(item.url)}" controls></video>`
+      : `<img class="public-user-post" src="${escapeHtml(item.url)}" alt="">`)
+    .join("");
+}
+
 function openUserProfile(userKey) {
   const key = normalizeLogin(userKey);
   const userProfile = normalizeProfile(profiles[key]);
@@ -1977,25 +1994,37 @@ function openUserProfile(userKey) {
   const login = userProfile.nickname || account?.login || key || "user";
   const displayName = [userProfile.firstName, userProfile.lastName].map((item) => String(item || "").trim()).filter(Boolean).join(" ") || login;
   const rank = rankForScore(Number(userProfile.completedDeals || 0));
-  const media = userProfile.photoUrl
-    ? userProfile.photoType === "video"
-      ? `<video class="profile-cover-photo" src="${escapeHtml(userProfile.photoUrl)}" controls></video>`
-      : `<img class="profile-cover-photo" src="${escapeHtml(userProfile.photoUrl)}" alt="">`
-    : "";
+  const media = publicUserMedia(userProfile);
+  const postCount = (media.match(/public-user-post/g) || []).length;
+  const avatar = userProfile.avatar || "assets/cerberus-logo-transparent.png";
+  const contact = String(userProfile.contact || "").trim().replace(/^@/, "");
   el.publicProfileTitle.textContent = displayName;
   el.publicProfile.dataset.vendor = "";
   el.publicProfile.innerHTML = `
-    <section class="public-profile-head user-public-profile">
-      <img src="${escapeHtml(userProfile.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
-      <div>
-        <span>Обычный пользователь · @${escapeHtml(login)}</span>
-        <h3>${escapeHtml(displayName)}</h3>
-        <strong class="public-rating">${escapeHtml(rank.name)} · ${Number(userProfile.completedDeals || 0)} завершенных действий</strong>
-        ${userProfile.bio ? `<p>${escapeHtml(userProfile.bio)}</p>` : ""}
-        ${userProfile.contact ? `<a class="chat-media-link" href="https://t.me/${escapeHtml(userProfile.contact.replace(/^@/, ""))}" target="_blank" rel="noreferrer">${escapeHtml(userProfile.contact)}</a>` : ""}
+    <section class="public-user-profile">
+      <div class="public-user-cover" style="background-image: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.86)), url('${escapeHtml(avatar)}')"></div>
+      <div class="public-user-main">
+        <img class="public-user-avatar" src="${escapeHtml(avatar)}" alt="">
+        <div class="public-user-identity">
+          <span class="public-user-type">Пользователь Cerberus</span>
+          <h3>${escapeHtml(displayName)}</h3>
+          <span>@${escapeHtml(login)}</span>
+        </div>
       </div>
+      <div class="public-user-stats">
+        <div><strong>${Number(userProfile.completedDeals || 0)}</strong><span>сделок</span></div>
+        <div><strong>${postCount}</strong><span>публикаций</span></div>
+        <div><strong class="${escapeHtml(rank.className)}">${escapeHtml(rank.name)}</strong><span>ранг</span></div>
+      </div>
+      <div class="public-user-bio">
+        ${userProfile.bio ? `<p>${escapeHtml(userProfile.bio)}</p>` : `<p>Пользователь пока не добавил описание профиля.</p>`}
+        ${contact ? `<a class="chat-media-link" href="https://t.me/${escapeHtml(contact)}" target="_blank" rel="noreferrer">@${escapeHtml(contact)}</a>` : ""}
+      </div>
+      <div class="public-user-tabs">
+        <span>Публикации</span>
+      </div>
+      ${media ? `<div class="public-user-grid">${media}</div>` : `<div class="public-user-empty">Фото и видео пока не добавлены.</div>`}
     </section>
-    ${media}
   `;
   el.profileDrawer.classList.add("is-open");
   el.profileDrawer.setAttribute("aria-hidden", "false");
