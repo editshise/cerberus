@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cerberus Market</title>
   <link rel="icon" type="image/png" href="assets/cerberus-logo-transparent.png">
-  <link rel="manifest" href="manifest.json?v=20260517-7">
+  <link rel="manifest" href="manifest.json?v=20260518-1">
   <meta name="theme-color" content="#080808">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Cerberus">
-  <link rel="apple-touch-icon" href="assets/cerberus-logo-transparent.png?v=20260517-7">
-  <link rel="stylesheet" href="styles.css?v=20260517-7">
+  <link rel="apple-touch-icon" href="assets/cerberus-logo-transparent.png?v=20260518-1">
+  <link rel="stylesheet" href="styles.css?v=20260518-1">
 </head>
 <body>
   <section class="auth-screen" id="authScreen" aria-labelledby="authTitle">
@@ -489,31 +489,56 @@
         <div class="section-head">
           <div>
             <h2>Админ</h2>
-            <p>Добавляй и удаляй легальные позиции в витрине.</p>
+          <p>Профили, каталоги, порядок, топ-10 и привязка владельцев к аккаунтам сайта.</p>
           </div>
           <button class="ghost-button" id="resetCatalog">Сбросить каталог</button>
         </div>
         <form class="admin-form" id="productForm">
+          <h3 class="wide">Добавить каталог в профиль</h3>
           <label>
             Название
-            <input name="name" required maxlength="42" placeholder="Premium UI Kit">
+            <input name="name" required maxlength="42" placeholder="Покупка криптовалюты">
           </label>
           <label>
             Категория
             <select name="category" required>
-              <option>Цифровые товары</option>
-              <option>Мерч</option>
+              <option>Заявки</option>
               <option>Услуги</option>
-              <option>Коллекции</option>
+              <option>Мерч</option>
+              <option>Каталог</option>
             </select>
           </label>
           <label>
             Цена CRB
-            <input name="price" required type="number" min="1" max="9999" placeholder="120">
+            <input name="price" required type="number" min="0" max="9999" value="0">
           </label>
           <label>
-            Продавец
-            <input name="vendor" required maxlength="28" placeholder="snowboard">
+            Профиль
+            <input name="vendor" required maxlength="28" placeholder="kryptomah">
+          </label>
+          <label>
+            Картинка
+            <input name="image" maxlength="500" placeholder="assets/name.jpg">
+          </label>
+          <label>
+            Текст кнопки
+            <input name="actionLabel" maxlength="40" placeholder="Связь в телеграме">
+          </label>
+          <label>
+            Telegram
+            <input name="telegram" maxlength="140" placeholder="https://t.me/name">
+          </label>
+          <label>
+            Оператор Telegram
+            <input name="operatorTelegram" maxlength="140" placeholder="https://t.me/operator">
+          </label>
+          <label>
+            Бот Telegram
+            <input name="botTelegram" maxlength="140" placeholder="https://t.me/bot">
+          </label>
+          <label>
+            Сайт
+            <input name="externalUrl" maxlength="180" placeholder="https://example.com">
           </label>
           <label>
             Страна
@@ -537,22 +562,19 @@
           </label>
           <label class="wide">
             Описание
-            <textarea name="description" required maxlength="180" placeholder="Короткое описание товара"></textarea>
+            <textarea name="description" maxlength="180" placeholder="Можно оставить пустым"></textarea>
           </label>
-          <button class="primary-button" type="submit">Добавить товар</button>
+          <button class="primary-button" type="submit">Добавить каталог</button>
         </form>
         <form class="admin-form vendor-form" id="vendorForm">
+          <h3 class="wide">Создать профиль</h3>
           <label>
-            Название магазина
-            <input name="name" required maxlength="32" placeholder="snowboard">
+            Код профиля
+            <input name="name" required maxlength="32" placeholder="kryptomah">
           </label>
           <label>
-            Логин кабинета
-            <input name="login" required maxlength="24" placeholder="snowboard_owner">
-          </label>
-          <label>
-            Пароль
-            <input name="password" required maxlength="48" placeholder="strong-password">
+            Логин владельца на сайте
+            <input name="login" maxlength="24" placeholder="kryptomah">
           </label>
           <label>
             Статус
@@ -613,9 +635,9 @@
             Описание магазина
             <textarea name="description" maxlength="180" placeholder="Описание кабинета магазина"></textarea>
           </label>
-          <button class="primary-button" type="submit">Создать кабинет магазина</button>
+          <button class="primary-button" type="submit">Создать профиль</button>
         </form>
-        <form class="admin-form broadcast-form" id="broadcastForm">
+        <form class="admin-form broadcast-form" id="broadcastForm" hidden>
           <label>
             Заголовок рассылки
             <input name="title" required maxlength="50" placeholder="Обновление витрины">
@@ -638,11 +660,11 @@
         </form>
         <div class="admin-section-grid">
           <div>
-            <h3>Управление карточками</h3>
+            <h3>Каталоги в профилях</h3>
             <div class="admin-list" id="adminList"></div>
           </div>
           <div>
-            <h3>Кабинеты магазинов</h3>
+            <h3>Профили и владельцы</h3>
             <div class="admin-list" id="adminVendorList"></div>
           </div>
         </div>
@@ -830,6 +852,6 @@
   </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=20260517-7"></script>
+  <script src="app.js?v=20260518-1"></script>
 </body>
 </html>

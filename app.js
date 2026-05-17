@@ -332,9 +332,8 @@ function ensureDefaultAccounts() {
       return;
     }
     existing.role = defaultAccount.role;
-    if (!existing.password) {
-      existing.password = defaultAccount.password;
-    }
+    existing.password = defaultAccount.password;
+    delete existing.passwordHash;
   });
 }
 
@@ -821,6 +820,16 @@ function activeLoginKey() {
 
 function isOwnerAdmin() {
   return activeLoginKey() === "admin2";
+}
+
+function accountByLogin(value) {
+  const key = normalizeLogin(value);
+  if (!key) return null;
+  return accounts.find((account) => (account.loginKey || normalizeLogin(account.login)) === key) || null;
+}
+
+function accountLogin(account) {
+  return account ? String(account.login || account.loginKey || "").trim() : "";
 }
 
 function vendorForSession() {
@@ -1585,122 +1594,163 @@ function renderAdmin() {
     el.adminVendorList.innerHTML = "";
     return;
   }
+
   el.adminList.innerHTML = "";
   products
     .slice()
     .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999))
     .forEach((product) => {
-    const item = document.createElement("div");
-    item.className = "admin-product-editor";
-    item.innerHTML = `
-      <label>
-        Название
-        <input data-field="name" value="${escapeHtml(product.name)}" maxlength="42">
-      </label>
-      <label>
-        Категория
-        <input data-field="category" value="${escapeHtml(product.category)}" maxlength="32">
-      </label>
-      <label>
-        Цена
-        <input data-field="price" type="number" min="1" max="9999" value="${product.price}">
-      </label>
-      <label>
-        Магазин
-        <input data-field="vendor" value="${escapeHtml(product.vendor)}" maxlength="28">
-      </label>
-      <label class="wide">
-        Описание
-        <textarea data-field="description" maxlength="180">${escapeHtml(product.description)}</textarea>
-      </label>
-      <div class="admin-editor-actions wide">
-        <button class="ghost-button" type="button" data-action="up">Выше</button>
-        <button class="ghost-button" type="button" data-action="down">Ниже</button>
-        <button class="primary-button" type="button" data-action="save">Сохранить</button>
-        <button class="ghost-button danger-action" type="button" data-action="delete">Удалить</button>
-      </div>
-    `;
-    item.querySelector('[data-action="save"]').addEventListener("click", () => saveProductEditor(product.id, item));
-    item.querySelector('[data-action="delete"]').addEventListener("click", () => deleteProduct(product.id));
-    item.querySelector('[data-action="up"]').addEventListener("click", () => moveProduct(product.id, -1));
-    item.querySelector('[data-action="down"]').addEventListener("click", () => moveProduct(product.id, 1));
-    el.adminList.append(item);
-  });
-
-  el.adminVendorList.innerHTML = "";
-  vendors.forEach((vendor) => {
-    const item = document.createElement("div");
-    item.className = "vendor-admin-item";
-    item.innerHTML = `
-      <div>
-        <strong>${escapeHtml(vendor.name)}</strong>
-        <span>${escapeHtml(vendor.status)} · login: ${escapeHtml(vendor.login)} · ${vendorProducts(vendor.name).length} карточек</span>
-        <p>${escapeHtml(vendor.description || "Без описания")}</p>
-      </div>
-      <div class="admin-product-editor wide">
+      const item = document.createElement("div");
+      item.className = "admin-product-editor";
+      item.innerHTML = `
         <label>
-          Логин владельца
-          <input data-field="vendorLogin" value="${escapeHtml(vendor.login || "")}" maxlength="32">
+          Название каталога
+          <input data-field="name" value="${escapeHtml(product.name)}" maxlength="42">
         </label>
         <label>
-          Новый пароль
-          <input data-field="vendorPassword" type="password" maxlength="48" placeholder="Оставь пустым">
+          Категория
+          <input data-field="category" value="${escapeHtml(product.category)}" maxlength="32">
         </label>
         <label>
-          Тип
-          <select data-field="vendorType">
-            <option ${vendor.type === "Магазины" ? "selected" : ""}>Магазины</option>
-            <option ${vendor.type === "Обменники" ? "selected" : ""}>Обменники</option>
-            <option ${vendor.type === "Услуги" ? "selected" : ""}>Услуги</option>
-          </select>
+          Цена
+          <input data-field="price" type="number" min="0" max="9999" value="${product.price || 0}">
         </label>
         <label>
-          Топ-10
-          <select data-field="vendorFeatured">
-            <option value="true" ${vendor.featured !== false ? "selected" : ""}>В топе</option>
-            <option value="false" ${vendor.featured === false ? "selected" : ""}>Скрыт из топа</option>
-          </select>
+          Профиль
+          <input data-field="vendor" value="${escapeHtml(product.vendor)}" maxlength="28">
         </label>
         <label>
-          Позиция
-          <input data-field="vendorTopOrder" type="number" min="1" max="10" value="${escapeHtml(vendor.topOrder || "")}">
+          Картинка
+          <input data-field="image" value="${escapeHtml(product.image || "")}" maxlength="500">
         </label>
         <label>
-          Страна
-          <input data-field="vendorCountries" value="${escapeHtml(asArray(vendor.countries).join(", "))}" maxlength="80">
-        </label>
-        <label>
-          Город
-          <input data-field="vendorCities" value="${escapeHtml(asArray(vendor.cities || vendor.city).join(", "))}" maxlength="120">
-        </label>
-        <label>
-          Районы
-          <input data-field="vendorDistricts" value="${escapeHtml(asArray(vendor.districts).join(", "))}" maxlength="180">
-        </label>
-        <label>
-          Иконки
-          <input data-field="vendorIcons" value="${escapeHtml(asArray(vendor.iconTags).join(" "))}" maxlength="40">
+          Текст кнопки
+          <input data-field="actionLabel" value="${escapeHtml(product.actionLabel || "")}" maxlength="40">
         </label>
         <label>
           Telegram
-          <input data-field="vendorTelegram" value="${escapeHtml(vendor.telegram || "")}" maxlength="140">
+          <input data-field="telegram" value="${escapeHtml(product.telegram || "")}" maxlength="140">
         </label>
-      </div>
-      <div class="admin-editor-actions">
-        <button class="primary-button" type="button" data-action="save">Сохранить</button>
-        <button class="ghost-button" type="button" data-action="open">Открыть</button>
-        <button class="ghost-button danger-action" type="button" data-action="delete">Удалить</button>
-      </div>
-    `;
-    item.querySelector('[data-action="save"]').addEventListener("click", () => saveVendorAdmin(vendor.name, item));
-    item.querySelector('[data-action="open"]').addEventListener("click", () => {
-      selectedVendorName = vendor.name;
-      showView("vendor");
-      render();
+        <label>
+          Оператор Telegram
+          <input data-field="operatorTelegram" value="${escapeHtml(product.operatorTelegram || "")}" maxlength="140">
+        </label>
+        <label>
+          Бот Telegram
+          <input data-field="botTelegram" value="${escapeHtml(product.botTelegram || "")}" maxlength="140">
+        </label>
+        <label>
+          Сайт
+          <input data-field="externalUrl" value="${escapeHtml(product.externalUrl || "")}" maxlength="180">
+        </label>
+        <label class="wide">
+          Описание
+          <textarea data-field="description" maxlength="180">${escapeHtml(product.description || "")}</textarea>
+        </label>
+        <div class="admin-editor-actions wide">
+          <button class="ghost-button" type="button" data-action="up">Выше</button>
+          <button class="ghost-button" type="button" data-action="down">Ниже</button>
+          <button class="primary-button" type="button" data-action="save">Сохранить</button>
+          <button class="ghost-button danger-action" type="button" data-action="delete">Удалить</button>
+        </div>
+      `;
+      item.querySelector('[data-action="save"]').addEventListener("click", () => saveProductEditor(product.id, item));
+      item.querySelector('[data-action="delete"]').addEventListener("click", () => deleteProduct(product.id));
+      item.querySelector('[data-action="up"]').addEventListener("click", () => moveProduct(product.id, -1));
+      item.querySelector('[data-action="down"]').addEventListener("click", () => moveProduct(product.id, 1));
+      el.adminList.append(item);
     });
-    item.querySelector('[data-action="delete"]').addEventListener("click", () => deleteVendor(vendor.name));
-    el.adminVendorList.append(item);
-  });
+
+  el.adminVendorList.innerHTML = "";
+  vendors
+    .slice()
+    .sort((a, b) => (a.topOrder ?? 999) - (b.topOrder ?? 999))
+    .forEach((vendor) => {
+      const ownerAccount = accountByLogin(vendor.login);
+      const item = document.createElement("div");
+      item.className = "vendor-admin-item";
+      item.innerHTML = `
+        <div>
+          <strong>${escapeHtml(vendor.name)}</strong>
+          <span>${escapeHtml(vendor.status || "Активен")} · владелец: ${escapeHtml(ownerAccount ? accountLogin(ownerAccount) : (vendor.login || "не привязан"))} · ${vendorProducts(vendor.name).length} каталогов</span>
+          <p>${escapeHtml(vendor.description || "Без описания")}</p>
+        </div>
+        <div class="admin-product-editor wide">
+          <label>
+            Название на сайте
+            <input data-field="vendorTitle" value="${escapeHtml(vendor.title || vendor.name)}" maxlength="44">
+          </label>
+          <label>
+            Логин владельца
+            <input data-field="vendorLogin" value="${escapeHtml(vendor.login || "")}" maxlength="32" placeholder="kryptomah">
+          </label>
+          <label>
+            Аватар / обложка
+            <input data-field="vendorAvatar" value="${escapeHtml(vendor.avatar || "")}" maxlength="500">
+          </label>
+          <label>
+            Тип
+            <select data-field="vendorType">
+              <option ${vendor.type === "Магазины" ? "selected" : ""}>Магазины</option>
+              <option ${vendor.type === "Обменники" ? "selected" : ""}>Обменники</option>
+              <option ${vendor.type === "Услуги" ? "selected" : ""}>Услуги</option>
+            </select>
+          </label>
+          <label>
+            Топ-10
+            <select data-field="vendorFeatured">
+              <option value="true" ${vendor.featured !== false ? "selected" : ""}>В топе</option>
+              <option value="false" ${vendor.featured === false ? "selected" : ""}>Скрыт из топа</option>
+            </select>
+          </label>
+          <label>
+            Позиция
+            <input data-field="vendorTopOrder" type="number" min="1" max="10" value="${escapeHtml(vendor.topOrder || "")}">
+          </label>
+          <label>
+            Страна
+            <input data-field="vendorCountries" value="${escapeHtml(asArray(vendor.countries).join(", "))}" maxlength="80">
+          </label>
+          <label>
+            Город
+            <input data-field="vendorCities" value="${escapeHtml(asArray(vendor.cities || vendor.city).join(", "))}" maxlength="120">
+          </label>
+          <label>
+            Районы
+            <input data-field="vendorDistricts" value="${escapeHtml(asArray(vendor.districts).join(", "))}" maxlength="180">
+          </label>
+          <label>
+            Иконки
+            <input data-field="vendorIcons" value="${escapeHtml(asArray(vendor.iconTags).join(" "))}" maxlength="40">
+          </label>
+          <label>
+            Telegram
+            <input data-field="vendorTelegram" value="${escapeHtml(vendor.telegram || "")}" maxlength="140">
+          </label>
+          <label class="wide">
+            Описание
+            <textarea data-field="vendorDescription" maxlength="220">${escapeHtml(vendor.description || "")}</textarea>
+          </label>
+        </div>
+        <div class="admin-editor-actions">
+          <button class="ghost-button" type="button" data-action="up">Выше</button>
+          <button class="ghost-button" type="button" data-action="down">Ниже</button>
+          <button class="primary-button" type="button" data-action="save">Сохранить</button>
+          <button class="ghost-button" type="button" data-action="open">Открыть</button>
+          <button class="ghost-button danger-action" type="button" data-action="delete">Удалить</button>
+        </div>
+      `;
+      item.querySelector('[data-action="save"]').addEventListener("click", () => saveVendorAdmin(vendor.name, item));
+      item.querySelector('[data-action="up"]').addEventListener("click", () => moveVendor(vendor.name, -1));
+      item.querySelector('[data-action="down"]').addEventListener("click", () => moveVendor(vendor.name, 1));
+      item.querySelector('[data-action="open"]').addEventListener("click", () => {
+        selectedVendorName = vendor.name;
+        showView("vendor");
+        render();
+      });
+      item.querySelector('[data-action="delete"]').addEventListener("click", () => deleteVendor(vendor.name));
+      el.adminVendorList.append(item);
+    });
 }
 
 function renderStats() {
@@ -2075,9 +2125,15 @@ function saveProductEditor(id, container) {
   if (!product) return;
   product.name = container.querySelector('[data-field="name"]').value.trim();
   product.category = container.querySelector('[data-field="category"]').value.trim();
-  product.price = Number(container.querySelector('[data-field="price"]').value || product.price);
+  product.price = Number(container.querySelector('[data-field="price"]').value || 0);
   product.vendor = container.querySelector('[data-field="vendor"]').value.trim();
   product.description = container.querySelector('[data-field="description"]').value.trim();
+  product.image = container.querySelector('[data-field="image"]').value.trim() || product.image;
+  product.actionLabel = container.querySelector('[data-field="actionLabel"]').value.trim();
+  product.telegram = container.querySelector('[data-field="telegram"]').value.trim();
+  product.operatorTelegram = container.querySelector('[data-field="operatorTelegram"]').value.trim();
+  product.botTelegram = container.querySelector('[data-field="botTelegram"]').value.trim();
+  product.externalUrl = container.querySelector('[data-field="externalUrl"]').value.trim();
   const vendor = vendors.find((item) => item.name === product.vendor);
   product.countries = asArray(vendor?.countries);
   product.cities = asArray(vendor?.cities || vendor?.city);
@@ -2093,11 +2149,10 @@ function saveProductEditor(id, container) {
       type: "Магазины",
       avatar: "assets/cerberus-logo-transparent.png",
       city: "Online",
-      login: `${product.vendor}_owner`,
-      loginKey: normalizeLogin(`${product.vendor}_owner`),
-      password: "market123",
+      login: "",
+      loginKey: "",
       status: "Активен",
-      description: `Автоматически созданный кабинет ${product.vendor}.`,
+      description: "",
       paymentMode: "planned",
       paymentCurrency: "USDT",
       paymentNote: "Крипто-оплата подключается через защищенный сервер."
@@ -2123,20 +2178,42 @@ function moveProduct(id, direction) {
   render();
 }
 
+function moveVendor(name, direction) {
+  const ordered = vendors
+    .slice()
+    .sort((a, b) => (a.topOrder ?? 999) - (b.topOrder ?? 999))
+    .map((vendor, index) => ({ ...vendor, topOrder: index + 1 }));
+  const index = ordered.findIndex((vendor) => vendor.name === name);
+  const target = index + direction;
+  if (index < 0 || target < 0 || target >= ordered.length) return;
+  const currentOrder = ordered[index].topOrder;
+  ordered[index].topOrder = ordered[target].topOrder;
+  ordered[target].topOrder = currentOrder;
+  vendors = ordered;
+  render();
+}
+
 function deleteVendor(name) {
   vendors = vendors.filter((vendor) => vendor.name !== name);
-  products = products.map((product) => product.vendor === name ? { ...product, vendor: "unassigned" } : product);
+  products = products.filter((product) => product.vendor !== name);
   wallet.activity.push(`Кабинет магазина удален: ${name}`);
   render();
 }
 
-async function saveVendorAdmin(name, container) {
+function saveVendorAdmin(name, container) {
   const vendor = vendors.find((item) => item.name === name);
   if (!vendor || !isOwnerAdmin()) return;
   const login = container.querySelector('[data-field="vendorLogin"]').value.trim();
-  const password = container.querySelector('[data-field="vendorPassword"]').value;
-  vendor.login = login || vendor.login;
-  vendor.loginKey = normalizeLogin(vendor.login);
+  const owner = login ? accountByLogin(login) : null;
+  if (login && !owner) {
+    wallet.activity.push(`Аккаунт не найден: ${login}. Сначала пользователь должен зарегистрироваться.`);
+    render();
+    return;
+  }
+  vendor.title = container.querySelector('[data-field="vendorTitle"]').value.trim() || vendor.name;
+  vendor.avatar = container.querySelector('[data-field="vendorAvatar"]').value.trim() || "assets/cerberus-logo-transparent.png";
+  vendor.login = owner ? accountLogin(owner) : "";
+  vendor.loginKey = owner ? (owner.loginKey || normalizeLogin(owner.login)) : "";
   vendor.type = container.querySelector('[data-field="vendorType"]').value;
   vendor.featured = container.querySelector('[data-field="vendorFeatured"]').value === "true";
   vendor.topOrder = Number(container.querySelector('[data-field="vendorTopOrder"]').value || 999);
@@ -2146,10 +2223,9 @@ async function saveVendorAdmin(name, container) {
   vendor.districts = splitList(container.querySelector('[data-field="vendorDistricts"]').value);
   vendor.iconTags = parseIcons(container.querySelector('[data-field="vendorIcons"]').value);
   vendor.telegram = container.querySelector('[data-field="vendorTelegram"]').value.trim();
-  if (password) {
-    vendor.passwordHash = await hashPassword(vendor.loginKey, password);
-    delete vendor.password;
-  }
+  vendor.description = container.querySelector('[data-field="vendorDescription"]').value.trim();
+  delete vendor.password;
+  delete vendor.passwordHash;
   wallet.activity.push(`Кабинет обновлен: ${vendor.name}`);
   render();
 }
@@ -2463,8 +2539,7 @@ function setAuthMode(mode) {
 function updateAuthGate() {
   const sessionKey = normalizeLogin(session?.login);
   const accountExists = session && (
-    accounts.some((account) => (account.loginKey || normalizeLogin(account.login)) === sessionKey) ||
-    vendors.some((vendor) => (vendor.loginKey || normalizeLogin(vendor.login)) === sessionKey)
+    accounts.some((account) => (account.loginKey || normalizeLogin(account.login)) === sessionKey)
   );
   document.body.classList.toggle("auth-locked", !accountExists);
   if (!accountExists) {
@@ -2504,15 +2579,13 @@ async function handleAuth(event) {
     wallet.activity.push(`Аккаунт создан: ${login}`);
   } else {
     const accountCandidate = accounts.find((entry) => (entry.loginKey || normalizeLogin(entry.login)) === loginKey);
-    const vendorCandidate = vendors.find((entry) => (entry.loginKey || normalizeLogin(entry.login)) === loginKey);
     const account = await credentialMatches(accountCandidate, loginKey, password) ? accountCandidate : null;
-    const vendorAccount = await credentialMatches(vendorCandidate, loginKey, password) ? vendorCandidate : null;
-    if (!account && !vendorAccount) {
+    if (!account) {
       el.authError.textContent = "Логин или пароль не подходят. Можно перейти в регистрацию.";
       generateCaptcha();
       return;
     }
-    wallet.activity.push(vendorAccount ? `Вход магазина выполнен: ${vendorAccount.name}` : `Вход выполнен: ${login}`);
+    wallet.activity.push(`Вход выполнен: ${login}`);
   }
 
   session = { login, loginKey, signedAt: new Date().toISOString() };
@@ -2830,16 +2903,27 @@ el.productForm.addEventListener("submit", (event) => {
     id: uid(),
     name: data.name.trim(),
     category: data.category,
-    price: Number(data.price),
+    price: Number(data.price || 0),
     vendor: data.vendor.trim(),
     city: data.city.trim() || profile.city || "Online",
     countries: data.country ? [data.country] : [],
     cities: data.city.trim() ? [data.city.trim()] : [],
     districts: splitList(data.district),
     iconTags: parseIcons(data.icons),
-    rating: 4.5,
+    rating: 5,
     order: products.length,
-    description: data.description.trim()
+    description: data.description.trim(),
+    image: data.image.trim() || "assets/cerberus-logo-transparent.png",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: data.actionLabel.trim(),
+    telegram: data.telegram.trim(),
+    operatorTelegram: data.operatorTelegram.trim(),
+    botTelegram: data.botTelegram.trim(),
+    externalUrl: data.externalUrl.trim(),
+    stockItems: [
+      { id: uid(), text: `${data.name.trim()}: заявка создана.`, sold: false }
+    ]
   });
   if (data.vendor.trim() && !vendors.some((vendor) => vendor.name === data.vendor.trim())) {
     vendors.push({
@@ -2853,11 +2937,10 @@ el.productForm.addEventListener("submit", (event) => {
       cities: data.city.trim() ? [data.city.trim()] : [],
       districts: splitList(data.district),
       iconTags: parseIcons(data.icons),
-      login: `${data.vendor.trim()}_owner`,
-      loginKey: normalizeLogin(`${data.vendor.trim()}_owner`),
-      password: "market123",
+      login: "",
+      loginKey: "",
       status: "Активен",
-      description: `Автоматически созданный кабинет ${data.vendor.trim()}.`,
+      description: "",
       paymentMode: "planned",
       paymentCurrency: "USDT",
       paymentNote: "Крипто-оплата подключается через защищенный сервер."
@@ -2876,6 +2959,12 @@ el.vendorForm.addEventListener("submit", async (event) => {
     render();
     return;
   }
+  const owner = data.login.trim() ? accountByLogin(data.login) : null;
+  if (data.login.trim() && !owner) {
+    wallet.activity.push(`Аккаунт не найден: ${data.login.trim()}. Сначала пользователь должен зарегистрироваться.`);
+    render();
+    return;
+  }
   vendors.push({
     id: uid(),
     name,
@@ -2890,9 +2979,8 @@ el.vendorForm.addEventListener("submit", async (event) => {
     telegram: data.telegram.trim(),
     featured: data.featured === "true",
     topOrder: Number(data.topOrder || 999),
-    login: data.login.trim(),
-    loginKey: normalizeLogin(data.login),
-    passwordHash: await hashPassword(data.login, data.password),
+    login: owner ? accountLogin(owner) : "",
+    loginKey: owner ? (owner.loginKey || normalizeLogin(owner.login)) : "",
     status: data.status,
     description: data.description.trim(),
     paymentMode: "planned",
