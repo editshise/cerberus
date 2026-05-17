@@ -90,6 +90,50 @@ const defaultProducts = [
   },
   {
     id: uid(),
+    name: "Продажа криптовалюты",
+    category: "Заявки",
+    price: 0,
+    vendor: "kryptomah",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱"],
+    rating: 5,
+    description: "",
+    image: "assets/kryptomah.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Продажа криптовалюты",
+    telegram: "https://t.me/kryptomahnew",
+    stockItems: [
+      { id: uid(), text: "KryptoMah: заявка на продажу криптовалюты принята, оператор свяжется с вами в чате.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
+    name: "Покупка криптовалюты",
+    category: "Заявки",
+    price: 0,
+    vendor: "kryptomah",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱"],
+    rating: 5,
+    description: "",
+    image: "assets/kryptomah.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Покупка криптовалюты",
+    telegram: "https://t.me/kryptomahnew",
+    stockItems: [
+      { id: uid(), text: "KryptoMah: заявка на покупку криптовалюты принята, оператор свяжется с вами в чате.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
     name: "Покупка верификацией карточек/кошельков",
     category: "Услуги",
     price: 150,
@@ -292,6 +336,28 @@ const defaultVendors = [
   },
   {
     id: uid(),
+    name: "kryptomah",
+    login: "kryptomah_owner",
+    password: "market123",
+    status: "Активен",
+    description: "",
+    title: "KryptoMah",
+    type: "Обменники",
+    avatar: "assets/kryptomah.jpg",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱"],
+    telegram: "https://t.me/kryptomahnew",
+    featured: false,
+    topOrder: 5,
+    paymentMode: "manual",
+    paymentCurrency: "",
+    paymentNote: "Связь с оператором в Telegram или через чат сайта."
+  },
+  {
+    id: uid(),
     name: "redqueen",
     login: "redqueen_owner",
     password: "market123",
@@ -417,7 +483,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "redqueen"];
+const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "kryptomah", "redqueen"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
   if (!products.some((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name)) {
@@ -447,7 +513,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
       });
-    } else if (["iute", "redqueen", "snowboard", "cryptonyx"].includes(defaultVendor.name)) {
+    } else if (["iute", "redqueen", "snowboard", "cryptonyx", "kryptomah"].includes(defaultVendor.name)) {
       Object.assign(existingVendor, {
         description: defaultVendor.description,
         countries: defaultVendor.countries,
@@ -492,7 +558,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (["iute", "redqueen", "cryptonyx", "snowboard"].includes(defaultProduct.vendor)) {
+    } else if (["iute", "redqueen", "cryptonyx", "kryptomah", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
         category: defaultProduct.category,
         name: defaultProduct.name,
