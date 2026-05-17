@@ -2272,6 +2272,7 @@ function openPublicProfile(vendorName) {
   storeProducts.forEach((product) => {
     const card = document.createElement("article");
     card.className = "public-product-card";
+    const hideSiteContact = vendor.name === "kryptomah";
     card.innerHTML = `
       <img src="${escapeHtml(product.image || vendor.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
       <div>
@@ -2285,12 +2286,12 @@ function openPublicProfile(vendorName) {
           <span>${escapeHtml(product.locationType || "Онлайн")}</span>
         </div>
         <div class="product-actions public-contact-actions">
-          <button class="primary-button site-contact-button" type="button" data-action="site-contact">${escapeHtml(product.actionLabel || "Связь на сайте")}</button>
+          ${hideSiteContact ? "" : `<button class="primary-button site-contact-button" type="button" data-action="site-contact">${escapeHtml(product.actionLabel || "Связь на сайте")}</button>`}
           <button class="telegram-contact-button" type="button" data-action="telegram-contact">${escapeHtml(product.externalUrl ? product.actionLabel || "Открыть" : "Связь в телеграме")}</button>
         </div>
       </div>
     `;
-    card.querySelector('[data-action="site-contact"]').addEventListener("click", () => contactOnSite(product, vendor));
+    card.querySelector('[data-action="site-contact"]')?.addEventListener("click", () => contactOnSite(product, vendor));
     card.querySelector('[data-action="telegram-contact"]').addEventListener("click", () => {
       if (product.externalUrl) {
         window.open(product.externalUrl, "_blank", "noopener,noreferrer");
