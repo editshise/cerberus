@@ -142,7 +142,7 @@ const defaultProducts = [
     districts: chisinauDistricts,
     iconTags: ["💦"],
     rating: 5,
-    description: "@iute2026 (боты)\ntut.contact/iutecc (сайт)\n@iuteccc (оператор)",
+    description: "",
     image: "assets/iute.jpg",
     weight: "1 раздел",
     locationType: "Онлайн",
@@ -164,7 +164,7 @@ const defaultProducts = [
     districts: chisinauDistricts,
     iconTags: ["💦"],
     rating: 5,
-    description: "@iute2026 (боты)\ntut.contact/iutecc (сайт)\n@iuteccc (оператор)",
+    description: "",
     image: "assets/iute.jpg",
     weight: "1 раздел",
     locationType: "Онлайн",
@@ -186,7 +186,7 @@ const defaultProducts = [
     districts: chisinauDistricts,
     iconTags: ["💦"],
     rating: 5,
-    description: "@iute2026 (боты)\ntut.contact/iutecc (сайт)\n@iuteccc (оператор)",
+    description: "",
     image: "assets/iute.jpg",
     weight: "1 раздел",
     locationType: "Онлайн",
@@ -318,9 +318,9 @@ const defaultVendors = [
     login: "iute_owner",
     password: "market123",
     status: "Активен",
-    description: "@iute2026 (боты)\ntut.contact/iutecc (сайт)\n@iuteccc (оператор)",
+    description: "",
     title: "Iute",
-    type: "Услуги",
+    type: "Магазины",
     avatar: "assets/iute.jpg",
     city: "Кишинев",
     telegram: "https://t.me/iuteccc",
@@ -967,14 +967,14 @@ function buildDirectoryEntries() {
         rating: ratingForVendor(vendor.name),
         reviews: reviewsForVendor(vendor.name).length,
         deals: 0,
-        description: vendor.description || "Профиль создан в админке.",
+        description: vendor.description || "",
         avatar: vendor.avatar || "assets/cerberus-logo-transparent.png",
         priceLabel: vendor.type === "Обменники" ? "Обменник" : vendor.type === "Услуги" ? "Услуга" : "Магазин"
       };
     })
     .map((entry) => ({
       ...entry,
-      description: ["redqueen", "iute"].includes(entry.vendor) ? entry.description : ""
+      description: entry.vendor === "redqueen" ? entry.description : ""
     }));
 }
 
@@ -2150,7 +2150,7 @@ function openPublicProfile(vendorName) {
         <span>${escapeHtml(vendor.type || "Магазины")} · ${escapeHtml(vendor.city || "Online")}</span>
         <h3>${escapeHtml(vendor.title || vendor.name)}</h3>
         <strong class="public-rating">★ ${ratingForVendor(vendor.name)} · ${vendorReviews.length} отзывов · 0 сделок</strong>
-        <p>${renderLinkedText(vendor.description || "Описание пока не заполнено.")}</p>
+        ${vendor.description ? `<p>${renderLinkedText(vendor.description)}</p>` : ""}
       </div>
     </section>
     <div class="public-profile-actions">
@@ -2212,7 +2212,7 @@ function openPublicProfile(vendorName) {
           <span class="category-pill">${escapeHtml(product.category)}</span>
         </div>
         <h4>${escapeHtml(product.name)}</h4>
-        <p>${renderLinkedText(product.description || "Без описания")}</p>
+        ${product.description ? `<p>${renderLinkedText(product.description)}</p>` : ""}
         <div class="vendor-row">
           <span>${escapeHtml(product.weight || "1 шт")}</span>
           <span>${escapeHtml(product.locationType || "Онлайн")}</span>
