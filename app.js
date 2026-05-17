@@ -134,6 +134,54 @@ const defaultProducts = [
   },
   {
     id: uid(),
+    name: "Покупка криптовалюты",
+    category: "Заявки",
+    price: 0,
+    vendor: "buybit",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱"],
+    rating: 5,
+    description: "",
+    image: "assets/buybit.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Покупка криптовалюты",
+    telegram: "https://t.me/buybitnew",
+    operatorTelegram: "https://t.me/buybitnew",
+    botTelegram: "https://t.me/buybitmd_bot",
+    stockItems: [
+      { id: uid(), text: "BuyBit: заявка на покупку криптовалюты.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
+    name: "Продажа криптовалюты",
+    category: "Заявки",
+    price: 0,
+    vendor: "buybit",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱"],
+    rating: 5,
+    description: "",
+    image: "assets/buybit.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Продажа криптовалюты",
+    telegram: "https://t.me/buybitnew",
+    operatorTelegram: "https://t.me/buybitnew",
+    botTelegram: "https://t.me/buybitmd_bot",
+    stockItems: [
+      { id: uid(), text: "BuyBit: заявка на продажу криптовалюты.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
     name: "Покупка верификацией карточек/кошельков",
     category: "Услуги",
     price: 150,
@@ -358,6 +406,28 @@ const defaultVendors = [
   },
   {
     id: uid(),
+    name: "buybit",
+    login: "buybit_owner",
+    password: "market123",
+    status: "Активен",
+    description: "",
+    title: "BuyBit",
+    type: "Обменники",
+    avatar: "assets/buybit.jpg",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱"],
+    telegram: "https://t.me/buybitnew",
+    featured: false,
+    topOrder: 4,
+    paymentMode: "manual",
+    paymentCurrency: "",
+    paymentNote: "Связь через оператора или бота в Telegram."
+  },
+  {
+    id: uid(),
     name: "redqueen",
     login: "redqueen_owner",
     password: "market123",
@@ -483,7 +553,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "kryptomah", "redqueen"];
+const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "kryptomah", "buybit", "redqueen"];
 const hiddenVendorNames = ["north_lab", "quiet_studio"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
@@ -514,7 +584,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
       });
-    } else if (["iute", "redqueen", "snowboard", "cryptonyx", "kryptomah"].includes(defaultVendor.name)) {
+    } else if (["iute", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit"].includes(defaultVendor.name)) {
       Object.assign(existingVendor, {
         description: defaultVendor.description,
         countries: defaultVendor.countries,
@@ -559,7 +629,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (["iute", "redqueen", "cryptonyx", "kryptomah", "snowboard"].includes(defaultProduct.vendor)) {
+    } else if (["iute", "redqueen", "cryptonyx", "kryptomah", "buybit", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
         category: defaultProduct.category,
         name: defaultProduct.name,
@@ -574,6 +644,8 @@ function ensurePinnedDefaults() {
         locationType: defaultProduct.locationType,
         actionLabel: defaultProduct.actionLabel,
         telegram: defaultProduct.telegram,
+        operatorTelegram: defaultProduct.operatorTelegram,
+        botTelegram: defaultProduct.botTelegram,
         externalUrl: defaultProduct.externalUrl
       });
     }
@@ -1863,8 +1935,8 @@ function contactOnSite(product, vendor) {
   render();
 }
 
-function contactTelegram(product, vendor) {
-  const telegram = String(product.telegram || vendor.telegram || vendor.telegramHandle || vendor.name || "").trim();
+function contactTelegram(product, vendor, telegramOverride = "") {
+  const telegram = String(telegramOverride || product.telegram || vendor.telegram || vendor.telegramHandle || vendor.name || "").trim();
   const handle = telegram.replace(/^https?:\/\/t\.me\//, "").replace(/^@/, "").trim();
   const text = `Привет, я по поводу этого заказа с маркетплейса Cerberus: «${product.name}». Товар еще в наличии? Хочу уточнить детали.`;
   const url = handle
@@ -2272,7 +2344,9 @@ function openPublicProfile(vendorName) {
   storeProducts.forEach((product) => {
     const card = document.createElement("article");
     card.className = "public-product-card";
-    const hideSiteContact = vendor.name === "kryptomah";
+    const hideSiteContact = ["kryptomah", "buybit"].includes(vendor.name);
+    const isBuyBit = vendor.name === "buybit";
+    const telegramLabel = hideSiteContact ? product.actionLabel || "Связь в телеграме" : product.externalUrl ? product.actionLabel || "Открыть" : "Связь в телеграме";
     card.innerHTML = `
       <img src="${escapeHtml(product.image || vendor.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
       <div>
@@ -2287,18 +2361,23 @@ function openPublicProfile(vendorName) {
         </div>
         <div class="product-actions public-contact-actions">
           ${hideSiteContact ? "" : `<button class="primary-button site-contact-button" type="button" data-action="site-contact">${escapeHtml(product.actionLabel || "Связь на сайте")}</button>`}
-          <button class="telegram-contact-button" type="button" data-action="telegram-contact">${escapeHtml(product.externalUrl ? product.actionLabel || "Открыть" : "Связь в телеграме")}</button>
+          ${isBuyBit ? `
+            <button class="telegram-contact-button" type="button" data-action="telegram-operator">Оператор в телеграмме</button>
+            <button class="telegram-contact-button" type="button" data-action="telegram-bot">Бот в телеграмме</button>
+          ` : `<button class="telegram-contact-button" type="button" data-action="telegram-contact">${escapeHtml(telegramLabel)}</button>`}
         </div>
       </div>
     `;
     card.querySelector('[data-action="site-contact"]')?.addEventListener("click", () => contactOnSite(product, vendor));
-    card.querySelector('[data-action="telegram-contact"]').addEventListener("click", () => {
+    card.querySelector('[data-action="telegram-contact"]')?.addEventListener("click", () => {
       if (product.externalUrl) {
         window.open(product.externalUrl, "_blank", "noopener,noreferrer");
         return;
       }
       contactTelegram(product, vendor);
     });
+    card.querySelector('[data-action="telegram-operator"]')?.addEventListener("click", () => contactTelegram(product, vendor, product.operatorTelegram));
+    card.querySelector('[data-action="telegram-bot"]')?.addEventListener("click", () => contactTelegram(product, vendor, product.botTelegram));
     list.append(card);
   });
   el.profileDrawer.classList.add("is-open");
