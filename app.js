@@ -25,7 +25,7 @@ const locationOptions = {
   }
 };
 const chisinauDistricts = ["Центр", "Ботаника", "Буюканы", "Рышкановка", "Чеканы", "Телецентр", "Скулянка", "Старая Почта", "Дурлешты", "Кодру", "Аэропорт"];
-const iconOptions = ["❄️", "💎", "💊", "🍫", "🌳", "🎆", "💉", "🏥", "🧊", "🪪", "💱", "🧳"];
+const iconOptions = ["❄️", "💎", "💊", "🍫", "🌳", "🎆", "💉", "🏥", "🧊", "🪪", "💱", "🧳", "💦"];
 
 const defaultProducts = [
   {
@@ -129,6 +129,72 @@ const defaultProducts = [
       { id: uid(), text: "Red Queen: заявка на продажу верификаций принята, оператор свяжется с вами в чате.", sold: false },
       { id: uid(), text: "Red Queen: резервная заявка на продажу верификаций.", sold: false }
     ]
+  },
+  {
+    id: uid(),
+    name: "Бот автопродаж",
+    category: "Услуги",
+    price: 0,
+    vendor: "iute",
+    city: "Кишинев",
+    countries: ["Молдова"],
+    cities: ["Кишинев"],
+    districts: chisinauDistricts,
+    iconTags: ["💦"],
+    rating: 5,
+    description: "@iute2026 (боты)\ntut.contact/iutecc (сайт)\n@iuteccc (оператор)",
+    image: "assets/iute.jpg",
+    weight: "1 раздел",
+    locationType: "Онлайн",
+    actionLabel: "Бот автопродаж",
+    telegram: "https://t.me/iute2026",
+    stockItems: [
+      { id: uid(), text: "Iute: заявка по боту автопродаж принята, оператор свяжется с вами в чате.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
+    name: "Сайт",
+    category: "Услуги",
+    price: 0,
+    vendor: "iute",
+    city: "Кишинев",
+    countries: ["Молдова"],
+    cities: ["Кишинев"],
+    districts: chisinauDistricts,
+    iconTags: ["💦"],
+    rating: 5,
+    description: "@iute2026 (боты)\ntut.contact/iutecc (сайт)\n@iuteccc (оператор)",
+    image: "assets/iute.jpg",
+    weight: "1 раздел",
+    locationType: "Онлайн",
+    actionLabel: "Сайт",
+    externalUrl: "https://tut.contact/iutecc",
+    stockItems: [
+      { id: uid(), text: "Iute: заявка по сайту принята, оператор свяжется с вами в чате.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
+    name: "Оператор",
+    category: "Услуги",
+    price: 0,
+    vendor: "iute",
+    city: "Кишинев",
+    countries: ["Молдова"],
+    cities: ["Кишинев"],
+    districts: chisinauDistricts,
+    iconTags: ["💦"],
+    rating: 5,
+    description: "@iute2026 (боты)\ntut.contact/iutecc (сайт)\n@iuteccc (оператор)",
+    image: "assets/iute.jpg",
+    weight: "1 раздел",
+    locationType: "Онлайн",
+    actionLabel: "Оператор",
+    telegram: "https://t.me/iuteccc",
+    stockItems: [
+      { id: uid(), text: "Iute: заявка оператору принята, оператор свяжется с вами в чате.", sold: false }
+    ]
   }
 ];
 
@@ -197,8 +263,8 @@ const defaultVendors = [
     districts: chisinauDistricts,
     iconTags: ["❄️"],
     telegram: "https://t.me/snowboardmdbot",
-    featured: true,
-    topOrder: 1,
+    featured: false,
+    topOrder: 2,
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
@@ -218,8 +284,8 @@ const defaultVendors = [
     cities: [...locationOptions.cities["Молдова"]],
     districts: [...locationOptions.districts["Молдова"]],
     telegram: "https://t.me/cryptonyxor",
-    featured: true,
-    topOrder: 2,
+    featured: false,
+    topOrder: 3,
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
@@ -240,11 +306,33 @@ const defaultVendors = [
     cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
     districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
     iconTags: ["🪪", "💱"],
-    featured: true,
-    topOrder: 3,
+    featured: false,
+    topOrder: 4,
     paymentMode: "planned",
     paymentCurrency: "USDT",
     paymentNote: "Крипто-оплата подключается через защищенный сервер."
+  },
+  {
+    id: uid(),
+    name: "iute",
+    login: "iute_owner",
+    password: "market123",
+    status: "Активен",
+    description: "@iute2026 (боты)\ntut.contact/iutecc (сайт)\n@iuteccc (оператор)",
+    title: "Iute",
+    type: "Услуги",
+    avatar: "assets/iute.jpg",
+    city: "Кишинев",
+    telegram: "https://t.me/iuteccc",
+    countries: ["Молдова"],
+    cities: ["Кишинев"],
+    districts: chisinauDistricts,
+    iconTags: ["💦"],
+    featured: true,
+    topOrder: 1,
+    paymentMode: "manual",
+    paymentCurrency: "",
+    paymentNote: "Связь через бот, сайт или оператора."
   }
 ];
 
@@ -329,7 +417,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["snowboard", "cryptonyx", "redqueen"];
+const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "redqueen"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
   if (!products.some((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name)) {
@@ -359,7 +447,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
       });
-    } else if (defaultVendor.name === "redqueen") {
+    } else if (["iute", "redqueen", "snowboard", "cryptonyx"].includes(defaultVendor.name)) {
       Object.assign(existingVendor, {
         description: defaultVendor.description,
         countries: defaultVendor.countries,
@@ -368,23 +456,21 @@ function ensurePinnedDefaults() {
         iconTags: defaultVendor.iconTags,
         city: defaultVendor.city,
         type: defaultVendor.type,
+        title: defaultVendor.title,
         avatar: defaultVendor.avatar,
         telegram: defaultVendor.telegram,
         topOrder: defaultVendor.topOrder,
-        featured: true
-      });
-    } else if (["snowboard", "cryptonyx"].includes(defaultVendor.name)) {
-      Object.assign(existingVendor, {
-        countries: defaultVendor.countries,
-        cities: defaultVendor.cities,
-        districts: defaultVendor.districts,
-        iconTags: defaultVendor.iconTags,
-        city: defaultVendor.city,
-        telegram: defaultVendor.telegram,
-        topOrder: defaultVendor.topOrder,
-        featured: true
+        featured: defaultVendor.featured
       });
     }
+  });
+  vendors.forEach((vendor) => {
+    if (vendor.name === "iute") {
+      vendor.featured = true;
+      vendor.topOrder = 1;
+      return;
+    }
+    vendor.featured = false;
   });
   products = products
     .filter((product) => pinnedVendorNames.includes(product.vendor))
@@ -406,7 +492,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (["redqueen", "cryptonyx", "snowboard"].includes(defaultProduct.vendor)) {
+    } else if (["iute", "redqueen", "cryptonyx", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
         category: defaultProduct.category,
         name: defaultProduct.name,
@@ -418,7 +504,10 @@ function ensurePinnedDefaults() {
         city: defaultProduct.city,
         image: defaultProduct.image,
         weight: defaultProduct.weight,
-        locationType: defaultProduct.locationType
+        locationType: defaultProduct.locationType,
+        actionLabel: defaultProduct.actionLabel,
+        telegram: defaultProduct.telegram,
+        externalUrl: defaultProduct.externalUrl
       });
     }
   });
@@ -781,6 +870,12 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function renderLinkedText(value) {
+  return escapeHtml(value)
+    .replace(/(^|[\s(])@([a-zA-Z0-9_]{3,32})/g, '$1<a class="chat-media-link" href="https://t.me/$2" target="_blank" rel="noreferrer">@$2</a>')
+    .replace(/\n/g, "<br>");
+}
+
 function productCode(product) {
   return product.name
     .split(/\s+/)
@@ -856,7 +951,6 @@ function visibleConversations() {
 
 function buildDirectoryEntries() {
   return vendors
-    .filter((vendor) => vendor.featured !== false && (vendor.featured || ["snowboard", "cryptonyx", "redqueen"].includes(vendor.name)))
     .map((vendor, index) => {
       const count = vendorProducts(vendor.name).length;
       return {
@@ -869,6 +963,7 @@ function buildDirectoryEntries() {
         cities: asArray(vendor.cities || vendor.city),
         districts: asArray(vendor.districts),
         iconTags: asArray(vendor.iconTags),
+        featured: vendor.featured !== false,
         rating: ratingForVendor(vendor.name),
         reviews: reviewsForVendor(vendor.name).length,
         deals: 0,
@@ -879,14 +974,14 @@ function buildDirectoryEntries() {
     })
     .map((entry) => ({
       ...entry,
-      description: entry.vendor === "redqueen" ? entry.description : ""
+      description: ["redqueen", "iute"].includes(entry.vendor) ? entry.description : ""
     }));
 }
 
 function currentDirectoryEntries() {
   const query = el.search.value.trim().toLowerCase();
   const filtered = buildDirectoryEntries().filter((entry) => {
-    const typeMatch = activeDirectoryType === "Все" || entry.type === activeDirectoryType;
+    const typeMatch = activeDirectoryType === "Все" ? entry.featured : entry.type === activeDirectoryType;
     const countryMatch = hasFilterValue(entry.countries, activeFilters.country);
     const cityMatch = !activeFilters.city || hasFilterValue(entry.cities, activeFilters.city) || entry.city.toLowerCase().includes(activeFilters.city.toLowerCase());
     const districtMatch = hasFilterValue(entry.districts, activeFilters.district);
@@ -1077,7 +1172,7 @@ function renderProducts() {
     node.querySelector(".category-pill").textContent = entry.type;
     node.querySelector(".rating").textContent = `★ ${entry.rating}`;
     node.querySelector("h3").textContent = entry.name;
-    node.querySelector("p").textContent = entry.description;
+    node.querySelector("p").innerHTML = renderLinkedText(entry.description);
     node.querySelector(".vendor").textContent = `@${entry.vendor}`;
     node.querySelector(".city").textContent = entry.city;
     node.querySelector(".directory-stats").textContent = `${entry.reviews.toLocaleString("ru-RU")} отзывов · ${entry.deals.toLocaleString("ru-RU")} сделок`;
@@ -1702,7 +1797,7 @@ function contactOnSite(product, vendor) {
 }
 
 function contactTelegram(product, vendor) {
-  const telegram = String(vendor.telegram || vendor.telegramHandle || vendor.name || "").trim();
+  const telegram = String(product.telegram || vendor.telegram || vendor.telegramHandle || vendor.name || "").trim();
   const handle = telegram.replace(/^https?:\/\/t\.me\//, "").replace(/^@/, "").trim();
   const text = `Привет, я по поводу этого заказа с маркетплейса Cerberus: «${product.name}». Товар еще в наличии? Хочу уточнить детали.`;
   const url = handle
@@ -2055,7 +2150,7 @@ function openPublicProfile(vendorName) {
         <span>${escapeHtml(vendor.type || "Магазины")} · ${escapeHtml(vendor.city || "Online")}</span>
         <h3>${escapeHtml(vendor.title || vendor.name)}</h3>
         <strong class="public-rating">★ ${ratingForVendor(vendor.name)} · ${vendorReviews.length} отзывов · 0 сделок</strong>
-        <p>${escapeHtml(vendor.description || "Описание пока не заполнено.")}</p>
+        <p>${renderLinkedText(vendor.description || "Описание пока не заполнено.")}</p>
       </div>
     </section>
     <div class="public-profile-actions">
@@ -2117,19 +2212,25 @@ function openPublicProfile(vendorName) {
           <span class="category-pill">${escapeHtml(product.category)}</span>
         </div>
         <h4>${escapeHtml(product.name)}</h4>
-        <p>${escapeHtml(product.description || "Без описания")}</p>
+        <p>${renderLinkedText(product.description || "Без описания")}</p>
         <div class="vendor-row">
           <span>${escapeHtml(product.weight || "1 шт")}</span>
           <span>${escapeHtml(product.locationType || "Онлайн")}</span>
         </div>
         <div class="product-actions public-contact-actions">
-          <button class="primary-button site-contact-button" type="button" data-action="site-contact">Связь на сайте</button>
-          <button class="telegram-contact-button" type="button" data-action="telegram-contact">Связь в телеграме</button>
+          <button class="primary-button site-contact-button" type="button" data-action="site-contact">${escapeHtml(product.actionLabel || "Связь на сайте")}</button>
+          <button class="telegram-contact-button" type="button" data-action="telegram-contact">${escapeHtml(product.externalUrl ? product.actionLabel || "Открыть" : "Связь в телеграме")}</button>
         </div>
       </div>
     `;
     card.querySelector('[data-action="site-contact"]').addEventListener("click", () => contactOnSite(product, vendor));
-    card.querySelector('[data-action="telegram-contact"]').addEventListener("click", () => contactTelegram(product, vendor));
+    card.querySelector('[data-action="telegram-contact"]').addEventListener("click", () => {
+      if (product.externalUrl) {
+        window.open(product.externalUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+      contactTelegram(product, vendor);
+    });
     list.append(card);
   });
   el.profileDrawer.classList.add("is-open");
