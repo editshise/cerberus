@@ -720,6 +720,15 @@ select {
   background: transparent;
 }
 
+.telegram-channel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-color: rgba(79, 180, 255, .45);
+  color: #8fd3ff;
+}
+
 .cart-drawer {
   position: fixed;
   top: 0;
