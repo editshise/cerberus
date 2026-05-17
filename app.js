@@ -484,6 +484,7 @@ defaultVendors.forEach((defaultVendor) => {
   }
 });
 const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "kryptomah", "redqueen"];
+const hiddenVendorNames = ["north_lab", "quiet_studio"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
   if (!products.some((product) => product.vendor === defaultProduct.vendor && product.name === defaultProduct.name)) {
@@ -504,7 +505,7 @@ function ensurePinnedDefaults() {
     ...vendor,
     login: String(vendor.login || "").trim(),
     loginKey: String(vendor.loginKey || vendor.login || "").trim().toLowerCase()
-  }));
+  })).filter((vendor) => !hiddenVendorNames.includes(vendor.name));
   defaultVendors.forEach((defaultVendor) => {
     const existingVendor = vendors.find((vendor) => vendor.name === defaultVendor.name);
     if (!existingVendor) {
