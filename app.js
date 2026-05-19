@@ -311,6 +311,50 @@ const defaultProducts = [
     stockItems: [
       { id: uid(), text: "Black Service: заявка на скупку реквизитов.", sold: false }
     ]
+  },
+  {
+    id: uid(),
+    name: "Продажа 💧💎",
+    category: "Мерч",
+    price: 0,
+    vendor: "skboy",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["❄️", "💧", "💎"],
+    rating: 5,
+    description: "",
+    image: "assets/skboy.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Перейти",
+    externalUrl: "https://tut.contact/skboy",
+    stockItems: [
+      { id: uid(), text: "SkBoy: переход в каталог.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
+    name: "Мы в поиске работников",
+    category: "Услуги",
+    price: 0,
+    vendor: "skboy",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["❄️", "💧"],
+    rating: 5,
+    description: "",
+    image: "assets/skboy.jpg",
+    weight: "1 раздел",
+    locationType: "Онлайн",
+    actionLabel: "Перейти",
+    externalUrl: "https://t.me/BOYsalty",
+    stockItems: [
+      { id: uid(), text: "SkBoy: переход к вакансии.", sold: false }
+    ]
   }
 ];
 
@@ -514,6 +558,28 @@ const defaultVendors = [
     paymentMode: "manual",
     paymentCurrency: "",
     paymentNote: "Связь только через Telegram."
+  },
+  {
+    id: uid(),
+    name: "skboy",
+    login: "skboy_owner",
+    password: "market123",
+    status: "Активен",
+    description: "",
+    title: "SkBoy",
+    type: "Магазины",
+    avatar: "assets/skboy.jpg",
+    city: "Молдова",
+    telegram: "https://t.me/BOYsalty",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["❄️", "💧", "💎"],
+    featured: true,
+    topOrder: 2,
+    paymentMode: "manual",
+    paymentCurrency: "",
+    paymentNote: "Переходы только по внешним ссылкам."
   }
 ];
 
@@ -598,7 +664,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "redqueen"];
+const pinnedVendorNames = ["iute", "skboy", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "redqueen"];
 const hiddenVendorNames = ["north_lab", "quiet_studio"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
@@ -629,7 +695,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
       });
-    } else if (["iute", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice"].includes(defaultVendor.name)) {
+    } else if (["iute", "skboy", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice"].includes(defaultVendor.name)) {
       Object.assign(existingVendor, {
         description: defaultVendor.description,
         countries: defaultVendor.countries,
@@ -650,6 +716,11 @@ function ensurePinnedDefaults() {
     if (vendor.name === "iute") {
       vendor.featured = true;
       vendor.topOrder = 1;
+      return;
+    }
+    if (vendor.name === "skboy") {
+      vendor.featured = true;
+      vendor.topOrder = 2;
       return;
     }
     vendor.featured = false;
@@ -674,7 +745,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (["iute", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "snowboard"].includes(defaultProduct.vendor)) {
+    } else if (["iute", "skboy", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
         category: defaultProduct.category,
         name: defaultProduct.name,
@@ -2477,7 +2548,7 @@ function openPublicProfile(vendorName) {
   storeProducts.forEach((product) => {
     const card = document.createElement("article");
     card.className = "public-product-card";
-    const hideSiteContact = ["kryptomah", "buybit", "blackservice"].includes(vendor.name);
+    const hideSiteContact = ["kryptomah", "buybit", "blackservice", "skboy"].includes(vendor.name);
     const hasTwoTelegramButtons = vendor.name === "buybit" || vendor.name === "blackservice";
     const operatorLabel = vendor.name === "blackservice" ? "Связь в телеграме" : "Оператор в телеграмме";
     const secondTelegramLabel = vendor.name === "blackservice" ? "Отзывы" : "Бот в телеграмме";
