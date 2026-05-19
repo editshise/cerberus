@@ -287,6 +287,30 @@ const defaultProducts = [
     stockItems: [
       { id: uid(), text: "Iute: заявка оператору принята, оператор свяжется с вами в чате.", sold: false }
     ]
+  },
+  {
+    id: uid(),
+    name: "Скупка реквизитов",
+    category: "Заявки",
+    price: 0,
+    vendor: "blackservice",
+    city: "Молдова и ПМР",
+    countries: ["Молдова", "ПМР"],
+    cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
+    districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
+    iconTags: ["🪪", "💱"],
+    rating: 5,
+    description: "",
+    image: "assets/black-service-rekvizity.jpg",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Связь в телеграме",
+    telegram: "https://t.me/Black_Service_24_7",
+    operatorTelegram: "https://t.me/Black_Service_24_7",
+    botTelegram: "https://t.me/Reviews_Black_Service_24_7",
+    stockItems: [
+      { id: uid(), text: "Black Service: заявка на скупку реквизитов.", sold: false }
+    ]
   }
 ];
 
@@ -468,6 +492,28 @@ const defaultVendors = [
     paymentMode: "manual",
     paymentCurrency: "",
     paymentNote: "Связь через бот, сайт или оператора."
+  },
+  {
+    id: uid(),
+    name: "blackservice",
+    login: "blackservice_owner",
+    password: "market123",
+    status: "Активен",
+    description: "",
+    title: "Black Service",
+    type: "Обменники",
+    avatar: "assets/black-service.mp4",
+    city: "Молдова и ПМР",
+    telegram: "https://t.me/Black_Service_24_7",
+    countries: ["Молдова", "ПМР"],
+    cities: [...locationOptions.cities["Молдова"], ...locationOptions.cities["ПМР"]],
+    districts: [...locationOptions.districts["Молдова"], ...locationOptions.districts["ПМР"]],
+    iconTags: ["🪪", "💱"],
+    featured: false,
+    topOrder: 6,
+    paymentMode: "manual",
+    paymentCurrency: "",
+    paymentNote: "Связь только через Telegram."
   }
 ];
 
@@ -552,7 +598,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "kryptomah", "buybit", "redqueen"];
+const pinnedVendorNames = ["iute", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "redqueen"];
 const hiddenVendorNames = ["north_lab", "quiet_studio"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
@@ -583,7 +629,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
       });
-    } else if (["iute", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit"].includes(defaultVendor.name)) {
+    } else if (["iute", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice"].includes(defaultVendor.name)) {
       Object.assign(existingVendor, {
         description: defaultVendor.description,
         countries: defaultVendor.countries,
@@ -628,7 +674,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (["iute", "redqueen", "cryptonyx", "kryptomah", "buybit", "snowboard"].includes(defaultProduct.vendor)) {
+    } else if (["iute", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
         category: defaultProduct.category,
         name: defaultProduct.name,
@@ -1024,6 +1070,18 @@ function renderLinkedText(value) {
     .replace(/\n/g, "<br>");
 }
 
+function isVideoMedia(src) {
+  return /\.(mp4|webm|ogg)(\?.*)?$/i.test(String(src || ""));
+}
+
+function renderMedia(src, className, alt = "") {
+  const mediaSrc = escapeHtml(src || "assets/cerberus-logo-transparent.png");
+  if (isVideoMedia(src)) {
+    return `<video class="${className}" src="${mediaSrc}" autoplay muted loop playsinline></video>`;
+  }
+  return `<img class="${className}" src="${mediaSrc}" alt="${escapeHtml(alt)}">`;
+}
+
 function productCode(product) {
   return product.name
     .split(/\s+/)
@@ -1315,8 +1373,7 @@ function renderProducts() {
   visible.forEach((entry, index) => {
     const node = el.directoryTemplate.content.firstElementChild.cloneNode(true);
     const cover = node.querySelector(".directory-cover");
-    cover.src = entry.avatar || "assets/cerberus-logo-transparent.png";
-    cover.alt = entry.name;
+    cover.outerHTML = renderMedia(entry.avatar || "assets/cerberus-logo-transparent.png", "directory-cover", entry.name);
     node.querySelector(".category-pill").textContent = entry.type;
     node.querySelector(".rating").textContent = `★ ${entry.rating}`;
     node.querySelector("h3").textContent = entry.name;
@@ -2360,7 +2417,7 @@ function openPublicProfile(vendorName) {
   el.publicProfile.dataset.vendor = vendor.name;
   el.publicProfile.innerHTML = `
     <section class="public-profile-head">
-      <img src="${escapeHtml(vendor.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
+      ${renderMedia(vendor.avatar || "assets/cerberus-logo-transparent.png", "public-profile-avatar", vendor.title || vendor.name)}
       <div>
         <span>${escapeHtml(vendor.type || "Магазины")} · ${escapeHtml(vendor.city || "Online")}</span>
         <h3>${escapeHtml(vendor.title || vendor.name)}</h3>
@@ -2420,11 +2477,13 @@ function openPublicProfile(vendorName) {
   storeProducts.forEach((product) => {
     const card = document.createElement("article");
     card.className = "public-product-card";
-    const hideSiteContact = ["kryptomah", "buybit"].includes(vendor.name);
-    const isBuyBit = vendor.name === "buybit";
+    const hideSiteContact = ["kryptomah", "buybit", "blackservice"].includes(vendor.name);
+    const hasTwoTelegramButtons = vendor.name === "buybit" || vendor.name === "blackservice";
+    const operatorLabel = vendor.name === "blackservice" ? "Связь в телеграме" : "Оператор в телеграмме";
+    const secondTelegramLabel = vendor.name === "blackservice" ? "Отзывы" : "Бот в телеграмме";
     const telegramLabel = hideSiteContact ? product.actionLabel || "Связь в телеграме" : product.externalUrl ? product.actionLabel || "Открыть" : "Связь в телеграме";
     card.innerHTML = `
-      <img src="${escapeHtml(product.image || vendor.avatar || "assets/cerberus-logo-transparent.png")}" alt="">
+      ${renderMedia(product.image || vendor.avatar || "assets/cerberus-logo-transparent.png", "public-product-media", product.name)}
       <div>
         <div class="product-meta">
           <span class="category-pill">${escapeHtml(product.category)}</span>
@@ -2437,9 +2496,9 @@ function openPublicProfile(vendorName) {
         </div>
         <div class="product-actions public-contact-actions">
           ${hideSiteContact ? "" : `<button class="primary-button site-contact-button" type="button" data-action="site-contact">${escapeHtml(product.actionLabel || "Связь на сайте")}</button>`}
-          ${isBuyBit ? `
-            <button class="telegram-contact-button" type="button" data-action="telegram-operator">Оператор в телеграмме</button>
-            <button class="telegram-contact-button" type="button" data-action="telegram-bot">Бот в телеграмме</button>
+          ${hasTwoTelegramButtons ? `
+            <button class="telegram-contact-button" type="button" data-action="telegram-operator">${escapeHtml(operatorLabel)}</button>
+            <button class="telegram-contact-button" type="button" data-action="telegram-bot">${escapeHtml(secondTelegramLabel)}</button>
           ` : `<button class="telegram-contact-button" type="button" data-action="telegram-contact">${escapeHtml(telegramLabel)}</button>`}
         </div>
       </div>

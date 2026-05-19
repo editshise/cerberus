@@ -606,6 +606,10 @@ select {
   background: #070707;
 }
 
+video.directory-cover {
+  display: block;
+}
+
 .directory-body {
   display: grid;
   gap: 12px;
@@ -1061,13 +1065,16 @@ select {
 }
 
 .public-profile-head img,
+.public-profile-head video,
 .vendor-profile-mini img,
-.public-product-card img {
+.public-product-card img,
+.public-product-card video {
   object-fit: cover;
   background: #070707;
 }
 
-.public-profile-head img {
+.public-profile-head img,
+.public-profile-head video {
   width: 110px;
   height: 110px;
   border-radius: 8px;
@@ -1113,7 +1120,8 @@ select {
   background: var(--panel);
 }
 
-.public-product-card img {
+.public-product-card img,
+.public-product-card video {
   width: 110px;
   height: 110px;
   border-radius: 8px;
@@ -2198,7 +2206,9 @@ textarea {
   }
 
   .public-profile-head img,
-  .public-product-card img {
+  .public-profile-head video,
+  .public-product-card img,
+  .public-product-card video {
     width: 100%;
     height: 180px;
   }
