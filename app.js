@@ -314,6 +314,54 @@ const defaultProducts = [
   },
   {
     id: uid(),
+    name: "Обмен 1$ 20 лей",
+    category: "Заявки",
+    price: 0,
+    vendor: "kentltc",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱", "🧳"],
+    rating: 5,
+    description: "Самый выгодный обмен криптовалюты.",
+    image: "assets/kent-ltc.png",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Оператор в телеграмме",
+    telegram: "https://t.me/kent_ltc",
+    operatorTelegram: "https://t.me/kent_ltc",
+    botTelegram: "https://t.me/kentltcbot",
+    stockItems: [
+      { id: uid(), text: "KENT LTC: заявка на обмен 1$ 20 лей.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
+    name: "Обнал 1$ 17 лей",
+    category: "Заявки",
+    price: 0,
+    vendor: "kentltc",
+    city: "Молдова",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱", "🧳"],
+    rating: 5,
+    description: "Самый выгодный обмен криптовалюты.",
+    image: "assets/kent-ltc.png",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Оператор в телеграмме",
+    telegram: "https://t.me/kent_ltc",
+    operatorTelegram: "https://t.me/kent_ltc",
+    botTelegram: "https://t.me/kentltcbot",
+    stockItems: [
+      { id: uid(), text: "KENT LTC: заявка на обнал 1$ 17 лей.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
     name: "Продажа 💧💎",
     category: "Мерч",
     price: 0,
@@ -561,6 +609,28 @@ const defaultVendors = [
   },
   {
     id: uid(),
+    name: "kentltc",
+    login: "kentltc_owner",
+    password: "market123",
+    status: "Активен",
+    description: "Самый выгодный обмен криптовалюты.",
+    title: "KENT LTC",
+    type: "Обменники",
+    avatar: "assets/kent-ltc.mp4",
+    city: "Молдова",
+    telegram: "https://t.me/kent_ltc",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱", "🧳"],
+    featured: true,
+    topOrder: 1,
+    paymentMode: "manual",
+    paymentCurrency: "",
+    paymentNote: "Переходы к оператору и боту в Telegram."
+  },
+  {
+    id: uid(),
     name: "skboy",
     login: "skboy_owner",
     password: "market123",
@@ -664,7 +734,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["iute", "skboy", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "redqueen"];
+const pinnedVendorNames = ["kentltc", "iute", "skboy", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "redqueen"];
 const hiddenVendorNames = ["north_lab", "quiet_studio"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
@@ -695,7 +765,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
       });
-    } else if (["iute", "skboy", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice"].includes(defaultVendor.name)) {
+    } else if (["kentltc", "iute", "skboy", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice"].includes(defaultVendor.name)) {
       Object.assign(existingVendor, {
         description: defaultVendor.description,
         countries: defaultVendor.countries,
@@ -713,14 +783,19 @@ function ensurePinnedDefaults() {
     }
   });
   vendors.forEach((vendor) => {
-    if (vendor.name === "iute") {
+    if (vendor.name === "kentltc") {
       vendor.featured = true;
       vendor.topOrder = 1;
       return;
     }
-    if (vendor.name === "skboy") {
+    if (vendor.name === "iute") {
       vendor.featured = true;
       vendor.topOrder = 2;
+      return;
+    }
+    if (vendor.name === "skboy") {
+      vendor.featured = true;
+      vendor.topOrder = 3;
       return;
     }
     vendor.featured = false;
@@ -745,7 +820,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (["iute", "skboy", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "snowboard"].includes(defaultProduct.vendor)) {
+    } else if (["kentltc", "iute", "skboy", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
         category: defaultProduct.category,
         name: defaultProduct.name,
@@ -2548,8 +2623,8 @@ function openPublicProfile(vendorName) {
   storeProducts.forEach((product) => {
     const card = document.createElement("article");
     card.className = "public-product-card";
-    const hideSiteContact = ["kryptomah", "buybit", "blackservice", "skboy"].includes(vendor.name);
-    const hasTwoTelegramButtons = vendor.name === "buybit" || vendor.name === "blackservice";
+    const hideSiteContact = ["kryptomah", "buybit", "blackservice", "skboy", "kentltc"].includes(vendor.name);
+    const hasTwoTelegramButtons = vendor.name === "buybit" || vendor.name === "blackservice" || vendor.name === "kentltc";
     const operatorLabel = vendor.name === "blackservice" ? "Связь в телеграме" : "Оператор в телеграмме";
     const secondTelegramLabel = vendor.name === "blackservice" ? "Отзывы" : "Бот в телеграмме";
     const telegramLabel = hideSiteContact ? product.actionLabel || "Связь в телеграме" : product.externalUrl ? product.actionLabel || "Открыть" : "Связь в телеграме";
