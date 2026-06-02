@@ -362,6 +362,29 @@ const defaultProducts = [
   },
   {
     id: uid(),
+    name: "USDT TRC20",
+    category: "Заявки",
+    price: 0,
+    vendor: "usdttrc20",
+    city: "Онлайн",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱"],
+    rating: 5,
+    description: "Обмен USDT TRC20 через оператора.",
+    image: "assets/usdt-trc20.mp4",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Оператор в телеграмме",
+    telegram: "https://t.me/CRYPTO_SSELLER1",
+    operatorTelegram: "https://t.me/CRYPTO_SSELLER1",
+    stockItems: [
+      { id: uid(), text: "USDT TRC20: заявка на связь с оператором.", sold: false }
+    ]
+  },
+  {
+    id: uid(),
     name: "Продажа 💧💎",
     category: "Мерч",
     price: 0,
@@ -631,6 +654,28 @@ const defaultVendors = [
   },
   {
     id: uid(),
+    name: "usdttrc20",
+    login: "usdttrc20_owner",
+    password: "market123",
+    status: "Активен",
+    description: "Обмен USDT TRC20 через оператора.",
+    title: "USDT TRC20",
+    type: "Обменники",
+    avatar: "assets/usdt-trc20.mp4",
+    city: "Онлайн",
+    telegram: "https://t.me/CRYPTO_SSELLER1",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["💱"],
+    featured: false,
+    topOrder: 7,
+    paymentMode: "manual",
+    paymentCurrency: "",
+    paymentNote: "Связь через оператора в Telegram."
+  },
+  {
+    id: uid(),
     name: "skboy",
     login: "skboy_owner",
     password: "market123",
@@ -734,7 +779,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["kentltc", "iute", "skboy", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "redqueen"];
+const pinnedVendorNames = ["kentltc", "iute", "skboy", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20", "redqueen"];
 const hiddenVendorNames = ["north_lab", "quiet_studio"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
@@ -765,7 +810,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
       });
-    } else if (["kentltc", "iute", "skboy", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice"].includes(defaultVendor.name)) {
+    } else if (["kentltc", "iute", "skboy", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20"].includes(defaultVendor.name)) {
       Object.assign(existingVendor, {
         description: defaultVendor.description,
         countries: defaultVendor.countries,
@@ -820,7 +865,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (["kentltc", "iute", "skboy", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "snowboard"].includes(defaultProduct.vendor)) {
+    } else if (["kentltc", "iute", "skboy", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
         category: defaultProduct.category,
         name: defaultProduct.name,
@@ -1518,6 +1563,7 @@ function renderProducts() {
 
   visible.forEach((entry, index) => {
     const node = el.directoryTemplate.content.firstElementChild.cloneNode(true);
+    node.dataset.vendor = entry.vendor;
     const cover = node.querySelector(".directory-cover");
     cover.outerHTML = renderMedia(entry.avatar || "assets/cerberus-logo-transparent.png", "directory-cover", entry.name);
     node.querySelector(".category-pill").textContent = entry.type;
@@ -2623,7 +2669,7 @@ function openPublicProfile(vendorName) {
   storeProducts.forEach((product) => {
     const card = document.createElement("article");
     card.className = "public-product-card";
-    const hideSiteContact = ["kryptomah", "buybit", "blackservice", "skboy", "kentltc"].includes(vendor.name);
+    const hideSiteContact = ["kryptomah", "buybit", "blackservice", "skboy", "kentltc", "usdttrc20"].includes(vendor.name);
     const hasTwoTelegramButtons = vendor.name === "buybit" || vendor.name === "blackservice" || vendor.name === "kentltc";
     const operatorLabel = vendor.name === "blackservice" ? "Связь в телеграме" : "Оператор в телеграмме";
     const secondTelegramLabel = vendor.name === "blackservice" ? "Отзывы" : "Бот в телеграмме";
