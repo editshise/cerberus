@@ -426,6 +426,30 @@ const defaultProducts = [
     stockItems: [
       { id: uid(), text: "SkBoy: переход к вакансии.", sold: false }
     ]
+  },
+  {
+    id: uid(),
+    name: "Жижа/альфа 🧃💎",
+    category: "Мерч",
+    price: 0,
+    vendor: "glovo",
+    city: "Онлайн",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["🧃", "💎"],
+    rating: 5,
+    description: "Жижа/альфа 🧃💎",
+    image: "assets/glovo.png",
+    weight: "1 заявка",
+    locationType: "Онлайн",
+    actionLabel: "Оператор опт",
+    telegram: "https://t.me/mckfclimb",
+    operatorTelegram: "https://t.me/mckfclimb",
+    botTelegram: "https://t.me/Glovo_SHop",
+    stockItems: [
+      { id: uid(), text: "GLOVO: переход к оператору.", sold: false }
+    ]
   }
 ];
 
@@ -695,6 +719,28 @@ const defaultVendors = [
     paymentMode: "manual",
     paymentCurrency: "",
     paymentNote: "Переходы только по внешним ссылкам."
+  },
+  {
+    id: uid(),
+    name: "glovo",
+    login: "glovo_owner",
+    password: "market123",
+    status: "Активен",
+    description: "Жижа/альфа 🧃💎",
+    title: "GLOVO",
+    type: "Магазины",
+    avatar: "assets/glovo.png",
+    city: "Онлайн",
+    telegram: "https://t.me/mckfclimb",
+    countries: ["Молдова"],
+    cities: [...locationOptions.cities["Молдова"]],
+    districts: [...locationOptions.districts["Молдова"]],
+    iconTags: ["🧃", "💎"],
+    featured: true,
+    topOrder: 4,
+    paymentMode: "manual",
+    paymentCurrency: "",
+    paymentNote: "Переходы к операторам в Telegram."
   }
 ];
 
@@ -779,7 +825,7 @@ defaultVendors.forEach((defaultVendor) => {
     });
   }
 });
-const pinnedVendorNames = ["kentltc", "iute", "skboy", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20", "redqueen"];
+const pinnedVendorNames = ["kentltc", "iute", "skboy", "glovo", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20", "redqueen"];
 const hiddenVendorNames = ["north_lab", "quiet_studio"];
 products = products.filter((product) => pinnedVendorNames.includes(product.vendor));
 defaultProducts.forEach((defaultProduct) => {
@@ -810,7 +856,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         loginKey: normalizeLogin(defaultVendor.login)
       });
-    } else if (["kentltc", "iute", "skboy", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20"].includes(defaultVendor.name)) {
+    } else if (["kentltc", "iute", "skboy", "glovo", "redqueen", "snowboard", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20"].includes(defaultVendor.name)) {
       Object.assign(existingVendor, {
         description: defaultVendor.description,
         countries: defaultVendor.countries,
@@ -843,6 +889,11 @@ function ensurePinnedDefaults() {
       vendor.topOrder = 3;
       return;
     }
+    if (vendor.name === "glovo") {
+      vendor.featured = true;
+      vendor.topOrder = 4;
+      return;
+    }
     vendor.featured = false;
   });
   products = products
@@ -865,7 +916,7 @@ function ensurePinnedDefaults() {
         id: uid(),
         order: products.length
       });
-    } else if (["kentltc", "iute", "skboy", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20", "snowboard"].includes(defaultProduct.vendor)) {
+    } else if (["kentltc", "iute", "skboy", "glovo", "redqueen", "cryptonyx", "kryptomah", "buybit", "blackservice", "usdttrc20", "snowboard"].includes(defaultProduct.vendor)) {
       Object.assign(existingProduct, {
         category: defaultProduct.category,
         name: defaultProduct.name,
@@ -2669,10 +2720,10 @@ function openPublicProfile(vendorName) {
   storeProducts.forEach((product) => {
     const card = document.createElement("article");
     card.className = "public-product-card";
-    const hideSiteContact = ["kryptomah", "buybit", "blackservice", "skboy", "kentltc", "usdttrc20"].includes(vendor.name);
-    const hasTwoTelegramButtons = vendor.name === "buybit" || vendor.name === "blackservice" || vendor.name === "kentltc";
-    const operatorLabel = vendor.name === "blackservice" ? "Связь в телеграме" : "Оператор в телеграмме";
-    const secondTelegramLabel = vendor.name === "blackservice" ? "Отзывы" : "Бот в телеграмме";
+    const hideSiteContact = ["kryptomah", "buybit", "blackservice", "skboy", "kentltc", "usdttrc20", "glovo"].includes(vendor.name);
+    const hasTwoTelegramButtons = vendor.name === "buybit" || vendor.name === "blackservice" || vendor.name === "kentltc" || vendor.name === "glovo";
+    const operatorLabel = vendor.name === "blackservice" ? "Связь в телеграме" : vendor.name === "glovo" ? "Оператор опт" : "Оператор в телеграмме";
+    const secondTelegramLabel = vendor.name === "blackservice" ? "Отзывы" : vendor.name === "glovo" ? "Оператор розница" : "Бот в телеграмме";
     const telegramLabel = hideSiteContact ? product.actionLabel || "Связь в телеграме" : product.externalUrl ? product.actionLabel || "Открыть" : "Связь в телеграме";
     card.innerHTML = `
       ${renderMedia(product.image || vendor.avatar || "assets/cerberus-logo-transparent.png", "public-product-media", product.name)}
